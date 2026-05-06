@@ -371,64 +371,22 @@ function handleRegister() {
     
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
     
-    // Send to Formspree for real email delivery
-    fetch("https://formspree.io/f/xgejzekz", {
+    // Send to local webhook for real email delivery
+    fetch("http://localhost:8866/register", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            email: "tourchulam@gmail.com",
-            subject: "🔔 Đăng ký mới - Showcase AI",
-            message: `📋 THÔNG TIN ĐĂNG KÝ MỚI:
-
-• Tên: ${data.name}
-• SĐT: ${data.phone}  
-• Email: ${data.email}
-• Công ty: ${data.company || '(Không có)'}
-• Kinh nghiệm AI: ${data.ai_experience}
-• Nhu cầu: ${data.needs || '(Không có)'}
-• Thời gian: ${new Date().toLocaleString('vi-VN')}
-
----
-Từ: Website chulamai.vn`
+            name: data.name,
+            phone: data.phone,
+            email: data.email,
+            company: data.company,
+            ai_experience: data.ai_experience,
+            needs: data.needs
         })
     }).then(response => {
-        console.log("Admin email sent successfully");
-        
-        // Send customer confirmation email
-        return fetch("https://formspree.io/f/xgejzekz", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: data.email,
-                subject: "✅ Xác nhận đăng ký - Showcase AI",
-                message: `Xin chào ${data.name}!
-
-Cảm ơn bạn đã đăng ký "Showcase AI cho Dân Làm Du Lịch"
-
-📅 THÔNG TIN SỰ KIỆN:
-• Ngày: Thứ 2, 13/05/2026  
-• Thời gian: 8:00 - 17:00
-• Địa điểm: Nha Trang
-• Phí: 490.000 VNĐ
-
-💰 THANH TOÁN:
-• STK: 0061000326250
-• Ngân hàng: Vietcombank Cam Ranh  
-• Chủ TK: NGUYEN VIET LAM
-• Nội dung: AI Workshop ${data.name}
-
-Sau khi chuyển khoản, vui lòng chụp màn hình gửi Zalo: 0939.999.832
-
-Hẹn gặp bạn! 🚀
-Chú Lãm - Tour Chú Lãm`
-            })
-        });
-    }).then(response => {
-        console.log("Customer email sent successfully");
+        console.log("Emails sent successfully");
     }).catch(error => {
         console.error("Email sending failed:", error);
     });
