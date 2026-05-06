@@ -371,24 +371,57 @@ function handleRegister() {
     
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
     
-    // Send to local webhook for real email delivery
-    fetch("http://localhost:8866/register", {
+    // Send notification email to admin
+    fetch("https://formspree.io/tourchulam@gmail.com", {
         method: "POST",
         headers: {
+            "Accept": "application/json",
             "Content-Type": "application/json"
         },
         body: JSON.stringify({
-            name: data.name,
-            phone: data.phone,
-            email: data.email,
-            company: data.company,
-            ai_experience: data.ai_experience,
-            needs: data.needs
+            message: `📋 ĐĂNG KÝ MỚI - SHOWCASE AI
+
+Tên: ${data.name}
+SĐT: ${data.phone}  
+Email: ${data.email}
+Công ty: ${data.company || '(Không có)'}
+Kinh nghiệm AI: ${data.ai_experience}
+Nhu cầu: ${data.needs || '(Không có)'}
+Thời gian: ${new Date().toLocaleString('vi-VN')}`
         })
     }).then(response => {
-        console.log("Emails sent successfully");
+        console.log("Admin notification sent");
+        // Send customer confirmation
+        return fetch("https://formspree.io/" + data.email.replace('@', '_at_').replace('.', '_dot_'), {
+            method: "POST", 
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                message: `Xin chào ${data.name}!
+
+Cảm ơn bạn đã đăng ký "Showcase AI cho Dân Làm Du Lịch"
+
+📅 THÔNG TIN SỰ KIỆN:
+• Ngày: Thứ 2, 13/05/2026
+• Thời gian: 8:00 - 17:00  
+• Địa điểm: Nha Trang
+• Phí: 490.000 VNĐ
+
+💰 THANH TOÁN:
+STK: 0061000326250
+Ngân hàng: Vietcombank Cam Ranh
+Chủ TK: NGUYEN VIET LAM
+Nội dung: AI Workshop ${data.name}
+
+Sau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832
+
+Hẹn gặp bạn ngày 13/05! 🚀`
+            })
+        });
     }).catch(error => {
-        console.error("Email sending failed:", error);
+        console.error("Email failed:", error);
     });
     
     // Backup localStorage
