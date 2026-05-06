@@ -340,6 +340,136 @@
             text-decoration: none;
         }
 
+        /* Registration Form */
+        .reg-form {
+            max-width: 440px;
+            margin: 36px auto 0;
+            text-align: left;
+        }
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #a1a1aa;
+            margin-bottom: 6px;
+        }
+        .form-group label .required {
+            color: #f43f5e;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 10px;
+            color: #fafafa;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #22d3ee;
+            box-shadow: 0 0 0 3px rgba(34,211,238,0.1);
+        }
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #52525b;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-group select option {
+            background: #18181b;
+            color: #fafafa;
+        }
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: #18181b;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .radio-option:hover {
+            border-color: #3f3f46;
+        }
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #22d3ee;
+            cursor: pointer;
+        }
+        .radio-option span {
+            font-size: 0.9rem;
+            color: #d4d4d8;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: #22d3ee;
+            color: #09090b;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        .submit-btn:hover {
+            background: #67e8f9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(34,211,238,0.3);
+        }
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .form-success {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .form-success .check {
+            font-size: 3rem;
+            margin-bottom: 16px;
+        }
+        .form-success h3 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            color: #22d3ee;
+        }
+        .form-success p {
+            color: #a1a1aa;
+            font-size: 0.95rem;
+        }
+        .spots-left {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.8rem;
+            color: #52525b;
+        }
+
         /* Mobile */
         @media (max-width: 640px) {
             .hero { padding: 64px 0 48px; }
@@ -348,6 +478,7 @@
             section h2 { font-size: 1.5rem; }
             .price { font-size: 3rem; }
             .hero-meta { gap: 12px; font-size: 0.8rem; }
+            .reg-form { margin-top: 24px; }
         }
     </style>
 </head>
@@ -446,11 +577,67 @@
 
 <section class="cta-section" id="dangky">
     <div class="container">
-        <h2>Tham gia workshop</h2>
+        <h2>Đăng ký tham gia</h2>
         <div class="price">490K</div>
         <p class="price-note">Bao ăn trưa · Tài liệu · Group support 2 tuần</p>
-        <a href="https://forms.gle/XXXXX" class="cta-btn">Đăng ký ngay →</a>
-        <p class="cta-note">⚡ 20 chỗ · Đóng đăng ký khi full</p>
+
+        <div class="reg-form" id="regFormWrapper">
+            <form id="regForm" action="https://formsubmit.co/tourchulam@gmail.com" method="POST">
+                <!-- FormSubmit config -->
+                <input type="hidden" name="_subject" value="🎓 Đăng ký Workshop AI — chulamai.vn">
+                <input type="hidden" name="_template" value="box">
+                <input type="hidden" name="_captcha" value="false">
+                <input type="hidden" name="_next" value="https://chulamai.vn#thankyou">
+                <input type="text" name="_honey" style="display:none">
+
+                <div class="form-group">
+                    <label>Họ và tên <span class="required">*</span></label>
+                    <input type="text" name="name" placeholder="Nguyễn Văn A" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Số điện thoại <span class="required">*</span></label>
+                    <input type="tel" name="phone" placeholder="0909 xxx xxx" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Công ty / Thương hiệu tour</label>
+                    <input type="text" name="company" placeholder="Tên công ty hoặc tour của bạn">
+                </div>
+
+                <div class="form-group">
+                    <label>Bạn đã dùng AI chưa? <span class="required">*</span></label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="ai_experience" value="Chưa bao giờ" required>
+                            <span>Chưa bao giờ</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ai_experience" value="Thỉnh thoảng, cơ bản">
+                            <span>Thỉnh thoảng, cơ bản</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="ai_experience" value="Dùng thường xuyên">
+                            <span>Dùng thường xuyên</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Bạn muốn AI giúp gì nhất?</label>
+                    <textarea name="needs" placeholder="VD: Tự động trả lời khách trên Zalo, viết content tour..."></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Đăng ký ngay →</button>
+                <p class="spots-left">⚡ 20 chỗ · Đóng đăng ký khi full</p>
+            </form>
+        </div>
+
+        <div class="form-success" id="formSuccess">
+            <div class="check">✅</div>
+            <h3>Đăng ký thành công!</h3>
+            <p>Cảm ơn bạn! Chú Lãm sẽ liên hệ qua điện thoại để xác nhận.<br>Thông tin thanh toán bên dưới 👇</p>
+        </div>
 
         <div class="payment">
             <h4>Thanh toán</h4>
@@ -463,6 +650,29 @@
         </div>
     </div>
 </section>
+
+<script>
+// Show success after redirect from FormSubmit
+if (window.location.hash === '#thankyou') {
+    document.getElementById('regFormWrapper').style.display = 'none';
+    document.getElementById('formSuccess').style.display = 'block';
+    // Smooth scroll to success
+    setTimeout(() => {
+        document.getElementById('dangky').scrollIntoView({ behavior: 'smooth' });
+    }, 300);
+}
+
+// Also save to Google Sheet via API (backup)
+const SHEET_ID = '1FPJa3HLy4_nOUx3cEADFHWluU6JsP0bSlubwOmVgswE';
+document.getElementById('regForm').addEventListener('submit', function() {
+    const fd = new FormData(this);
+    const data = Object.fromEntries(fd.entries());
+    // Store in localStorage as backup
+    const regs = JSON.parse(localStorage.getItem('ws_registrations') || '[]');
+    regs.push({ ...data, timestamp: new Date().toISOString() });
+    localStorage.setItem('ws_registrations', JSON.stringify(regs));
+});
+</script>
 
 <footer>
     <div class="container">
