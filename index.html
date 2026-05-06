@@ -371,26 +371,24 @@ function handleRegister() {
     
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
     
-    // Send to webhook - use FormData for better compatibility
-    var formData = new FormData();
+    // Create hidden form for real submission
+    var hiddenForm = document.createElement('form');
+    hiddenForm.method = 'POST';
+    hiddenForm.action = 'https://webhook.site/8be0ae60-2dc8-4b30-90b3-cbe027ffac19';
+    hiddenForm.target = '_blank';
+    hiddenForm.style.display = 'none';
+    
     Object.keys(data).forEach(key => {
-        formData.append(key, data[key]);
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = data[key] || '';
+        hiddenForm.appendChild(input);
     });
     
-    fetch("https://webhook.site/8be0ae60-2dc8-4b30-90b3-cbe027ffac19", {
-        method: "POST",
-        body: formData
-    }).then(r => r.text()).then(result => {
-        console.log("Webhook success:", result);
-    }).catch(err => {
-        console.error("Webhook error:", err);
-        // Fallback: try JSON
-        fetch("https://webhook.site/8be0ae60-2dc8-4b30-90b3-cbe027ffac19", {
-            method: "POST", 
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(data)
-        }).catch(e => console.error("JSON fallback failed:", e));
-    });
+    document.body.appendChild(hiddenForm);
+    hiddenForm.submit();
+    document.body.removeChild(hiddenForm);
     
     // Backup localStorage
     try { var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); regs.push(data); localStorage.setItem("ws_registrations", JSON.stringify(regs)); } catch(e) {}
