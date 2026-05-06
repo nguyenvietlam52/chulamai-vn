@@ -368,8 +368,23 @@ function handleRegister() {
     var ai = form.querySelector("[name=ai_experience]:checked");
     if (!n || !p || !e || !ai) { alert("Vui lòng điền đầy đủ thông tin bắt buộc (*)"); return; }
     if (form.querySelector("[name=_honey]").value) return;
+    
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
+    
+    // Send to webhook
+    fetch("http://localhost:8855/submit", {
+        method: "POST", 
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    }).then(r => r.json()).then(result => {
+        console.log("Webhook result:", result);
+    }).catch(err => {
+        console.error("Webhook error:", err);
+    });
+    
+    // Backup localStorage
     try { var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); regs.push(data); localStorage.setItem("ws_registrations", JSON.stringify(regs)); } catch(e) {}
+    
     document.getElementById("regFormWrapper").style.display = "none";
     document.getElementById("formSuccess").style.display = "block";
     document.getElementById("formSuccess").scrollIntoView({ behavior: "smooth", block: "center" });
