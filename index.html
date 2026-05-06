@@ -371,11 +371,17 @@ function handleRegister() {
     
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
     
+    // Create hidden iframe target
+    var iframe = document.createElement('iframe');
+    iframe.name = 'webhook-target';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
     // Create hidden form for real submission
     var hiddenForm = document.createElement('form');
     hiddenForm.method = 'POST';
     hiddenForm.action = 'https://webhook.site/8be0ae60-2dc8-4b30-90b3-cbe027ffac19';
-    hiddenForm.target = '_blank';
+    hiddenForm.target = 'webhook-target';
     hiddenForm.style.display = 'none';
     
     Object.keys(data).forEach(key => {
@@ -388,7 +394,12 @@ function handleRegister() {
     
     document.body.appendChild(hiddenForm);
     hiddenForm.submit();
-    document.body.removeChild(hiddenForm);
+    
+    // Cleanup after 2 seconds
+    setTimeout(() => {
+        document.body.removeChild(hiddenForm);
+        document.body.removeChild(iframe);
+    }, 2000);
     
     // Backup localStorage
     try { var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); regs.push(data); localStorage.setItem("ws_registrations", JSON.stringify(regs)); } catch(e) {}
