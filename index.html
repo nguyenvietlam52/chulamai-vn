@@ -118,6 +118,22 @@
         .payment-footer p{font-size:0.8rem;color:#71717a}
         .payment-footer a{color:#22d3ee;text-decoration:none;font-weight:600}
 
+        /* Demo showcase */
+        .demo-showcase{margin:60px 0;text-align:center}
+        .demo-showcase img{max-width:320px;width:100%;border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 40px rgba(0,0,0,0.5)}
+        .demo-caption{margin-top:16px;font-size:0.9rem;color:#71717a}
+        .demo-caption strong{color:#22d3ee}
+
+        /* Quote with avatar */
+        .quote-avatar{width:72px;height:72px;border-radius:50%;border:2px solid #22d3ee;object-fit:cover;margin-bottom:16px}
+        .quote-flex{display:flex;gap:24px;align-items:flex-start}
+        .quote-img{flex-shrink:0}
+        .quote-img img{width:80px;height:80px;border-radius:50%;border:2px solid rgba(34,211,238,0.4);object-fit:cover}
+        .quote-content{flex:1}
+        @media(max-width:640px){
+            .quote-flex{flex-direction:column;align-items:center;text-align:center}
+        }
+
         /* Footer */
         footer{padding:48px 0;text-align:center;border-top:1px solid rgba(255,255,255,0.05)}
         footer p{color:#3f3f46;font-size:0.85rem}
@@ -187,6 +203,13 @@
         </div>
     </section>
 
+    <div class="demo-showcase">
+        <div class="section-label">Demo thật</div>
+        <h3 style="color:#fafafa;font-size:1.3rem;margin-bottom:20px">AI tự tư vấn + tạo lịch trình trên Zalo</h3>
+        <img src="https://chulam.vn/wp-content/uploads/2026/05/demo-ro-zalo.jpg" alt="Demo AI chatbot Rô tư vấn tour trên Zalo" loading="lazy">
+        <p class="demo-caption">Chatbot <strong>Rô</strong> của Tour Chú Lãm — đang chạy thật, phục vụ khách thật</p>
+    </div>
+
     <div class="divider"></div>
 
     <section>
@@ -222,8 +245,15 @@
     </section>
 
     <div class="quote">
-        <p>Mình không phải dân IT. Mình học môi trường rồi rẽ hướng đi làm du lịch. Hơn 10 năm nay, mình tự thiết kế, vận hành và bán tour. Bây giờ mình tự mày mò và học dùng AI — nó đang làm việc thay 2 nhân viên, chạy 24/7, không bao giờ xin nghỉ, không bao giờ phàn nàn khi phải sửa tới sửa lui một cái báo giá cho khách hàng, mà lại làm rất nhanh và chính xác. Mình đã làm được, bạn cũng sẽ làm được.</p>
-        <span class="author">— <span>Chú Lãm</span> · Tour Chú Lãm · chulam.vn</span>
+        <div class="quote-flex">
+            <div class="quote-img">
+                <img src="https://chulam.vn/wp-content/uploads/2026/05/avatar-chulam.jpg" alt="Chú Lãm - Tour Chú Lãm" loading="lazy">
+            </div>
+            <div class="quote-content">
+                <p>Mình không phải dân IT. Mình học môi trường rồi rẽ hướng đi làm du lịch. Hơn 10 năm nay, mình tự thiết kế, vận hành và bán tour. Bây giờ mình tự mày mò và học dùng AI — nó đang làm việc thay 2 nhân viên, chạy 24/7, không bao giờ xin nghỉ, không bao giờ phàn nàn khi phải sửa tới sửa lui một cái báo giá cho khách hàng, mà lại làm rất nhanh và chính xác. Mình đã làm được, bạn cũng sẽ làm được.</p>
+                <span class="author">— <span>Chú Lãm</span> · Tour Chú Lãm · chulam.vn</span>
+            </div>
+        </div>
     </div>
 </div>
 
