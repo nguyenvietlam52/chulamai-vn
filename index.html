@@ -371,34 +371,56 @@ function handleRegister() {
     
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
     
-    // Create hidden iframe target
-    var iframe = document.createElement('iframe');
-    iframe.name = 'webhook-target';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+    // Send email notification to admin via mailto
+    var emailBody = encodeURIComponent(`Đăng ký mới - Showcase AI cho Dân Làm Du Lịch
+
+📋 THÔNG TIN ĐĂNG KÝ:
+• Tên: ${data.name}
+• SĐT: ${data.phone}
+• Email: ${data.email}
+• Công ty: ${data.company || '(Không có)'}
+• Kinh nghiệm AI: ${data.ai_experience}
+• Nhu cầu: ${data.needs || '(Không có)'}
+• Thời gian: ${new Date().toLocaleString('vi-VN')}
+
+---
+Từ: Website chulamai.vn`);
+
+    var mailtoLink = `mailto:tourchulam@gmail.com?subject=🔔 Đăng ký mới - Showcase AI&body=${emailBody}`;
     
-    // Create hidden form for real submission
-    var hiddenForm = document.createElement('form');
-    hiddenForm.method = 'POST';
-    hiddenForm.action = 'https://script.google.com/macros/s/AKfycbxpKSGkaYoB8zOMAZdSYmQQSCK9Yufd_5Qz-9S0uZk_FXPXQ_aT9bPH9cOpcK-JlKtT/exec';
-    hiddenForm.target = 'webhook-target';
-    hiddenForm.style.display = 'none';
-    
-    Object.keys(data).forEach(key => {
-        var input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = key;
-        input.value = data[key] || '';
-        hiddenForm.appendChild(input);
-    });
-    
-    document.body.appendChild(hiddenForm);
-    hiddenForm.submit();
-    
-    // Cleanup after 2 seconds
+    // Open mailto in background
+    var mailWindow = window.open(mailtoLink, '_blank');
     setTimeout(() => {
-        document.body.removeChild(hiddenForm);
-        document.body.removeChild(iframe);
+        if (mailWindow) mailWindow.close();
+    }, 1000);
+    
+    // Send customer confirmation email via mailto
+    var customerEmailBody = encodeURIComponent(`Xin chào ${data.name}!
+
+Cảm ơn bạn đã đăng ký "Showcase AI cho Dân Làm Du Lịch"
+
+📅 THÔNG TIN SỰ KIỆN:
+• Ngày: Thứ 2, 13/05/2026
+• Thời gian: 8:00 - 17:00
+• Địa điểm: Nha Trang
+• Phí: 490.000 VNĐ
+
+💰 THANH TOÁN:
+• STK: 0061000326250
+• Ngân hàng: Vietcombank Cam Ranh
+• Chủ TK: NGUYEN VIET LAM
+• Nội dung: AI Workshop ${data.name}
+
+Sau khi chuyển khoản, vui lòng chụp màn hình gửi Zalo: 0939.999.832
+
+Hẹn gặp bạn! 🚀
+Chú Lãm - Tour Chú Lãm`);
+
+    var customerMailto = `mailto:${data.email}?subject=✅ Xác nhận đăng ký - Showcase AI&body=${customerEmailBody}`;
+    
+    // Delay customer email
+    setTimeout(() => {
+        window.open(customerMailto, '_blank');
     }, 2000);
     
     // Backup localStorage
