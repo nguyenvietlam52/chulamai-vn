@@ -428,11 +428,8 @@ function handleRegister() {
     .then(result => {
         console.log("✅ EMAIL AUTOMATION SUCCESS:", result);
         
-        // Save to local storage for dashboard
-        const localRegs = JSON.parse(localStorage.getItem('workshop_registrations') || '[]');
-        const newReg = {
-            id: Date.now().toString(),
-            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+        // Save to shared API storage
+        const registrationData = {
             name: data.name,
             phone: data.phone,
             email: data.email,
@@ -441,8 +438,28 @@ function handleRegister() {
             needs: data.needs || '',
             status: 'pending'
         };
-        localRegs.push(newReg);
-        localStorage.setItem('workshop_registrations', JSON.stringify(localRegs));
+        
+        // Send to local API
+        fetch('http://localhost:3001/api/registrations', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(registrationData)
+        })
+        .then(resp => resp.json())
+        .then(apiResult => {
+            console.log("📊 Registration saved to shared storage:", apiResult);
+        })
+        .catch(apiError => {
+            console.log("📡 API save failed, using localStorage fallback");
+            // Fallback to localStorage
+            const localRegs = JSON.parse(localStorage.getItem('workshop_registrations') || '[]');
+            localRegs.push({
+                id: Date.now().toString(),
+                timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+                ...registrationData
+            });
+            localStorage.setItem('workshop_registrations', JSON.stringify(localRegs));
+        });
         
         alert("Đăng ký thành công! ✅\nVui lòng check email để xem QR thanh toán.\n\nSau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832");
         form.reset();
