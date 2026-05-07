@@ -484,10 +484,6 @@ Hẹn gặp bạn ngày 13/05! 🚀`
     
     // Backup localStorage
     try { var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); regs.push(data); localStorage.setItem("ws_registrations", JSON.stringify(regs)); } catch(e) {}
-    
-    // DEPRECATED - now handled by email automation system
-    console.log('Legacy handleRegister called - redirecting to new system');
-    document.getElementById('registration-form').dispatchEvent(new Event('submit', { bubbles: true }));
 }
 </script>
 
