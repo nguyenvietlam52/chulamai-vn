@@ -29,7 +29,7 @@
     </div>
 
     <div class="manual">
-        <h3>📊 Manual Management</h3>
+        <h3>📊 Registration Management</h3>
         <p>Mỗi khi có email registration mới, click "Add +1"</p>
         
         <div style="margin: 15px 0;">
@@ -41,6 +41,18 @@
         <div style="margin: 15px 0;">
             Set count: <input type="number" id="manualCount" min="0" max="20" value="0">
             <button onclick="setCount()">Set</button>
+        </div>
+        
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 15px;">
+            <h4>💰 Payment Confirmation</h4>
+            <div style="margin: 10px 0;">
+                <input type="text" id="customerName" placeholder="Tên khách hàng" style="width: 200px;">
+                <input type="text" id="customerPhone" placeholder="SĐT" style="width: 120px;">
+                <button onclick="confirmPayment()">✅ Confirm Payment</button>
+            </div>
+            <div style="margin: 10px 0;">
+                <small>Paid: <span id="paidCount">0</span> | Pending: <span id="pendingCount">0</span></small>
+            </div>
         </div>
     </div>
 
@@ -58,23 +70,35 @@
 
     <script>
         let currentCount = 0;
+        let paidCount = 0;
         const maxCapacity = 20;
+        let registrations = [];
 
-        // Load count from localStorage
+        // Load data from localStorage
         function loadCount() {
-            const saved = localStorage.getItem('workshopRegistrationCount');
-            currentCount = saved ? parseInt(saved) : 0;
+            const savedCount = localStorage.getItem('workshopRegistrationCount');
+            const savedPaid = localStorage.getItem('workshopPaidCount');
+            const savedRegs = localStorage.getItem('workshopRegistrations');
+            
+            currentCount = savedCount ? parseInt(savedCount) : 0;
+            paidCount = savedPaid ? parseInt(savedPaid) : 0;
+            registrations = savedRegs ? JSON.parse(savedRegs) : [];
+            
             updateDisplay();
         }
 
-        // Save count to localStorage  
-        function saveCount() {
+        // Save data to localStorage  
+        function saveData() {
             localStorage.setItem('workshopRegistrationCount', currentCount.toString());
+            localStorage.setItem('workshopPaidCount', paidCount.toString());
+            localStorage.setItem('workshopRegistrations', JSON.stringify(registrations));
         }
 
         // Update display
         function updateDisplay() {
             document.getElementById('totalCount').textContent = currentCount;
+            document.getElementById('paidCount').textContent = paidCount;
+            document.getElementById('pendingCount').textContent = currentCount - paidCount;
             
             const available = maxCapacity - currentCount;
             const statusBadge = document.getElementById('statusBadge');
@@ -94,7 +118,7 @@
         function addRegistration() {
             if (currentCount < maxCapacity) {
                 currentCount++;
-                saveCount();
+                saveData();
                 updateDisplay();
                 addLog(`➕ Added registration. Total: ${currentCount}/20`);
                 
@@ -105,11 +129,47 @@
             }
         }
 
+        // Confirm payment
+        function confirmPayment() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            
+            if (!name) {
+                alert('Vui lòng nhập tên khách hàng');
+                return;
+            }
+            
+            if (paidCount < currentCount) {
+                paidCount++;
+                registrations.push({
+                    name: name,
+                    phone: phone,
+                    timestamp: new Date().toLocaleString('vi-VN'),
+                    status: 'paid'
+                });
+                
+                saveData();
+                updateDisplay();
+                addLog(`💰 Payment confirmed: ${name} ${phone ? '(' + phone + ')' : ''}`);
+                
+                // Clear inputs
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerPhone').value = '';
+                
+                alert(`✅ Payment confirmed!\nKhách: ${name}\nTotal paid: ${paidCount}/${currentCount}`);
+            } else {
+                alert('Tất cả registration đã được xác nhận thanh toán');
+            }
+        }
+
         // Remove registration  
         function removeRegistration() {
             if (currentCount > 0) {
                 currentCount--;
-                saveCount();
+                if (paidCount > currentCount) {
+                    paidCount = currentCount;
+                }
+                saveData();
                 updateDisplay();
                 addLog(`➖ Removed registration. Total: ${currentCount}/20`);
             }
@@ -117,11 +177,13 @@
 
         // Reset counter
         function resetCounter() {
-            if (confirm('Reset counter về 0?')) {
+            if (confirm('Reset tất cả data về 0?')) {
                 currentCount = 0;
-                saveCount();
+                paidCount = 0;
+                registrations = [];
+                saveData();
                 updateDisplay();
-                addLog('🔄 Counter reset to 0');
+                addLog('🔄 All data reset to 0');
             }
         }
 
@@ -130,7 +192,10 @@
             const newCount = parseInt(document.getElementById('manualCount').value);
             if (newCount >= 0 && newCount <= maxCapacity) {
                 currentCount = newCount;
-                saveCount();
+                if (paidCount > currentCount) {
+                    paidCount = currentCount;
+                }
+                saveData();
                 updateDisplay();
                 addLog(`⚙️ Count set to ${currentCount}/20`);
             }
