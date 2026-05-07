@@ -47,8 +47,8 @@
             <h4>💰 Payment Confirmation</h4>
             <div style="margin: 10px 0;">
                 <input type="text" id="customerName" placeholder="Tên khách hàng" style="width: 200px;">
-                <input type="text" id="customerPhone" placeholder="SĐT" style="width: 120px;">
-                <button onclick="confirmPayment()">✅ Confirm Payment</button>
+                <input type="email" id="customerEmail" placeholder="Email khách" style="width: 200px;">
+                <button onclick="confirmPayment()">✅ Confirm + Send Email</button>
             </div>
             <div style="margin: 10px 0;">
                 <small>Paid: <span id="paidCount">0</span> | Pending: <span id="pendingCount">0</span></small>
@@ -129,34 +129,69 @@
             }
         }
 
-        // Confirm payment
+        // Confirm payment and send email
         function confirmPayment() {
             const name = document.getElementById('customerName').value.trim();
-            const phone = document.getElementById('customerPhone').value.trim();
+            const email = document.getElementById('customerEmail').value.trim();
             
             if (!name) {
                 alert('Vui lòng nhập tên khách hàng');
                 return;
             }
             
+            if (!email) {
+                alert('Vui lòng nhập email khách hàng');
+                return;
+            }
+            
             if (paidCount < currentCount) {
+                // Send confirmation email
+                const confirmationData = {
+                    name: name,
+                    email: email,
+                    event_date: 'Thứ 2, 13/05/2026',
+                    event_time: '8:00-17:00',
+                    location: 'Nha Trang',
+                    slot_number: paidCount + 1,
+                    total_slots: 20,
+                    amount_paid: '490.000 VNĐ'
+                };
+                
+                fetch('https://email-automation-skill.vercel.app/api/confirmation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(confirmationData)
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        addLog(`📧 Confirmation email sent to ${email}`);
+                    } else {
+                        addLog(`❌ Email failed: ${result.error}`);
+                    }
+                })
+                .catch(error => {
+                    addLog(`❌ Email error: ${error.message}`);
+                });
+                
+                // Update local data
                 paidCount++;
                 registrations.push({
                     name: name,
-                    phone: phone,
+                    email: email,
                     timestamp: new Date().toLocaleString('vi-VN'),
                     status: 'paid'
                 });
                 
                 saveData();
                 updateDisplay();
-                addLog(`💰 Payment confirmed: ${name} ${phone ? '(' + phone + ')' : ''}`);
+                addLog(`💰 Payment confirmed: ${name} (${email})`);
                 
                 // Clear inputs
                 document.getElementById('customerName').value = '';
-                document.getElementById('customerPhone').value = '';
+                document.getElementById('customerEmail').value = '';
                 
-                alert(`✅ Payment confirmed!\nKhách: ${name}\nTotal paid: ${paidCount}/${currentCount}`);
+                alert(`✅ Payment confirmed + Email sent!\nKhách: ${name}\nSlot: ${paidCount}/${currentCount}`);
             } else {
                 alert('Tất cả registration đã được xác nhận thanh toán');
             }
