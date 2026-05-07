@@ -269,7 +269,7 @@
         <p class="price-note">Tea break · Tài liệu · Group Zalo hỏi đáp</p>
 
         <div class="reg-form" id="regFormWrapper">
-            <form id="regForm">
+            <form id="registration-form">
                 <input type="text" name="_honey" style="display:none">
 
                 <div class="form-group">
@@ -315,7 +315,7 @@
                     <textarea name="needs" placeholder="VD: Tự động trả lời khách trên Zalo, viết content tour..."></textarea>
                 </div>
 
-                <button type="button" class="submit-btn" id="submitBtn" onclick="handleRegister()">Đăng ký ngay →</button>
+                <button type="submit" class="submit-btn" id="submitBtn" data-submit-button>Đăng ký ngay →</button>
                 <p class="spots-left">⚡ 20 chỗ · Đóng đăng ký khi full</p>
             </form>
         </div>
@@ -359,7 +359,46 @@
     </div>
 </section>
 
+<!-- Hidden fields cho email automation -->
+                <input type="hidden" name="event_name" value="Showcase AI cho Dân Làm Du Lịch">
+                <input type="hidden" name="event_date" value="Thứ 2, 13/05/2026">
+                <input type="hidden" name="event_time" value="8:00 - 17:00">
+                <input type="hidden" name="event_location" value="Nha Trang">
+                <input type="hidden" name="event_price" value="490.000 VNĐ">
+
 <script>
+// Email Automation Configuration
+const EMAIL_AUTOMATION_CONFIG = {
+    apiEndpoint: 'https://email-automation-skill.vercel.app/api/register',
+    debug: false,
+    onSuccess: function(response, formData) {
+        // Custom success handler for workshop landing page
+        document.getElementById("regFormWrapper").style.display = "none";
+        document.getElementById("formSuccess").style.display = "block";
+        document.getElementById("formSuccess").scrollIntoView({ behavior: "smooth", block: "center" });
+        
+        console.log('✅ Registration successful:', response);
+        
+        // Backup localStorage
+        try { 
+            var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); 
+            regs.push(formData); 
+            localStorage.setItem("ws_registrations", JSON.stringify(regs)); 
+        } catch(e) {}
+    },
+    onError: function(error, formData) {
+        alert(`Đăng ký thất bại: ${error.message || 'Lỗi hệ thống'}. Vui lòng thử lại hoặc liên hệ Zalo 0939.999.832`);
+        console.error('❌ Registration failed:', error);
+    },
+    onLoading: function(isLoading) {
+        const button = document.getElementById('submitBtn');
+        if (button) {
+            button.disabled = isLoading;
+            button.textContent = isLoading ? 'Đang xử lý...' : 'Đăng ký ngay →';
+        }
+    }
+};
+
 function handleRegister() {
     var form = document.getElementById("regForm");
     var n = form.querySelector("[name=name]").value.trim();
@@ -427,11 +466,14 @@ Hẹn gặp bạn ngày 13/05! 🚀`
     // Backup localStorage
     try { var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); regs.push(data); localStorage.setItem("ws_registrations", JSON.stringify(regs)); } catch(e) {}
     
-    document.getElementById("regFormWrapper").style.display = "none";
-    document.getElementById("formSuccess").style.display = "block";
-    document.getElementById("formSuccess").scrollIntoView({ behavior: "smooth", block: "center" });
+    // DEPRECATED - now handled by email automation system
+    console.log('Legacy handleRegister called - redirecting to new system');
+    document.getElementById('registration-form').dispatchEvent(new Event('submit', { bubbles: true }));
 }
 </script>
+
+<!-- Email Automation Integration -->
+<script src="https://email-automation-skill.vercel.app/integration.js"></script>
 
 <footer>
     <div class="container">
