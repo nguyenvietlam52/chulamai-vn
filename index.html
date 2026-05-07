@@ -427,6 +427,23 @@ function handleRegister() {
     })
     .then(result => {
         console.log("✅ EMAIL AUTOMATION SUCCESS:", result);
+        
+        // Save to local storage for dashboard
+        const localRegs = JSON.parse(localStorage.getItem('workshop_registrations') || '[]');
+        const newReg = {
+            id: Date.now().toString(),
+            timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
+            name: data.name,
+            phone: data.phone,
+            email: data.email,
+            company: data.company || '',
+            ai_experience: data.ai_experience || '',
+            needs: data.needs || '',
+            status: 'pending'
+        };
+        localRegs.push(newReg);
+        localStorage.setItem('workshop_registrations', JSON.stringify(localRegs));
+        
         alert("Đăng ký thành công! ✅\nVui lòng check email để xem QR thanh toán.\n\nSau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832");
         form.reset();
     })
