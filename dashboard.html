@@ -80,27 +80,26 @@
             try {
                 document.getElementById('registrations-list').innerHTML = '<div class="loading">Loading registrations...</div>';
                 
-                // Try local API first (shared storage)
+                // Load from GitHub database (public accessible)
                 try {
-                    const response = await fetch('http://localhost:3001/api/registrations');
+                    const response = await fetch('https://raw.githubusercontent.com/tourchulam/chulamai-vn/main/data/registrations.json?' + Date.now());
                     if (response.ok) {
-                        const data = await response.json();
-                        registrations = data.data || [];
-                        console.log('📊 Loaded', registrations.length, 'registrations from local API');
+                        registrations = await response.json();
+                        console.log('📊 Loaded', registrations.length, 'registrations from GitHub database');
                     } else {
-                        throw new Error('Local API not available');
+                        throw new Error('GitHub database not available');
                     }
                 } catch (apiError) {
-                    console.log('📡 Local API not available, trying localStorage...');
+                    console.log('📡 GitHub database error, trying localStorage...');
                     
                     // Fallback to localStorage
                     const localData = localStorage.getItem('workshop_registrations');
                     if (localData) {
                         registrations = JSON.parse(localData);
-                        console.log('📊 Loaded', registrations.length, 'registrations from localStorage');
+                        console.log('📊 Loaded', registrations.length, 'registrations from localStorage fallback');
                     } else {
                         registrations = [];
-                        console.log('📋 No data found');
+                        console.log('📋 No data found anywhere');
                     }
                 }
                 
