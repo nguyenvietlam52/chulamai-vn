@@ -415,17 +415,25 @@ function handleRegister() {
     fetch('https://email-automation-skill.vercel.app/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+        body: JSON.stringify(data),
+        mode: 'cors'
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log("📡 Response received:", response.status, response.statusText);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        return response.json();
+    })
     .then(result => {
         console.log("✅ EMAIL AUTOMATION SUCCESS:", result);
         alert("Đăng ký thành công! ✅\nVui lòng check email để xem QR thanh toán.\n\nSau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832");
         form.reset();
     })
     .catch(error => {
-        console.error("❌ EMAIL AUTOMATION ERROR:", error);
-        alert("Có lỗi xảy ra. Vui lòng liên hệ Zalo 0939.999.832");
+        console.error("❌ EMAIL AUTOMATION ERROR:", error.message);
+        console.error("❌ FULL ERROR:", error);
+        alert(`Lỗi: ${error.message}\nLiên hệ Zalo 0939.999.832`);
     });
     return;
     
