@@ -89,40 +89,10 @@
                 // Extract registration data from HTML (fallback to mock data)
                 console.log('Dashboard loaded, parsing data...');
                 
-                // Use static data for now while API is being updated
-                registrations = [
-                    {
-                        id: '1',
-                        timestamp: '2026-05-07 13:08:00',
-                        name: 'Chú Lãm - Test Real Registration',
-                        phone: '0939999832',
-                        email: 'tourchulam@gmail.com',
-                        company: 'Tour Chú Lãm',
-                        ai_experience: 'Thỉnh thoảng, cơ bản',
-                        status: 'pending',
-                        notes: 'Real registration from form test at 13:08'
-                    },
-                    {
-                        id: '2',
-                        timestamp: '2026-05-07 09:09:00',
-                        name: 'LIVE TEST - Phạm Văn B',
-                        phone: '0987654321',
-                        email: 'tourchulam@gmail.com',
-                        company: 'Du Lịch Miền Tây',
-                        ai_experience: 'Có kinh nghiệm',
-                        status: 'paid'
-                    },
-                    {
-                        id: '3',
-                        timestamp: '2026-05-07 08:30:00',
-                        name: 'TEST QR URL ATTACHMENT',
-                        phone: '0939999832',
-                        email: 'tourchulam@gmail.com',
-                        company: 'Tour Chú Lãm',
-                        ai_experience: 'Thỉnh thoảng, cơ bản',
-                        status: 'pending'
-                    }
-                ];
+                // Clean production data - no test registrations
+                registrations = [];
+                
+                console.log('📋 Dashboard reset for production - no test data');
                 
                 renderRegistrations();
                 updateStats();
@@ -137,7 +107,7 @@
             const container = document.getElementById('registrations-list');
             
             if (registrations.length === 0) {
-                container.innerHTML = '<div class="loading">No registrations found</div>';
+                container.innerHTML = '<div class="loading">✨ Ready for first registration!<br><small>Registrations will appear here automatically</small></div>';
                 return;
             }
             
