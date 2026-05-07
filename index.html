@@ -410,6 +410,25 @@ function handleRegister() {
     
     var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
     
+    // CALL EMAIL AUTOMATION API DIRECTLY
+    console.log("🎯 CALLING EMAIL AUTOMATION API");
+    fetch('https://email-automation-skill.vercel.app/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log("✅ EMAIL AUTOMATION SUCCESS:", result);
+        alert("Đăng ký thành công! ✅\nVui lòng check email để xem QR thanh toán.\n\nSau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832");
+        form.reset();
+    })
+    .catch(error => {
+        console.error("❌ EMAIL AUTOMATION ERROR:", error);
+        alert("Có lỗi xảy ra. Vui lòng liên hệ Zalo 0939.999.832");
+    });
+    return;
+    
     // Send notification email to admin
     fetch("https://formspree.io/tourchulam@gmail.com", {
         method: "POST",
