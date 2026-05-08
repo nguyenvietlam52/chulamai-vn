@@ -3,152 +3,291 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Showcase AI cho Dân Làm Du Lịch — chulamai.vn</title>
-    <meta name="description" content="Xem cách sử dụng AI tự động tư vấn khách, thiết kế lịch trình, báo giá, chốt tour — chia sẻ từ Chú Lãm với hơn 10 năm làm local tour.">
+    <title>Showcase AI cho Dân Du Lịch — 14/05/2026 — chulamai.vn</title>
+    <meta name="description" content="Showcase + Workshop 1 ngày: Live demo Rô + BG, xây AI agent, đóng gói skills. 6-step framework từ MentorX. 14/5/2026 Nha Trang.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'Inter',system-ui,sans-serif;line-height:1.7;color:#d4d4d8;background:#0a0a0a;-webkit-font-smoothing:antialiased}
-        h1,h2,h3,h4{color:#fafafa;font-weight:800}
-        .container{max-width:800px;margin:0 auto;padding:0 24px}
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.7;
+            color: #111;
+            background: #fff;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
 
         /* Nav */
-        nav{padding:18px 0;position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.05)}
-        nav .container{display:flex;justify-content:space-between;align-items:center}
-        .logo{font-weight:900;font-size:1.2rem;color:#fafafa;text-decoration:none;display:flex;align-items:center;gap:8px}
-        .logo span{color:#22d3ee}
-        .nav-cta{background:#22d3ee;color:#fff;padding:10px 24px;border-radius:8px;text-decoration:none;font-size:0.85rem;font-weight:700;transition:all 0.2s;border:none}
-        .nav-cta:hover{background:#67e8f9;box-shadow:0 0 30px rgba(34,211,238,0.4)}
+        nav {
+            padding: 24px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: #111;
+            text-decoration: none;
+        }
+        .logo span { color: #0ea5e9; }
+        .nav-cta {
+            background: #111;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        .nav-cta:hover { background: #333; }
 
         /* Hero */
-        .hero{padding:140px 0 80px;text-align:center;position:relative;overflow:hidden}
-        .hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(34,211,238,0.12) 0%,transparent 65%);pointer-events:none}
-        .hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(34,211,238,0.06) 0%,transparent 70%);pointer-events:none}
-        .tag{display:inline-block;background:rgba(34,211,238,0.1);color:#22d3ee;padding:8px 20px;border-radius:20px;font-size:0.75rem;font-weight:700;margin-bottom:24px;border:1px solid rgba(34,211,238,0.25);letter-spacing:1.5px;text-transform:uppercase}
-        .hero-meta{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;color:#71717a;font-size:0.95rem;margin-bottom:40px}
-        .hero-meta span{display:flex;align-items:center;gap:6px}
-        .hero h1{font-size:4rem;font-weight:900;line-height:1.05;margin-bottom:24px;letter-spacing:-0.04em}
-        .hero h1 .accent{color:#22d3ee}
-        .hero p{font-size:1.15rem;color:#a1a1aa;max-width:580px;margin:0 auto 40px;line-height:1.8}
-        .hero-cta{display:inline-block;background:#22d3ee;color:#fff;padding:18px 56px;border-radius:12px;font-size:1.1rem;font-weight:800;text-decoration:none;transition:all 0.3s;position:relative;letter-spacing:0.5px}
-        .hero-cta:hover{background:#67e8f9;transform:translateY(-3px);box-shadow:0 12px 40px rgba(34,211,238,0.4)}
-
-        /* Section label */
-        .section-label{color:#22d3ee;font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+        .hero {
+            padding: 80px 0 64px;
+            text-align: center;
+        }
+        .hero .tag {
+            display: inline-block;
+            background: #e0f7fa;
+            color: #0277bd;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.15;
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+        }
+        .hero h1 .accent { color: #0ea5e9; }
+        .hero p {
+            font-size: 1.15rem;
+            color: #555;
+            max-width: 520px;
+            margin: 0 auto 32px;
+        }
+        .hero-meta {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
         /* Divider */
-        .divider{width:1px;height:80px;background:linear-gradient(to bottom,transparent,rgba(34,211,238,0.4),transparent);margin:0 auto}
+        .divider {
+            width: 48px;
+            height: 3px;
+            background: #0ea5e9;
+            margin: 64px auto;
+            border-radius: 2px;
+        }
 
         /* Sections */
-        section{padding:80px 0}
-        section h2{font-size:2.5rem;font-weight:900;margin-bottom:16px;letter-spacing:-0.03em;line-height:1.15}
-        section h2 .accent{color:#22d3ee}
-        .section-sub{color:#71717a;font-size:1.05rem;margin-bottom:44px;line-height:1.7}
+        section { padding: 0 0 64px; }
+        section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+        section .section-sub {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 32px;
+        }
 
-        /* Benefit Cards */
-        .benefits-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-        .benefit-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px 28px;transition:all 0.3s;position:relative;overflow:hidden}
-        .benefit-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,0.3),transparent);opacity:0;transition:opacity 0.3s}
-        .benefit-card:hover{border-color:rgba(34,211,238,0.2);background:rgba(34,211,238,0.03)}
-        .benefit-card:hover::before{opacity:1}
-        .benefit-card .icon{font-size:2rem;margin-bottom:16px}
-        .benefit-card h3{font-size:1.15rem;font-weight:700;margin-bottom:10px;color:#fafafa}
-        .benefit-card p{font-size:0.95rem;color:#a1a1aa;line-height:1.7}
+        /* Benefits */
+        .benefit-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .benefit-item:last-child { border-bottom: none; }
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            background: #e0f2fe;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+        .benefit-text h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .benefit-text p {
+            color: #666;
+            font-size: 0.9rem;
+        }
 
         /* Schedule */
-        .schedule-block{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:32px;margin-bottom:14px;transition:border-color 0.3s}
-        .schedule-block:hover{border-color:rgba(34,211,238,0.15)}
-        .schedule-block h3{font-size:1.15rem;font-weight:700;margin-bottom:18px;color:#22d3ee}
-        .schedule-block ul{list-style:none}
-        .schedule-block li{padding:10px 0;color:#a1a1aa;font-size:1rem;padding-left:22px;position:relative}
-        .schedule-block li::before{content:"▸";position:absolute;left:0;color:#22d3ee}
+        .schedule-block {
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 16px;
+        }
+        .schedule-block h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #111;
+        }
+        .schedule-block ul {
+            list-style: none;
+        }
+        .schedule-block li {
+            padding: 6px 0;
+            color: #444;
+            font-size: 0.95rem;
+            padding-left: 20px;
+            position: relative;
+        }
+        .schedule-block li::before {
+            content: "·";
+            position: absolute;
+            left: 4px;
+            font-weight: 700;
+            color: #0ea5e9;
+            font-size: 1.4rem;
+            line-height: 1.4;
+        }
 
         /* Quote */
-        .quote{position:relative;padding:44px 36px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:16px;margin:80px 0}
-        .quote::before{content:'\201C';position:absolute;top:-8px;left:28px;font-size:5rem;color:#22d3ee;opacity:0.2;font-family:Georgia,serif;line-height:1}
-        .quote p{font-size:1.1rem;color:#d4d4d8;font-style:italic;margin-bottom:20px;position:relative;line-height:1.8}
-        .quote .author{font-size:0.85rem;color:#71717a;font-style:normal;font-weight:600}
-        .quote .author span{color:#22d3ee}
+        .quote {
+            border-left: 3px solid #0ea5e9;
+            padding: 24px 28px;
+            background: #fafafa;
+            border-radius: 0 12px 12px 0;
+            margin: 48px 0;
+        }
+        .quote p {
+            font-size: 1.05rem;
+            color: #333;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+        .quote .author {
+            font-size: 0.85rem;
+            color: #888;
+            font-style: normal;
+            font-weight: 600;
+        }
 
         /* CTA */
-        .cta-section{text-align:center;padding:100px 0 80px;position:relative}
-        .cta-section::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(34,211,238,0.08) 0%,transparent 65%);pointer-events:none}
-        .price{font-size:5rem;font-weight:900;color:#fafafa;margin:24px 0 8px;letter-spacing:-0.04em}
-        .price sup{font-size:1.5rem;color:#71717a;vertical-align:super}
-        .price-note{color:#71717a;font-size:0.9rem;margin-bottom:40px}
+        .cta-section {
+            text-align: center;
+            padding: 64px 0;
+            border-top: 1px solid #f0f0f0;
+        }
+        .price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #111;
+            margin: 16px 0 8px;
+            letter-spacing: -0.02em;
+        }
+        .price-note {
+            color: #888;
+            font-size: 0.95rem;
+            margin-bottom: 32px;
+        }
+        .cta-btn {
+            display: inline-block;
+            background: #0ea5e9;
+            color: #fff;
+            padding: 16px 40px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .cta-btn:hover {
+            background: #0284c7;
+            transform: translateY(-1px);
+        }
+        .cta-note {
+            margin-top: 16px;
+            color: #999;
+            font-size: 0.85rem;
+        }
 
-        /* Registration Form */
-        .reg-form{max-width:440px;margin:0 auto;text-align:left}
-        .form-group{margin-bottom:18px}
-        .form-group label{display:block;font-size:0.85rem;font-weight:600;color:#a1a1aa;margin-bottom:6px}
-        .form-group .required{color:#22d3ee}
-        .form-group input,.form-group textarea,.form-group select{width:100%;padding:13px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:10px;color:#fafafa;font-size:0.95rem;font-family:'Inter',sans-serif;transition:all 0.2s;outline:none}
-        .form-group input:focus,.form-group textarea:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,0.1)}
-        .form-group input::placeholder,.form-group textarea::placeholder{color:#3f3f46}
-        .form-group textarea{min-height:80px;resize:vertical}
-        .radio-group{display:flex;flex-direction:column;gap:8px}
-        .radio-option{display:flex;align-items:center;gap:10px;padding:11px 14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;cursor:pointer;transition:border-color 0.2s}
-        .radio-option:hover{border-color:rgba(34,211,238,0.3)}
-        .radio-option input[type="radio"]{width:18px;height:18px;accent-color:#22d3ee;cursor:pointer}
-        .radio-option span{font-size:0.9rem;color:#d4d4d8}
-        .submit-btn{width:100%;padding:16px;background:#22d3ee;color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;transition:all 0.3s;margin-top:8px;letter-spacing:0.3px}
-        .submit-btn:hover{background:#67e8f9;transform:translateY(-2px);box-shadow:0 8px 30px rgba(34,211,238,0.35)}
-        .spots-left{text-align:center;margin-top:14px;font-size:0.8rem;color:#52525b}
-        .form-success{display:none;text-align:center;padding:40px 20px}
-        .form-success .check{font-size:3rem;margin-bottom:16px}
-        .form-success h3{font-size:1.4rem;margin-bottom:10px;color:#22d3ee}
-        .form-success>p{color:#a1a1aa;font-size:0.95rem}
-
-        /* Payment Card */
-        .payment-card{max-width:380px;margin:32px auto 0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden}
-        .payment-header{padding:16px 24px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.06)}
-        .payment-badge{font-size:0.7rem;font-weight:700;color:#22d3ee;text-transform:uppercase;letter-spacing:1.5px}
-        .qr-wrapper{padding:20px 40px;text-align:center;background:#fff;margin:16px;border-radius:12px}
-        .qr-wrapper img{width:100%;max-width:260px;border-radius:8px}
-        .payment-info{padding:0 24px 16px}
-        .payment-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
-        .payment-row:last-of-type{border-bottom:none}
-        .payment-label{font-size:0.8rem;color:#71717a}
-        .payment-value{font-size:0.85rem;color:#e4e4e7;font-weight:600;text-align:right}
-        .payment-amount{text-align:center;font-size:2rem;font-weight:900;color:#22d3ee;padding:16px 0 8px}
-        .payment-amount small{font-size:0.9rem;color:#71717a;font-weight:400}
-        .payment-footer{padding:14px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.06);background:rgba(34,211,238,0.03)}
-        .payment-footer p{font-size:0.8rem;color:#71717a}
-        .payment-footer a{color:#22d3ee;text-decoration:none;font-weight:600}
-
-        /* Demo showcase */
-        .demo-showcase{margin:60px 0;text-align:center}
-        .demo-showcase img{max-width:240px;width:100%;border-radius:16px;border:1px solid rgba(255,255,255,0.08);box-shadow:0 8px 40px rgba(0,0,0,0.5)}
-        .demo-caption{margin-top:16px;font-size:0.95rem;color:#a1a1aa}
-        .demo-caption strong{color:#22d3ee}
-        .demo-cta{display:inline-block;margin-top:20px;background:rgba(34,211,238,0.1);color:#22d3ee;padding:12px 32px;border-radius:10px;font-size:1rem;font-weight:700;text-decoration:none;border:1px solid rgba(34,211,238,0.25);transition:all 0.3s}
-        .demo-cta:hover{background:rgba(34,211,238,0.2);box-shadow:0 0 30px rgba(34,211,238,0.2)}
-
-        /* Quote with avatar */
-        .quote-avatar{width:72px;height:72px;border-radius:50%;border:2px solid #22d3ee;object-fit:cover;margin-bottom:16px}
-        .quote-flex{display:flex;gap:24px;align-items:flex-start}
-        .quote-img{flex-shrink:0}
-        .quote-img img{width:80px;height:80px;border-radius:50%;border:2px solid rgba(34,211,238,0.4);object-fit:cover}
-        .quote-content{flex:1}
-        @media(max-width:640px){
-            .quote-flex{flex-direction:column;align-items:center;text-align:center}
+        /* Payment */
+        .payment {
+            max-width: 400px;
+            margin: 32px auto 0;
+            background: #fafafa;
+            border-radius: 12px;
+            padding: 24px 28px;
+            text-align: left;
+        }
+        .payment h4 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
+        }
+        .payment p {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 4px;
+        }
+        .payment .highlight {
+            font-weight: 600;
+            color: #111;
         }
 
         /* Footer */
-        footer{padding:48px 0;text-align:center;border-top:1px solid rgba(255,255,255,0.05)}
-        footer p{color:#3f3f46;font-size:0.85rem}
-        footer a{color:#22d3ee;text-decoration:none}
+        footer {
+            padding: 48px 0;
+            text-align: center;
+            border-top: 1px solid #f0f0f0;
+        }
+        footer p {
+            color: #999;
+            font-size: 0.85rem;
+        }
+        footer a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
 
         /* Mobile */
-        @media(max-width:640px){
-            .hero{padding:120px 0 60px}
-            .hero h1{font-size:2.5rem}
-            .benefits-grid{grid-template-columns:1fr}
-            section h2{font-size:1.8rem}
-            .price{font-size:3.5rem}
-            .hero-meta{gap:12px;font-size:0.8rem}
+        @media (max-width: 640px) {
+            .hero { padding: 48px 0 40px; }
+            .hero h1 { font-size: 2rem; }
+            section h2 { font-size: 1.4rem; }
+            .price { font-size: 2.5rem; }
+            .hero-meta { gap: 16px; }
         }
     </style>
 </head>
@@ -156,388 +295,232 @@
 
 <nav>
     <div class="container">
-        <a href="/" class="logo">chulam<span>AI</span></a>
-        <a href="#dangky" class="nav-cta">Đăng ký ngay</a>
+        <a href="/" class="logo">chulam<span>.ai</span></a>
+        <a href="#dangky" class="nav-cta">Đăng ký</a>
     </div>
 </nav>
 
 <div class="container">
+
     <section class="hero">
-        <div class="tag">Showcase · 13 Tháng 5, 2026</div>
+        <div class="tag">📅 14/05/2026 · Nha Trang</div>
+        <h1>AI cho Dân <span class="accent">Du Lịch</span></h1>
+        <p>Live demo AI agents thật → Build tools thật → Đóng gói skills → Scale business. Framework 6-step từ MentorX.</p>
         <div class="hero-meta">
-            <span>📍 Nha Trang</span>
+            <span>📍 Nha Trang, Khánh Hòa</span>
             <span>⏰ 8:00 – 17:00</span>
-            <span>👥 20 chỗ</span>
+            <span>👥 ≤ 20 người</span>
         </div>
-        <h1>AI cho Dân<br><span class="accent">Làm Du Lịch</span></h1>
-        <p>Xem cách sử dụng AI tự động tư vấn khách, thiết kế lịch trình, báo giá, chốt tour — chia sẻ từ Chú Lãm với hơn 10 năm tự làm local tour, đang vận hành thật.</p>
-        <a href="#dangky" class="hero-cta">Đăng ký tham gia →</a>
     </section>
 
     <div class="divider"></div>
 
     <section>
-        <div class="section-label">Mang về</div>
-        <h2>1 ngày. 2 buổi.<br><span class="accent">4 thứ mang về.</span></h2>
-        <p class="section-sub">Không lý thuyết, làm thật, có kết quả thật.</p>
+        <h2>Sau 1 ngày, bạn có gì?</h2>
+        <p class="section-sub">Không lý thuyết. Không slide. Làm thật, có kết quả thật.</p>
         
-        <div class="benefits-grid">
-            <div class="benefit-card">
-                <div class="icon">🤖</div>
-                <h3>Chatbot 24/7 AI Agentic</h3>
-                <p>Tự setup chatbot tư vấn khách trên Zalo — trả lời thông minh và có cá tính như người thật, chạy ngay sau showcase</p>
+        <div class="benefit-item">
+            <div class="benefit-icon">🤖</div>
+            <div class="benefit-text">
+                <h3>Chatbot tư vấn khách 24/7</h3>
+                <p>Tự tay setup chatbot cho Zalo hoặc Facebook — về nhà bật lên chạy luôn</p>
             </div>
-            <div class="benefit-card">
-                <div class="icon">✍️</div>
-                <h3>Prompt chuẩn đóng gói Skills</h3>
-                <p>Biến kiến thức, quy trình của bạn thành "kỹ năng" cho AI — AI hiểu nghề của bạn, làm đúng ý bạn</p>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon">✍️</div>
+            <div class="benefit-text">
+                <h3>Prompt "ruột" cho tour của bạn</h3>
+                <p>3-5 prompt viết content, reply khách, báo giá — dùng ngay, không cần biết code</p>
             </div>
-            <div class="benefit-card">
-                <div class="icon">⚡</div>
-                <h3>Workflow tự động</h3>
-                <p>Giảm 80% thời gian thủ công — AI làm, bạn duyệt</p>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon">⚡</div>
+            <div class="benefit-text">
+                <h3>Workflow tự động hóa</h3>
+                <p>Giảm 70% thời gian reply, viết content, làm báo giá — AI làm, bạn duyệt</p>
             </div>
-            <div class="benefit-card">
-                <div class="icon">💬</div>
-                <h3>Nhóm Zalo hỏi đáp</h3>
-                <p>Group Zalo hỏi đáp, fix lỗi, chia sẻ kinh nghiệm — hỗ trợ không giới hạn</p>
+        </div>
+        <div class="benefit-item">
+            <div class="benefit-icon">💬</div>
+            <div class="benefit-text">
+                <h3>Group support 2 tuần</h3>
+                <p>Hỏi đáp, fix lỗi, chia sẻ kinh nghiệm cùng nhóm sau workshop</p>
             </div>
         </div>
     </section>
 
-    <div class="demo-showcase">
-        <div class="section-label">Thử ngay</div>
-        <h3 style="color:#fafafa;font-size:1.3rem;margin-bottom:8px">Chat thử với AI trước khi đăng ký</h3>
-        <p class="demo-caption" style="margin-bottom:24px">Quét QR → hỏi bất kỳ tour nào → xem <strong>Rô</strong> trả lời thế nào 🤖</p>
-        <img src="https://chulam.vn/wp-content/uploads/2026/05/qr-zalo-ro-chat.png" alt="QR Zalo chat thử AI Rô - Tour Chú Lãm" loading="lazy" style="background:#fff;padding:16px;border-radius:16px">
-        <p class="demo-caption" style="margin-top:16px">Zalo <strong>Tour Chú Lãm</strong> · 0917.999.832</p>
-        <a href="https://zalo.me/0917999832" class="demo-cta" target="_blank">💬 Hoặc bấm để chat ngay</a>
-    </div>
-
     <div class="divider"></div>
 
     <section>
-        <div class="section-label">Lịch trình</div>
-        <h2>Sáng hiểu. Chiều xây. <span class="accent">Về chạy.</span></h2>
-        <p class="section-sub">Một ngày trọn vẹn với AI thực chiến.</p>
+        <h2>Lịch trình</h2>
+        <p class="section-sub">Cả ngày, 2 buổi. Sáng hiểu, chiều làm.</p>
 
         <div class="schedule-block">
-            <h3>☀️ Sáng — Hiểu &amp; Thử (8:00–11:30)</h3>
+            <h3>☀️ Sáng (8:00 – 11:30) — WOW → WHY → HOW</h3>
             <ul>
-                <li>Demo LIVE 1: AI tự tư vấn + chốt tour trên Zalo</li>
-                <li>Demo LIVE 2: Workflow AI trợ lý làm lịch trình, tính chi phí, báo giá</li>
-                <li>AI 101 — Non-tech sử dụng AI cho công việc</li>
+                <li><strong>Live Demo:</strong> Rô tư vấn + BG báo giá (thật, không fake)</li>
+                <li><strong>AI Cơ bản:</strong> Evolution, Agent vs Chatbot, Vibe Working</li>
+                <li><strong>CrawBot Platform:</strong> Tools có sẵn, workflow từ ý tưởng → agent</li>
+                <li><strong>MentorX Framework:</strong> Essential concepts cho du lịch</li>
             </ul>
         </div>
 
         <div class="schedule-block">
-            <h3>🍜 Trưa — Ăn &amp; Networking (12:00–13:30)</h3>
+            <h3>🍜 Trưa (11:30 – 13:30) — Ăn & Networking</h3>
             <ul>
-                <li>Giao lưu, kết nối anh em cùng ngành</li>
+                <li>Giao lưu, trao đổi kinh nghiệm cùng anh em ngành</li>
             </ul>
         </div>
 
         <div class="schedule-block">
-            <h3>🌙 Chiều — Xây &amp; Chạy (13:30–17:00)</h3>
+            <h3>🌙 Chiều (13:30 – 17:00) — DO → BUILD → PACKAGE → SCALE</h3>
             <ul>
-                <li>Cài đặt &amp; giới thiệu về CrawBot</li>
-                <li>Mỗi người tự setup chatbot cho tour của mình</li>
-                <li>Prompt chuẩn đóng gói Skills — AI hiểu nghề của bạn</li>
-                <li>30 phút Q&amp;A + Roadmap phát triển tiếp</li>
+                <li><strong>Setup CrawBot:</strong> Cài đặt tools, 100% có AI agent working</li>
+                <li><strong>Build Agent:</strong> Tạo AI tư vấn tour cơ bản guided step-by-step</li>
+                <li><strong>6-Step Skills:</strong> Đóng gói thành tài sản tái sử dụng được</li>
+                <li><strong>Scale Strategies:</strong> Mở rộng multiple use cases + Q&A</li>
             </ul>
         </div>
     </section>
 
     <div class="quote">
-        <div class="quote-flex">
-            <div class="quote-img">
-                <img src="https://chulam.vn/wp-content/uploads/2026/05/avatar-chulam.jpg" alt="Chú Lãm - Tour Chú Lãm" loading="lazy">
-            </div>
-            <div class="quote-content">
-                <p>Mình không phải dân IT. Mình học môi trường rồi rẽ hướng đi làm du lịch. Hơn 10 năm nay, mình tự thiết kế, vận hành và bán tour. Bây giờ mình tự mày mò và học dùng AI — nó đang làm việc thay 2 nhân viên, chạy 24/7, không bao giờ xin nghỉ, không bao giờ phàn nàn khi phải sửa tới sửa lui một cái báo giá cho khách hàng, mà lại làm rất nhanh và chính xác. Mình đã làm được, bạn cũng sẽ làm được.</p>
-                <span class="author">— <span>Chú Lãm</span> · Tour Chú Lãm · chulam.vn</span>
-            </div>
-        </div>
+        <p>"Tôi không phải dân IT. Tôi là dân du lịch, 10 năm chạy tour. Tự mày mò dùng AI — giờ nó thay 2 nhân viên, chạy 24/7, không bao giờ xin nghỉ. Nếu tôi làm được, bạn cũng làm được."</p>
+        <span class="author">— Chú Lãm · Chủ Tour Chú Lãm · chulam.vn</span>
     </div>
+
 </div>
 
 <section class="cta-section" id="dangky">
     <div class="container">
-        <div class="section-label">Đăng ký</div>
-        <h2>Tham gia <span class="accent">Showcase</span></h2>
+        <h2>Đăng ký tham gia</h2>
         <div class="price">490K</div>
-        <p class="price-note">Tea break · Tài liệu · Group Zalo hỏi đáp</p>
+        <p class="price-note">Bao ăn trưa · Tài liệu · Group support 2 tuần</p>
+        <a href="#registration-form" class="cta-btn" onclick="showRegistrationForm()">Đăng ký ngay →</a>
+        <p class="cta-note">Giới hạn 20 chỗ · Đóng khi full</p>
 
-        <div class="reg-form" id="regFormWrapper">
-            <form id="registration-form">
-                <input type="text" name="_honey" style="display:none">
-
-                <div class="form-group">
-                    <label>Họ và tên <span class="required">*</span></label>
-                    <input type="text" name="name" placeholder="Nguyễn Văn A" required>
+        <!-- Registration Form -->
+        <div id="registration-form" style="display: none; max-width: 500px; margin: 30px auto; padding: 30px; background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef;">
+            <h4 style="margin-bottom: 20px; text-align: center; color: #333;">📝 Form đăng ký</h4>
+            <form id="workshop-registration">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Họ và tên *</label>
+                    <input type="text" name="name" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
                 </div>
-
-                <div class="form-group">
-                    <label>Số điện thoại <span class="required">*</span></label>
-                    <input type="tel" name="phone" placeholder="0909 xxx xxx" required>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Số điện thoại *</label>
+                    <input type="tel" name="phone" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
                 </div>
-
-                <div class="form-group">
-                    <label>Email <span class="required">*</span></label>
-                    <input type="email" name="email" placeholder="your@email.com" required>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Email *</label>
+                    <input type="email" name="email" required style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
                 </div>
-
-                <div class="form-group">
-                    <label>Công ty / Thương hiệu tour</label>
-                    <input type="text" name="company" placeholder="Tên công ty hoặc tour của bạn">
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Công ty / Thương hiệu</label>
+                    <input type="text" name="company" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
                 </div>
-
-                <div class="form-group">
-                    <label>Bạn đã dùng AI chưa? <span class="required">*</span></label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="ai_experience" value="Chưa bao giờ" required>
-                            <span>Chưa bao giờ</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="ai_experience" value="Thỉnh thoảng, cơ bản">
-                            <span>Thỉnh thoảng, cơ bản</span>
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="ai_experience" value="Dùng thường xuyên">
-                            <span>Dùng thường xuyên</span>
-                        </label>
-                    </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Kinh nghiệm AI</label>
+                    <select name="ai_experience" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+                        <option value="Mới bắt đầu">Mới bắt đầu</option>
+                        <option value="Thỉnh thoảng, cơ bản">Thỉnh thoảng, cơ bản</option>
+                        <option value="Có kinh nghiệm">Có kinh nghiệm</option>
+                    </select>
                 </div>
-
-                <div class="form-group">
-                    <label>Bạn muốn AI giúp gì nhất?</label>
-                    <textarea name="needs" placeholder="VD: Tự động trả lời khách trên Zalo, viết content tour..."></textarea>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: 600;">Bạn muốn học gì?</label>
+                    <textarea name="needs" rows="3" style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
                 </div>
-
-                <button type="submit" class="submit-btn" id="submitBtn" data-submit-button>Đăng ký ngay →</button>
-                <p class="spots-left">⚡ 20 chỗ · Đóng đăng ký khi full</p>
+                
+                <button type="submit" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                    📧 Đăng ký & nhận email xác nhận
+                </button>
             </form>
+            
+            <div id="registration-success" style="display: none; text-align: center; padding: 20px; background: #d4edda; color: #155724; border-radius: 6px; margin-top: 15px;">
+                ✅ <strong>Đăng ký thành công!</strong><br>
+                Vui lòng check email để xem hướng dẫn thanh toán với QR code.
+            </div>
         </div>
 
-        <div class="form-success" id="formSuccess" style="display:none;">
-            <div class="check">✅</div>
-            <h3>Đăng ký thành công!</h3>
-            <p>Quét QR bên dưới để thanh toán 👇</p>
-
-            <div class="payment-card">
-                <div class="payment-header">
-                    <span class="payment-badge">Quét QR để thanh toán</span>
-                </div>
-                <div class="qr-wrapper">
-                    <img src="https://chulam.vn/wp-content/uploads/2026/05/qr-showcase-ai-clean.png" alt="QR thanh toán Showcase AI 490K">
-                </div>
-                <div class="payment-info">
-                    <div class="payment-row">
-                        <span class="payment-label">Ngân hàng</span>
-                        <span class="payment-value">Vietcombank — PGD Cam Ranh</span>
-                    </div>
-                    <div class="payment-row">
-                        <span class="payment-label">Số TK</span>
-                        <span class="payment-value" style="font-family:monospace;letter-spacing:1px">0061000326250</span>
-                    </div>
-                    <div class="payment-row">
-                        <span class="payment-label">Chủ TK</span>
-                        <span class="payment-value">NGUYEN VIET LAM</span>
-                    </div>
-                    <div class="payment-row">
-                        <span class="payment-label">Nội dung CK</span>
-                        <span class="payment-value" style="color:#22d3ee">SHOWCASE AI</span>
-                    </div>
-                    <div class="payment-amount">490,000 <small>VND</small></div>
-                </div>
-                <div class="payment-footer">
-                    <p>Sau khi CK → gửi ảnh bill vào <a href="https://zalo.me/0939999832">Zalo 0939.999.832</a></p>
-                </div>
-            </div>
+        <div class="payment">
+            <h4>Thanh toán chuyển khoản</h4>
+            <p>🏦 Vietcombank — CN Cam Ranh</p>
+            <p>STK: <span class="highlight">0581000790833</span></p>
+            <p>CTK: <span class="highlight">CÔNG TY TNHH TOUR CHÚ LÃM</span></p>
+            <p>Nội dung: <span class="highlight">AIWS [Họ tên]</span></p>
+            <br>
+            <p style="color:#888; font-size:0.8rem; text-align:center;">Sau khi đăng ký → nhận email hướng dẫn chi tiết</p>
         </div>
     </div>
 </section>
 
-<!-- Hidden fields cho email automation -->
-                <input type="hidden" name="event_name" value="Showcase AI cho Dân Làm Du Lịch">
-                <input type="hidden" name="event_date" value="Thứ 2, 13/05/2026">
-                <input type="hidden" name="event_time" value="8:00 - 17:00">
-                <input type="hidden" name="event_location" value="Nha Trang">
-                <input type="hidden" name="event_price" value="490.000 VNĐ">
+<footer>
+    <p><strong>chulamai.vn</strong> — Workshop AI thực chiến cho ngành du lịch</p>
+    <p style="margin-top:8px;">Hỏi thêm: <a href="https://zalo.me/0939999832">Zalo 0939.999.832</a></p>
+</footer>
 
 <script>
-// Email Automation Configuration
-const EMAIL_AUTOMATION_CONFIG = {
-    apiEndpoint: 'https://email-automation-skill.vercel.app/api/register',
-    debug: false,
-    onSuccess: function(response, formData) {
-        // Custom success handler for workshop landing page
-        document.getElementById("regFormWrapper").style.display = "none";
-        document.getElementById("formSuccess").style.display = "block";
-        document.getElementById("formSuccess").scrollIntoView({ behavior: "smooth", block: "center" });
-        
-        console.log('✅ Registration successful:', response);
-        
-        // Backup localStorage
-        try { 
-            var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); 
-            regs.push(formData); 
-            localStorage.setItem("ws_registrations", JSON.stringify(regs)); 
-        } catch(e) {}
-    },
-    onError: function(error, formData) {
-        alert(`Đăng ký thất bại: ${error.message || 'Lỗi hệ thống'}. Vui lòng thử lại hoặc liên hệ Zalo 0939.999.832`);
-        console.error('❌ Registration failed:', error);
-    },
-    onLoading: function(isLoading) {
-        const button = document.getElementById('submitBtn');
-        if (button) {
-            button.disabled = isLoading;
-            button.textContent = isLoading ? 'Đang xử lý...' : 'Đăng ký ngay →';
-        }
-    }
-};
-
-function handleRegister() {
-    var form = document.getElementById("registration-form");
-    var n = form.querySelector("[name=name]").value.trim();
-    var p = form.querySelector("[name=phone]").value.trim();
-    var e = form.querySelector("[name=email]").value.trim();
-    var ai = form.querySelector("[name=ai_experience]:checked");
-    if (!n || !p || !e || !ai) { alert("Vui lòng điền đầy đủ thông tin bắt buộc (*)"); return; }
-    if (form.querySelector("[name=_honey]").value) return;
-    
-    var data = { name: n, phone: p, email: e, company: form.querySelector("[name=company]").value, ai_experience: ai.value, needs: form.querySelector("[name=needs]").value, timestamp: new Date().toISOString() };
-    
-    // CALL EMAIL AUTOMATION API DIRECTLY
-    console.log("🎯 CALLING EMAIL AUTOMATION API");
-    fetch('https://email-automation-skill.vercel.app/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-        mode: 'cors'
-    })
-    .then(response => {
-        console.log("📡 Response received:", response.status, response.statusText);
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        return response.json();
-    })
-    .then(result => {
-        console.log("✅ EMAIL AUTOMATION SUCCESS:", result);
-        
-        // Save to shared API storage
-        const registrationData = {
-            name: data.name,
-            phone: data.phone,
-            email: data.email,
-            company: data.company || '',
-            ai_experience: data.ai_experience || '',
-            needs: data.needs || '',
-            status: 'pending'
-        };
-        
-        // Send to local API
-        fetch('http://localhost:3001/api/registrations', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(registrationData)
-        })
-        .then(resp => resp.json())
-        .then(apiResult => {
-            console.log("📊 Registration saved to shared storage:", apiResult);
-        })
-        .catch(apiError => {
-            console.log("📡 API save failed, using localStorage fallback");
-            // Fallback to localStorage
-            const localRegs = JSON.parse(localStorage.getItem('workshop_registrations') || '[]');
-            localRegs.push({
-                id: Date.now().toString(),
-                timestamp: new Date().toISOString().replace('T', ' ').substring(0, 19),
-                ...registrationData
-            });
-            localStorage.setItem('workshop_registrations', JSON.stringify(localRegs));
-        });
-        
-        alert("Đăng ký thành công! ✅\nVui lòng check email để xem QR thanh toán.\n\nSau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832");
-        form.reset();
-    })
-    .catch(error => {
-        console.error("❌ EMAIL AUTOMATION ERROR:", error.message);
-        console.error("❌ FULL ERROR:", error);
-        alert(`Lỗi: ${error.message}\nLiên hệ Zalo 0939.999.832`);
-    });
-    return;
-    
-    // Send notification email to admin
-    fetch("https://formspree.io/tourchulam@gmail.com", {
-        method: "POST",
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            message: `📋 ĐĂNG KÝ MỚI - SHOWCASE AI
-
-Tên: ${data.name}
-SĐT: ${data.phone}  
-Email: ${data.email}
-Công ty: ${data.company || '(Không có)'}
-Kinh nghiệm AI: ${data.ai_experience}
-Nhu cầu: ${data.needs || '(Không có)'}
-Thời gian: ${new Date().toLocaleString('vi-VN')}`
-        })
-    }).then(response => {
-        console.log("Admin notification sent");
-        // Send customer confirmation
-        return fetch("https://formspree.io/" + data.email.replace('@', '_at_').replace('.', '_dot_'), {
-            method: "POST", 
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                message: `Xin chào ${data.name}!
-
-Cảm ơn bạn đã đăng ký "Showcase AI cho Dân Làm Du Lịch"
-
-📅 THÔNG TIN SỰ KIỆN:
-• Ngày: Thứ 2, 13/05/2026
-• Thời gian: 8:00 - 17:00  
-• Địa điểm: Nha Trang
-• Phí: 490.000 VNĐ
-
-💰 THANH TOÁN:
-STK: 0061000326250
-Ngân hàng: Vietcombank Cam Ranh
-Chủ TK: NGUYEN VIET LAM
-Nội dung: AI Workshop ${data.name}
-
-Sau khi chuyển khoản, chụp màn hình gửi Zalo: 0939.999.832
-
-Hẹn gặp bạn ngày 13/05! 🚀`
-            })
-        });
-    }).catch(error => {
-        console.error("Email failed:", error);
-    });
-    
-    // Backup localStorage
-    try { var regs = JSON.parse(localStorage.getItem("ws_registrations") || "[]"); regs.push(data); localStorage.setItem("ws_registrations", JSON.stringify(regs)); } catch(e) {}
+function showRegistrationForm() {
+    document.getElementById('registration-form').style.display = 'block';
+    document.getElementById('registration-form').scrollIntoView({ behavior: 'smooth' });
 }
+
+document.getElementById('workshop-registration').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '⏳ Đang xử lý...';
+    submitBtn.disabled = true;
+    
+    const formData = new FormData(e.target);
+    const data = {
+        name: formData.get('name'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        company: formData.get('company'),
+        ai_experience: formData.get('ai_experience'),
+        needs: formData.get('needs'),
+        event_name: 'Showcase AI cho Dân Làm Du Lịch'
+    };
+    
+    try {
+        const response = await fetch('https://email-automation-skill.vercel.app/api/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            document.getElementById('workshop-registration').style.display = 'none';
+            document.getElementById('registration-success').style.display = 'block';
+            
+            // Send notification to admin
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'workshop_registration', {
+                    event_category: 'engagement',
+                    event_label: data.name
+                });
+            }
+        } else {
+            throw new Error(result.message || 'Đăng ký thất bại');
+        }
+    } catch (error) {
+        alert(`Lỗi: ${error.message}. Vui lòng thử lại hoặc liên hệ Zalo 0939.999.832`);
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+    }
+});
 </script>
-
-<!-- Email Automation Integration -->
-<script src="https://email-automation-skill.vercel.app/integration.js"></script>
-
-<footer>
-    <div class="container">
-        <p><strong style="color:#a1a1aa">chulamai.vn</strong> — Showcase AI thực chiến cho ngành du lịch</p>
-        <p style="margin-top:8px">Hỏi thêm: <a href="https://zalo.me/0939999832">Zalo 0939.999.832</a></p>
-    </div>
-</footer>
 
 </body>
 </html>
