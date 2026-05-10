@@ -44,7 +44,7 @@
 - [x] Sửa giá Ninh Vân Gành Nhảy 2.640k (đã duyệt)
 - [x] Ninh Vân Phase 2 — APPROVED
 
-### Phase 3 — Content cluster (🔄 đang làm)
+### Phase 3 — Content cluster (✅ xong phần publish chính)
 - [x] Blog 1 BHVH: Kinh nghiệm du lịch (WP-Ready) — chờ publish
 - [x] Blog 2 BHVH: So sánh 2N1Đ vs 3N2Đ (WP-Ready) — chờ publish
 - [x] Blog 3 BHVH: Có gì chơi (WP-Ready) — chờ publish
@@ -53,19 +53,21 @@
 - [x] Blog 2 Ninh Vân: Review 2N1Đ (WP-Ready) — file: `blog-review-tour-ninh-van-ganh-nhay-2n1d.md`, chờ publish
 - [x] Blog 3 Ninh Vân: Chi phí (WP-Ready) — file: `blog-chi-phi-du-lich-ninh-van-ganh-nhay.md`, chờ publish
 - [x] Blog 4 Ninh Vân: Lịch trình 2N1Đ (WP-Ready) — file: `blog-lich-trinh-ninh-van-ganh-nhay-2n1d.md`, chờ publish
-- [x] Blog 1 Hòn Rùa/Bình Lập: Review chi tiết + giá 2026 (WP-Ready) — file: `blog-tour-hon-rua-vinh-hy-review-gia-2026.md`, chờ publish
-- [x] Blog 2 Hòn Rùa/Bình Lập: Kinh nghiệm du lịch Vĩnh Hy Bình Lập 2026 (WP-Ready) — file: `blog-kinh-nghiem-du-lich-vinh-hy-binh-lap-2026.md`, chờ publish
-- [x] Blog 3 Hòn Rùa/Bình Lập: So sánh 1 ngày vs 2N1Đ vs 3N2Đ (WP-Ready) — file: `blog-so-sanh-tour-binh-lap-1-ngay-2n1d-3n2d.md`, chờ publish
+- [x] Blog 1 Hòn Rùa/Bình Lập: Review chi tiết + giá 2026 — published ID 1947
+- [x] Blog 2 Hòn Rùa/Bình Lập: Kinh nghiệm du lịch Vĩnh Hy Bình Lập 2026 — published ID 2022
+- [x] Blog 3 Hòn Rùa/Bình Lập: So sánh 1 ngày vs 2N1Đ vs 3N2Đ — published ID 2023
 - [x] Publish 4 blog BHVH lên WordPress — IDs 1998–2001
 - [x] Publish 4 blog Ninh Vân lên WordPress — IDs 2002–2005
+- [x] Publish 3 blog Hòn Rùa/Bình Lập lên WordPress — IDs 2026–2028
 - [x] Internal link cho các blog mới publish — thêm block “Bài liên quan” + link tour chính
+- [x] Publish 3 blog Hòn Rùa/Bình Lập lên WordPress — IDs 1947, 2022–2023
 
 ### Phase 4 — Báo cáo & đo lường (🔄 đang thiết lập)
 - [x] Cron SEO Weekly Report (thứ Sáu 18:00)
 - [x] Tạo `workspace-so/` để Sò lưu deliverables
 - [x] Baseline ranking tuần 2026-04-10
-- [ ] Cài Google Search Console (nếu chú Lãm chưa)
-- [ ] Setup theo dõi CTR + impression theo tuần
+- [x] Cài Google Search Console — property `https://chulam.vn/` đang `siteOwner`; sitemap OK
+- [x] Setup theo dõi CTR + impression theo tuần — snapshot `reports/gsc-ctr-impression-2026-05-10.md`
 - [ ] Backlink audit tháng 4
 
 ### Phase 5 — Long-term (chưa bắt đầu)
@@ -80,4 +82,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-10 15:05 — Sò 🐚 (publish 8 blog Phase 3 + internal links)_
+_Cập nhật lần cuối: 2026-05-10 15:30 — Sò 🐚 (Phase 3 publish xong; GSC/CTR snapshot thiết lập)_
