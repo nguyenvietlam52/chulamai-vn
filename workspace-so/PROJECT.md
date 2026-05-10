@@ -58,20 +58,19 @@
 - [x] Blog 3 Hòn Rùa/Bình Lập: So sánh 1 ngày vs 2N1Đ vs 3N2Đ — published ID 2023
 - [x] Publish 4 blog BHVH lên WordPress — IDs 1998–2001
 - [x] Publish 4 blog Ninh Vân lên WordPress — IDs 2002–2005
-- [x] Publish 3 blog Hòn Rùa/Bình Lập lên WordPress — IDs 2026–2028
 - [x] Internal link cho các blog mới publish — thêm block “Bài liên quan” + link tour chính
 - [x] Publish 3 blog Hòn Rùa/Bình Lập lên WordPress — IDs 1947, 2022–2023
 
-### Phase 4 — Báo cáo & đo lường (🔄 đang thiết lập)
+### Phase 4 — Báo cáo & đo lường (✅ nền tảng xong)
 - [x] Cron SEO Weekly Report (thứ Sáu 18:00)
 - [x] Tạo `workspace-so/` để Sò lưu deliverables
 - [x] Baseline ranking tuần 2026-04-10
 - [x] Cài Google Search Console — property `https://chulam.vn/` đang `siteOwner`; sitemap OK
 - [x] Setup theo dõi CTR + impression theo tuần — snapshot `reports/gsc-ctr-impression-2026-05-10.md`
-- [ ] Backlink audit tháng 4
+- [x] Backlink audit tháng 4 — `reports/backlink-audit-2026-05-10.md`
 
-### Phase 5 — Long-term (chưa bắt đầu)
-- [ ] Landing page "tour từ Sài Gòn đi Cam Ranh"
+### Phase 5 — Long-term (🔄 đã bắt đầu)
+- [x] Landing page "tour từ Sài Gòn đi Cam Ranh" — published page ID 2032 `/tour-tu-sai-gon-di-cam-ranh/`
 - [ ] Guest post / backlink chất lượng (mia.vn, traveloka…)
 - [ ] Video SEO (YouTube shorts tour đảo)
 
@@ -82,4 +81,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-10 15:30 — Sò 🐚 (Phase 3 publish xong; GSC/CTR snapshot thiết lập)_
+_Cập nhật lần cuối: 2026-05-10 16:02 — Sò 🐚 (backlink audit xong; publish landing page Sài Gòn → Cam Ranh)_
