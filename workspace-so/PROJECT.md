@@ -74,6 +74,8 @@
 - [x] Guest post / backlink chất lượng (mia.vn, traveloka…) — prospect plan: `reports/backlink-prospect-plan-2026-05-10.md`
 - [x] Video SEO (YouTube shorts tour đảo) — plan `reports/video-seo-plan-2026-05-11.md`, scripts `seo-workflow/content/video-shorts-scripts-2026-05-11.md`
 - [x] 8 Shorts đầu tiên sẵn đăng + audit `tourchulam.com` + CTR fixes 2 URL thấp — `reports/shorts-domain-ctr-actions-2026-05-11.md`
+- [x] GSC indexing follow-up + internal links vào landing Sài Gòn → Cam Ranh — `reports/gsc-indexing-internal-links-2026-05-11.md`
+- [x] CTR title/meta tour Bình Ba 2N1Đ — applied to `to_book` ID 1187 + Snippet 122, report `reports/ctr-title-meta-binh-ba-2026-05-11.md`
 
 ---
 
@@ -82,4 +84,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-11 07:55 — Sò 🐚 (8 Shorts ready-to-post + tourchulam.com audit + CTR fixes)_
+_Cập nhật lần cuối: 2026-05-11 08:02 — Sò 🐚 (submit sitemap, GSC inspect, internal links cho landing Sài Gòn → Cam Ranh)_
