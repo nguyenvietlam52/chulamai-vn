@@ -82,6 +82,7 @@
 - [x] CTR title/meta tour Vĩnh Hy Bình Lập 2N1Đ — applied to `to_book` ID 1290 + Snippet 124, report `reports/ctr-title-meta-vinh-hy-binh-lap-2026-05-11.md`
 - [x] CTR title/meta location archives Bình Hưng + Vĩnh Hy — term IDs 109/106 + Snippet 126, report `reports/ctr-title-meta-location-archives-2026-05-11.md`
 - [x] CTR title/meta tour Săn Bắn Cá Bình Hưng trong ngày — applied to `to_book` ID 1368 + Snippet 125, report `reports/ctr-title-meta-san-ban-ca-binh-hung-2026-05-11.md`
+- [x] Publish blog cách đi Cam Ranh từ Sài Gòn + technical SEO verify tour trọng điểm — post ID 2050, Snippet 127, report `reports/technical-seo-verify-and-blog-publish-2026-05-11.md`
 
 ---
 
@@ -90,4 +91,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-11 10:00 — Sò 🐚 (CTR title/meta tour Săn Bắn Cá Bình Hưng trong ngày)_
+_Cập nhật lần cuối: 2026-05-11 10:18 — Sò 🐚 (publish blog Cam Ranh từ Sài Gòn + technical SEO verify)_
