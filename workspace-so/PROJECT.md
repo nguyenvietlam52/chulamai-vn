@@ -73,6 +73,7 @@
 - [x] Landing page "tour từ Sài Gòn đi Cam Ranh" — published page ID 2032 `/tour-tu-sai-gon-di-cam-ranh/`
 - [x] Guest post / backlink chất lượng (mia.vn, traveloka…) — prospect plan: `reports/backlink-prospect-plan-2026-05-10.md`
 - [x] Video SEO (YouTube shorts tour đảo) — plan `reports/video-seo-plan-2026-05-11.md`, scripts `seo-workflow/content/video-shorts-scripts-2026-05-11.md`
+- [x] 8 Shorts đầu tiên sẵn đăng + audit `tourchulam.com` + CTR fixes 2 URL thấp — `reports/shorts-domain-ctr-actions-2026-05-11.md`
 
 ---
 
@@ -81,4 +82,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-11 07:25 — Sò 🐚 (Video SEO plan + 8 Shorts scripts xong)_
+_Cập nhật lần cuối: 2026-05-11 07:55 — Sò 🐚 (8 Shorts ready-to-post + tourchulam.com audit + CTR fixes)_
