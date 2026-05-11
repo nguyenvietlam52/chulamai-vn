@@ -69,10 +69,10 @@
 - [x] Setup theo dõi CTR + impression theo tuần — snapshot `reports/gsc-ctr-impression-2026-05-10.md`
 - [x] Backlink audit tháng 4 — `reports/backlink-audit-2026-05-10.md`
 
-### Phase 5 — Long-term (🔄 đã bắt đầu)
+### Phase 5 — Long-term (✅ kế hoạch nền tảng xong)
 - [x] Landing page "tour từ Sài Gòn đi Cam Ranh" — published page ID 2032 `/tour-tu-sai-gon-di-cam-ranh/`
-- [ ] Guest post / backlink chất lượng (mia.vn, traveloka…)
-- [ ] Video SEO (YouTube shorts tour đảo)
+- [x] Guest post / backlink chất lượng (mia.vn, traveloka…) — prospect plan: `reports/backlink-prospect-plan-2026-05-10.md`
+- [x] Video SEO (YouTube shorts tour đảo) — plan `reports/video-seo-plan-2026-05-11.md`, scripts `seo-workflow/content/video-shorts-scripts-2026-05-11.md`
 
 ---
 
@@ -81,4 +81,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-10 16:02 — Sò 🐚 (backlink audit xong; publish landing page Sài Gòn → Cam Ranh)_
+_Cập nhật lần cuối: 2026-05-11 07:25 — Sò 🐚 (Video SEO plan + 8 Shorts scripts xong)_
