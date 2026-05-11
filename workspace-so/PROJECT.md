@@ -76,7 +76,10 @@
 - [x] 8 Shorts đầu tiên sẵn đăng + audit `tourchulam.com` + CTR fixes 2 URL thấp — `reports/shorts-domain-ctr-actions-2026-05-11.md`
 - [x] GSC indexing follow-up + internal links vào landing Sài Gòn → Cam Ranh — `reports/gsc-indexing-internal-links-2026-05-11.md`
 - [x] CTR title/meta tour Bình Ba 2N1Đ — applied to `to_book` ID 1187 + Snippet 122, report `reports/ctr-title-meta-binh-ba-2026-05-11.md`
+- [x] CTR title/meta tour Vĩnh Hy 2N1Đ — applied to `to_book` ID 1476 + Snippet 122, report `reports/ctr-title-meta-vinh-hy-2026-05-11.md`
 - [x] SEO hygiene noindex utility pages từ GSC low-value impressions — Snippet 123, report `reports/seo-hygiene-noindex-2026-05-11.md`
+- [x] CTR title/meta tour Tứ Bình Cam Ranh — applied to `to_book` ID 1238 + Snippet 122, report `reports/ctr-title-meta-tu-binh-2026-05-11.md`
+- [x] CTR title/meta tour Vĩnh Hy Bình Lập 2N1Đ — applied to `to_book` ID 1290 + Snippet 124, report `reports/ctr-title-meta-vinh-hy-binh-lap-2026-05-11.md`
 
 ---
 
@@ -85,4 +88,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-11 08:55 — Sò 🐚 (GSC refresh + noindex utility pages)_
+_Cập nhật lần cuối: 2026-05-11 09:25 — Sò 🐚 (CTR title/meta tour Vĩnh Hy Bình Lập 2N1Đ)_
