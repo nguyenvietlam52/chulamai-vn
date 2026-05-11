@@ -83,6 +83,7 @@
 - [x] CTR title/meta location archives Bình Hưng + Vĩnh Hy — term IDs 109/106 + Snippet 126, report `reports/ctr-title-meta-location-archives-2026-05-11.md`
 - [x] CTR title/meta tour Săn Bắn Cá Bình Hưng trong ngày — applied to `to_book` ID 1368 + Snippet 125, report `reports/ctr-title-meta-san-ban-ca-binh-hung-2026-05-11.md`
 - [x] Publish blog cách đi Cam Ranh từ Sài Gòn + technical SEO verify tour trọng điểm — post ID 2050, Snippet 127, report `reports/technical-seo-verify-and-blog-publish-2026-05-11.md`
+- [x] GSC indexing issues fix — mở rộng Snippet 123 noindex thêm 9 trang utility/demo (shop, sample-page, careers, booking archive, product-category, type, tours-list-view, tours-page), report `reports/gsc-indexing-issues-fix-2026-05-11.md`
 
 ---
 
@@ -91,4 +92,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-11 10:18 — Sò 🐚 (publish blog Cam Ranh từ Sài Gòn + technical SEO verify)_
+_Cập nhật lần cuối: 2026-05-11 15:28 — Sò 🐚 (GSC indexing issues fix — mở rộng noindex utility pages)_
