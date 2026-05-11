@@ -80,6 +80,8 @@
 - [x] SEO hygiene noindex utility pages từ GSC low-value impressions — Snippet 123, report `reports/seo-hygiene-noindex-2026-05-11.md`
 - [x] CTR title/meta tour Tứ Bình Cam Ranh — applied to `to_book` ID 1238 + Snippet 122, report `reports/ctr-title-meta-tu-binh-2026-05-11.md`
 - [x] CTR title/meta tour Vĩnh Hy Bình Lập 2N1Đ — applied to `to_book` ID 1290 + Snippet 124, report `reports/ctr-title-meta-vinh-hy-binh-lap-2026-05-11.md`
+- [x] CTR title/meta location archives Bình Hưng + Vĩnh Hy — term IDs 109/106 + Snippet 126, report `reports/ctr-title-meta-location-archives-2026-05-11.md`
+- [x] CTR title/meta tour Săn Bắn Cá Bình Hưng trong ngày — applied to `to_book` ID 1368 + Snippet 125, report `reports/ctr-title-meta-san-ban-ca-binh-hung-2026-05-11.md`
 
 ---
 
@@ -88,4 +90,4 @@
 
 ---
 
-_Cập nhật lần cuối: 2026-05-11 09:25 — Sò 🐚 (CTR title/meta tour Vĩnh Hy Bình Lập 2N1Đ)_
+_Cập nhật lần cuối: 2026-05-11 10:00 — Sò 🐚 (CTR title/meta tour Săn Bắn Cá Bình Hưng trong ngày)_
