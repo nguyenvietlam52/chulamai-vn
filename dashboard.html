@@ -1,177 +1,691 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Workshop Registration</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f7; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .header h1 { color: #1d1d1f; font-size: 28px; margin-bottom: 8px; }
-        .header p { color: #86868b; }
-        
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px; }
-        .stat-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center; }
-        .stat-number { font-size: 32px; font-weight: bold; color: #007AFF; margin-bottom: 4px; }
-        .stat-label { color: #86868b; font-size: 14px; }
-        
-        .registrations { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .registrations h2 { margin-bottom: 20px; color: #1d1d1f; }
-        
-        .registration-item { border-bottom: 1px solid #f5f5f7; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
-        .registration-item:last-child { border-bottom: none; }
-        .registration-info h3 { color: #1d1d1f; margin-bottom: 4px; }
-        .registration-info p { color: #86868b; font-size: 14px; margin: 2px 0; }
-        .status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
-        .status.pending { background: #fff3cd; color: #856404; }
-        .status.paid { background: #d4edda; color: #155724; }
-        .status.confirmed { background: #d1ecf1; color: #0c5460; }
-        
-        .refresh-btn { background: #007AFF; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; margin-bottom: 20px; }
-        .refresh-btn:hover { background: #0056CC; }
-        
-        .loading { text-align: center; padding: 40px; color: #86868b; }
-        
-        @media (max-width: 768px) {
-            .registration-item { flex-direction: column; align-items: flex-start; gap: 10px; }
-            .stats { grid-template-columns: 1fr; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Dashboard — Tour Chú Lãm</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0a0a0a;color:#d4d4d8;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:20px}
+
+/* Login */
+.login-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:40px;max-width:380px;margin:120px auto;text-align:center}
+.login-box h2{color:#fafafa;margin-bottom:6px;font-size:1.3rem}
+.login-box .sub{color:#71717a;font-size:0.85rem;margin-bottom:24px}
+.login-box input{width:100%;padding:12px 16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#fafafa;font-size:0.9rem;margin-bottom:10px;outline:none;font-family:'Inter',sans-serif}
+.login-box input:focus{border-color:#22d3ee}
+.login-box button{width:100%;padding:12px;background:#22d3ee;color:#0a0a0a;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.95rem;transition:all .2s}
+.login-box button:hover{background:#67e8f9}
+.login-err{color:#ef4444;font-size:0.8rem;margin-top:8px;display:none}
+
+/* Header */
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header h1{color:#fafafa;font-size:1.5rem}
+.header h1 span{color:#22d3ee}
+.header .meta{color:#71717a;font-size:0.8rem}
+.btn-logout{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#71717a;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-family:'Inter',sans-serif}
+.btn-logout:hover{color:#fafafa;border-color:#22d3ee}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin-bottom:24px;overflow-x:auto;padding-bottom:4px}
+.tab{padding:10px 18px;border-radius:10px;font-size:0.85rem;font-weight:600;cursor:pointer;white-space:nowrap;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);color:#71717a;transition:all .2s}
+.tab.active{background:rgba(34,211,238,0.1);border-color:rgba(34,211,238,0.3);color:#22d3ee}
+.tab:hover{border-color:rgba(255,255,255,0.15);color:#d4d4d8}
+
+/* Sections */
+.section{display:none}
+.section.active{display:block}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
+.stat-num{font-size:1.8rem;font-weight:800}
+.stat-num.green{color:#4ade80}
+.stat-num.yellow{color:#fbbf24}
+.stat-num.cyan{color:#22d3ee}
+.stat-num.red{color:#ef4444}
+.stat-num.purple{color:#a78bfa}
+.stat-label{font-size:0.7rem;color:#71717a;margin-top:4px;text-transform:uppercase;letter-spacing:0.5px}
+
+/* Card */
+.card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:20px;margin-bottom:16px}
+.card h3{color:#fafafa;font-size:1rem;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h3 .icon{font-size:1.2rem}
+
+/* Table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:500px}
+th{text-align:left;padding:10px 14px;font-size:0.7rem;color:#71717a;text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.02)}
+td{padding:10px 14px;font-size:0.82rem;border-bottom:1px solid rgba(255,255,255,0.03)}
+tr:hover{background:rgba(34,211,238,0.02)}
+
+/* Badge */
+.badge{padding:3px 10px;border-radius:12px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.badge-ok{background:rgba(74,222,128,0.15);color:#4ade80}
+.badge-warn{background:rgba(251,191,36,0.15);color:#fbbf24}
+.badge-err{background:rgba(239,68,68,0.15);color:#ef4444}
+.badge-info{background:rgba(34,211,238,0.15);color:#22d3ee}
+.badge-off{background:rgba(113,113,122,0.15);color:#71717a}
+
+/* List */
+.item-list{list-style:none}
+.item-list li{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.85rem;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.item-list li:last-child{border-bottom:none}
+.item-name{color:#fafafa;font-weight:600;flex:1}
+.item-desc{color:#71717a;font-size:0.8rem;flex:2}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#22d3ee;color:#0a0a0a;padding:14px 24px;border-radius:10px;font-weight:600;font-size:0.85rem;display:none;z-index:999;box-shadow:0 4px 20px rgba(34,211,238,0.3)}
+
+/* Refresh */
+.refresh-bar{display:flex;justify-content:flex-end;margin-bottom:12px}
+.btn-refresh{background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.2);color:#22d3ee;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-refresh:hover{background:rgba(34,211,238,0.2)}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .header{flex-direction:column;align-items:flex-start}
+  .tabs{gap:2px}
+  .tab{padding:8px 12px;font-size:0.8rem}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📊 Admin Dashboard</h1>
-            <p>Workshop Registration Management - Showcase AI cho Dân Làm Du Lịch</p>
-        </div>
-        
-        <button class="refresh-btn" onclick="loadRegistrations()">🔄 Refresh Data</button>
-        
-        <div class="stats">
-            <div class="stat-card">
-                <div class="stat-number" id="total-count">-</div>
-                <div class="stat-label">Total Registrations</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="pending-count">-</div>
-                <div class="stat-label">Pending Payment</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number" id="paid-count">-</div>
-                <div class="stat-label">Paid</div>
-            </div>
-        </div>
-        
-        <div class="registrations">
-            <h2>📋 Recent Registrations</h2>
-            <div id="registrations-list" class="loading">
-                Loading registrations...
-            </div>
-        </div>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-box">
+  <h2>🦐 Dashboard</h2>
+  <p class="sub">Tour Chú Lãm — Bảng quản lý</p>
+  <input type="email" id="emailInput" placeholder="Email" autocomplete="email">
+  <input type="password" id="passInput" placeholder="Mật khẩu" autocomplete="current-password">
+  <button onclick="doLogin()">Đăng nhập</button>
+  <p class="login-err" id="loginErr">Sai email hoặc mật khẩu</p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="app" style="display:none">
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>🦐 Dashboard <span>Tour Chú Lãm</span></h1>
+      <div class="meta">Cập nhật: <span id="lastUpdate">—</span></div>
+    </div>
+    <button class="btn-logout" onclick="logout()">Đăng xuất</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="overview">📊 Tổng quan</div>
+    <div class="tab" data-tab="agents">🤖 Agents</div>
+    <div class="tab" data-tab="infra">🖥️ Hạ tầng</div>
+    <div class="tab" data-tab="cron">⏰ Cron Jobs</div>
+    <div class="tab" data-tab="projects">📂 Dự án</div>
+    <div class="tab" data-tab="channels">📱 Kênh</div>
+    <div class="tab" data-tab="ro-workflow">🐶 Rô Workflow</div>
+    <div class="tab" data-tab="seo">🔍 SEO</div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="sec-overview">
+    <div class="stats" id="overviewStats"></div>
+    <div class="card">
+      <h3><span class="icon">🔴</span> Cần xử lý</h3>
+      <ul class="item-list" id="actionItems"></ul>
+    </div>
+    <div class="card">
+      <h3><span class="icon">✅</span> Hoàn thành gần đây</h3>
+      <ul class="item-list" id="recentDone"></ul>
+    </div>
+  </div>
+
+  <!-- AGENTS -->
+  <div class="section" id="sec-agents">
+    <div class="card">
+      <h3><span class="icon">🤖</span> Nhân sự AI</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Agent</th><th>Vai trò</th><th>Máy</th><th>Model</th><th>Trạng thái</th></tr></thead>
+          <tbody id="agentTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- INFRA -->
+  <div class="section" id="sec-infra">
+    <div class="card">
+      <h3><span class="icon">🖥️</span> Hạ tầng</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Hệ thống</th><th>Chi tiết</th><th>Trạng thái</th></tr></thead>
+          <tbody id="infraTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CRON -->
+  <div class="section" id="sec-cron">
+    <div class="card">
+      <h3><span class="icon">⏰</span> Cron Jobs</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tên</th><th>Lịch</th><th>Mô tả</th><th>Trạng thái</th></tr></thead>
+          <tbody id="cronTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div class="section" id="sec-projects">
+    <div class="card">
+      <h3><span class="icon">🟢</span> Đang chạy</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Dự án</th><th>Mô tả</th><th>Ghi chú</th></tr></thead>
+          <tbody id="activeProjects"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h3><span class="icon">🟡</span> Đang xây</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Dự án</th><th>Mô tả</th><th>Ghi chú</th></tr></thead>
+          <tbody id="inProgressProjects"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHANNELS -->
+  <div class="section" id="sec-channels">
+    <div class="card">
+      <h3><span class="icon">📱</span> Kênh liên lạc</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Kênh</th><th>Mục đích</th><th>Agent xử lý</th></tr></thead>
+          <tbody id="channelTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RÔ WORKFLOW -->
+  <div class="section" id="sec-ro-workflow">
+
+    <!-- FILE TREE -->
+    <div class="card">
+      <h3><span class="icon">📂</span> Cây thư mục scripts</h3>
+      <pre style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:14px;font-size:.78em;line-height:1.6;color:#94a3b8;overflow-x:auto;margin:8px 0">
+<span style="color:#fafafa;font-weight:700">skills/tour-chulam/</span>
+├── <span style="color:#22d3ee">SKILL.md</span>                      <span style="color:#52525b">(12.8K — workflow chính)</span>
+│
+├── <span style="color:#fafafa">scripts/</span>
+│   ├── <span style="color:#3b82f6">tour-advisor.mjs</span>          <span style="color:#52525b">(28K — lọc tour + check ngày + giá)</span>
+│   ├── <span style="color:#3b82f6">bao-gia.mjs</span>               <span style="color:#52525b">(10K — báo giá, 17 tour codes TOUR_DATA)</span>
+│   ├── <span style="color:#10b981">tour-calendar.mjs create</span>  <span style="color:#52525b">(40K — Calendar + nhóm + xác nhận ALL-IN-1)</span>
+│   ├── <span style="color:#10b981">tour-calendar.mjs find-update</span> <span style="color:#52525b">(sửa Calendar + gửi cập nhật)</span>
+│   ├── <span style="color:#3b82f6">chot-booking.mjs</span>          <span style="color:#52525b">(9K — chốt booking pipeline)</span>
+│   ├── <span style="color:#3b82f6">escalate.mjs</span>              <span style="color:#52525b">(2.6K — hỏi chú)</span>
+│   ├── <span style="color:#3b82f6">resolve-escalation.mjs</span>    <span style="color:#52525b">(2.6K — forward reply chú → khách)</span>
+│   └── <span style="color:#71717a;font-size:.9em">deprecated: chot-booking, bao-chu, filter-tour, xac-nhan-tour → đã xóa</span>
+│
+├── <span style="color:#fafafa">references/</span>
+│   ├── <span style="color:#f59e0b">catalog.md</span>                <span style="color:#52525b">(38K — 17 tour: lịch trình, menu, giá)</span>
+│   ├── <span style="color:#f59e0b">blocked-tours.json</span>        <span style="color:#52525b">(ngày blocked per-tour)</span>
+│   ├── <span style="color:#71717a">diem-don.md</span>               <span style="color:#52525b">(4.7K — điểm đón theo tour)</span>
+│   ├── <span style="color:#71717a">phu-thu-giam-tru.md</span>       <span style="color:#52525b">(3.2K — phụ thu / giảm trừ)</span>
+│   ├── <span style="color:#71717a">thanh-toan.md</span>             <span style="color:#52525b">(1.4K — STK cọc)</span>
+│   ├── <span style="color:#71717a">doi-tac.md</span>                <span style="color:#52525b">(1K — đối tác: anh Bi...)</span>
+│   ├── <span style="color:#71717a">dieu-kien-nhan-khach.md</span>   <span style="color:#52525b">(1.7K — bảng lọc tour)</span>
+│   ├── <span style="color:#71717a">tour-dac-biet.md</span>          <span style="color:#52525b">(1.6K — Hòn Rùa, Cano VH)</span>
+│   ├── <span style="color:#71717a">hop-dong-*</span>                <span style="color:#52525b">(19K — template hợp đồng)</span>
+│   ├── <span style="color:#71717a">catalog-sao-bien.md</span>       <span style="color:#52525b">(13K — catalog Sao Biển)</span>
+│   ├── <span style="color:#71717a">catalog-resort-vinh-hy.md</span> <span style="color:#52525b">(4K — catalog Resort VH)</span>
+│   └── <span style="color:#71717a">nha-xe-giuong-nam.md</span>      <span style="color:#52525b">(9K — nhà xe)</span>
+│
+└── <span style="color:#fafafa">lib/</span> → Google Calendar API</pre>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:.75em;margin-top:6px">
+        <span><span style="color:#3b82f6">■</span> Script chạy trực tiếp</span>
+        <span><span style="color:#10b981">■</span> ALL-IN-1 (auto gửi)</span>
+        <span><span style="color:#f59e0b">■</span> Data quan trọng</span>
+        <span><span style="color:#71717a">■</span> Reference/tra cứu</span>
+      </div>
     </div>
 
-    <script>
-        // Real-time registration data from API
-        let registrations = [];
-        
-        async function loadRegistrations() {
-            try {
-                document.getElementById('registrations-list').innerHTML = '<div class="loading">Loading registrations...</div>';
-                
-                // Try to fetch from current API first
-                const response = await fetch('https://email-automation-skill.vercel.app/api/admin-dashboard?token=admin123');
-                if (!response.ok) throw new Error('API unavailable');
-                
-                const html = await response.text();
-                
-                // Extract registration data from HTML (fallback to mock data)
-                console.log('Dashboard loaded, parsing data...');
-                
-                // Use static data for now while API is being updated
-                registrations = [
-                    {
-                        id: '1',
-                        timestamp: '2026-05-07 13:08:00',
-                        name: 'Chú Lãm - Test Real Registration',
-                        phone: '0939999832',
-                        email: 'tourchulam@gmail.com',
-                        company: 'Tour Chú Lãm',
-                        ai_experience: 'Thỉnh thoảng, cơ bản',
-                        status: 'pending',
-                        notes: 'Real registration from form test at 13:08'
-                    },
-                    {
-                        id: '2',
-                        timestamp: '2026-05-07 09:09:00',
-                        name: 'LIVE TEST - Phạm Văn B',
-                        phone: '0987654321',
-                        email: 'tourchulam@gmail.com',
-                        company: 'Du Lịch Miền Tây',
-                        ai_experience: 'Có kinh nghiệm',
-                        status: 'paid'
-                    },
-                    {
-                        id: '3',
-                        timestamp: '2026-05-07 08:30:00',
-                        name: 'TEST QR URL ATTACHMENT',
-                        phone: '0939999832',
-                        email: 'tourchulam@gmail.com',
-                        company: 'Tour Chú Lãm',
-                        ai_experience: 'Thỉnh thoảng, cơ bản',
-                        status: 'pending'
-                    }
-                ];
-                
-                renderRegistrations();
-                updateStats();
-                
-            } catch (error) {
-                console.error('Error loading registrations:', error);
-                document.getElementById('registrations-list').innerHTML = '<div class="loading">❌ Error loading data. Check console for details.</div>';
-            }
-        }
-        
-        function renderRegistrations() {
-            const container = document.getElementById('registrations-list');
-            
-            if (registrations.length === 0) {
-                container.innerHTML = '<div class="loading">No registrations found</div>';
-                return;
-            }
-            
-            container.innerHTML = registrations.map(reg => `
-                <div class="registration-item">
-                    <div class="registration-info">
-                        <h3>${reg.name}</h3>
-                        <p>📞 ${reg.phone} • 📧 ${reg.email}</p>
-                        <p>🏢 ${reg.company || 'N/A'} • 🤖 ${reg.ai_experience || 'N/A'}</p>
-                        <p>🕐 ${reg.timestamp}</p>
-                        ${reg.notes ? `<p><em>${reg.notes}</em></p>` : ''}
-                    </div>
-                    <div>
-                        <span class="status ${reg.status}">${reg.status}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        function updateStats() {
-            document.getElementById('total-count').textContent = registrations.length;
-            document.getElementById('pending-count').textContent = registrations.filter(r => r.status === 'pending').length;
-            document.getElementById('paid-count').textContent = registrations.filter(r => r.status === 'paid').length;
-        }
-        
-        // Auto-refresh every 30 seconds
-        setInterval(loadRegistrations, 30000);
-        
-        // Load initially
-        loadRegistrations();
-        
-        console.log('📊 Admin Dashboard Manual v1.0');
-        console.log('🔄 Auto-refresh every 30 seconds');
-        console.log('📧 Email automation: https://email-automation-skill.vercel.app/');
-    </script>
+    <!-- WORKFLOW A -->
+    <div class="card">
+      <h3><span class="icon">💬</span> Workflow A: Khách nhắn trực tiếp</h3>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0">
+        <span style="background:#334155;padding:5px 10px;border-radius:6px;font-size:.82em">1. Hỏi info</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">2. tour-advisor.mjs</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#334155;padding:5px 10px;border-radius:6px;font-size:.82em">3. Tư vấn</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">4. bao-gia.mjs</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#334155;padding:5px 10px;border-radius:6px;font-size:.82em">5. Chờ cọc</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#065f46;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #10b981">6. calendar create</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Bước</th><th>Rô làm gì</th><th>Loại</th></tr></thead>
+          <tbody>
+            <tr><td>1. Hỏi info</td><td>Hỏi: số người, ngày, tuổi TE</td><td><span style="background:#92400e;color:#fcd34d;padding:2px 6px;border-radius:4px;font-size:.75em">MANUAL</span></td></tr>
+            <tr><td>2. Check tour</td><td><code>tour-advisor.mjs --nl X --date Y</code></td><td><span style="background:#1e40af;color:#93c5fd;padding:2px 6px;border-radius:4px;font-size:.75em">SCRIPT</span></td></tr>
+            <tr><td>3. Tư vấn</td><td>Dựa output script, copy từ catalog.md</td><td><span style="background:#92400e;color:#fcd34d;padding:2px 6px;border-radius:4px;font-size:.75em">MANUAL</span></td></tr>
+            <tr><td>4. Báo giá</td><td><code>bao-gia.mjs --json --send &lt;thread&gt;</code></td><td><span style="background:#1e40af;color:#93c5fd;padding:2px 6px;border-radius:4px;font-size:.75em">SCRIPT</span></td></tr>
+            <tr><td>5. Chờ cọc</td><td>Khách báo cọc → nhắn chú xác nhận</td><td><span style="background:#92400e;color:#fcd34d;padding:2px 6px;border-radius:4px;font-size:.75em">MANUAL</span></td></tr>
+            <tr><td>6. Chốt</td><td><code>tour-calendar.mjs create --customer-thread</code></td><td><span style="background:#065f46;color:#6ee7b7;padding:2px 6px;border-radius:4px;font-size:.75em">ALL-IN-1</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:#10b981;font-size:.8em;margin-top:8px">Bước 6 auto: Calendar ✓ Nhóm VH ✓ Xác nhận chú ✓ Xác nhận khách ✓</p>
+    </div>
+
+    <!-- WORKFLOW B -->
+    <div class="card">
+      <h3><span class="icon">📨</span> Workflow B: Chú forward booking</h3>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0">
+        <span style="background:#334155;padding:5px 10px;border-radius:6px;font-size:.82em">1. Đọc forward</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">2. Check ngày+giá</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#065f46;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #10b981">3. calendar create</span>
+      </div>
+      <p style="color:#94a3b8;font-size:.8em">Không --customer-thread → chỉ gửi chú, không gửi khách</p>
+    </div>
+
+    <!-- UPDATE BOOKING -->
+    <div class="card">
+      <h3><span class="icon">✏️</span> Sửa booking (sau khi đã chốt)</h3>
+      <div style="background:#0f172a;border:1px solid #334155;border-radius:6px;padding:8px 12px;font-family:monospace;font-size:.8em;color:#93c5fd;margin:8px 0">
+        tour-calendar.mjs find-update --name "Tên" --rooms/--adults/... --customer-thread &lt;id&gt;
+      </div>
+      <p style="color:#6ee7b7;font-size:.82em">✅ Sửa Calendar + gửi cập nhật chú + khách + nhóm</p>
+      <p style="color:#fca5a5;font-size:.82em">⛔ KHÔNG dùng <code>create</code> để sửa — create = thêm mới</p>
+    </div>
+
+    <!-- ESCALATE -->
+    <div class="card">
+      <h3><span class="icon">🔔</span> Escalate (hỏi chú)</h3>
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0">
+        <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">escalate.mjs</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#334155;padding:5px 10px;border-radius:6px;font-size:.82em">Chờ chú reply</span>
+        <span style="color:#64748b">→</span>
+        <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">resolve-escalation.mjs</span>
+      </div>
+      <p style="color:#94a3b8;font-size:.8em">Khi: ngày blocked · tour ngoài catalog · customize · đoàn riêng · VAT · script lỗi</p>
+    </div>
+
+    <!-- SCRIPTS TABLE -->
+    <div class="card">
+      <h3><span class="icon">⚙️</span> Scripts</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Script</th><th>Chức năng</th><th>Size</th></tr></thead>
+          <tbody>
+            <tr><td><code>tour-advisor.mjs</code></td><td>Lọc tour + check ngày + giá theo số khách + blocked-tours</td><td>28K</td></tr>
+            <tr><td><code>bao-gia.mjs</code></td><td>Tạo + gửi báo giá (17 tour codes TOUR_DATA, auto-fill)</td><td>10K</td></tr>
+            <tr><td><code>tour-calendar.mjs create</code></td><td>Calendar + nhóm + xác nhận chú/khách <span style="color:#10b981">(ALL-IN-1)</span></td><td>40K</td></tr>
+            <tr><td><code>tour-calendar.mjs find-update</code></td><td>Sửa Calendar + gửi cập nhật chú/khách/nhóm <span style="color:#10b981">(ALL-IN-1)</span></td><td>—</td></tr>
+            <tr><td><code>escalate.mjs</code></td><td>Hỏi chú + ghi pending-escalations.json</td><td>2.6K</td></tr>
+            <tr><td><code>resolve-escalation.mjs</code></td><td>Forward reply chú cho khách</td><td>2.6K</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RULES -->
+    <div class="card">
+      <h3><span class="icon">🚫</span> Rô KHÔNG ĐƯỢC</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.85em">
+        <div>⛔ Tự compose báo giá</div>
+        <div>⛔ Tự compose xác nhận</div>
+        <div>⛔ Tự nhớ giá / suy đoán giá</div>
+        <div>⛔ Dùng <code>create</code> để sửa booking</div>
+        <div>⛔ Gửi <code>NO_REPLY</code> cho khách</div>
+        <div>⛔ Hỏi chú chính sách TE</div>
+        <div>⛔ Bịa lịch trình ngoài catalog</div>
+        <div>⛔ Bỏ bước xác nhận sau chốt</div>
+        <div>⛔ Tự gửi nhóm Resort VH</div>
+        <div>⛔ Hỏi SĐT trên Zalo</div>
+      </div>
+    </div>
+
+    <!-- TỰ XỬ LÝ -->
+    <div class="card">
+      <h3><span class="icon">✅</span> Rô TỰ XỬ LÝ</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.85em">
+        <div>🟢 Phân loại tuổi NL/TE/EB</div>
+        <div>🟢 Tính giá (chạy script)</div>
+        <div>🟢 Check ngày (chạy script)</div>
+        <div>🟢 Khách đổi ngày → chạy lại</div>
+        <div>🟢 Khách thêm/bớt người</div>
+        <div>🟢 Hỏi khách tuổi trẻ em</div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="card">
+      <h3><span class="icon">💰</span> Chính sách giá</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Tuổi</th><th>Loại</th><th>Giá</th></tr></thead>
+          <tbody>
+            <tr><td>≥ 10</td><td>NL</td><td>100%</td></tr>
+            <tr><td>5–9</td><td>TE</td><td>50% giá · 50% dịch vụ (ăn riêng, ngủ chung NL)</td></tr>
+            <tr><td>< 5</td><td>EB</td><td>Miễn phí</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:#94a3b8;font-size:.8em;margin-top:8px">2TE = 1NL (minimum + phòng) · Cọc lẻ: 200k/khách · Đoàn HĐ+VAT: 30% · VH P2: +200k/đêm</p>
+    </div>
+
+    <!-- ARCHITECTURE -->
+    <div class="card">
+      <h3><span class="icon">🏗️</span> Kiến trúc workspace</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Workspace</th><th>Vai trò</th><th>Sync</th></tr></thead>
+          <tbody>
+            <tr><td><code>workspace-ro</code></td><td>Rô chạy (MASTER)</td><td>→ main mỗi giờ (auto)</td></tr>
+            <tr><td><code>workspace-main</code></td><td>Tôm monitor (BACKUP)</td><td>→ ro khi cần (thủ công)</td></tr>
+            <tr><td><code>workspace-bg</code></td><td>BG báo giá</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:#f59e0b;font-size:.8em;margin-top:8px">⚠️ Symlink đã fix (21/05) → real copy. Sửa 1 bên không ảnh hưởng bên kia.</p>
+    </div>
+
+    <p style="text-align:center;color:#52525b;font-size:.72em;margin-top:12px">Cập nhật: 21/05/2026 09:57 · Managed by Tôm 🦐</p>
+  </div>
+
+</div>
+
+  <!-- SEO TAB -->
+  <div class="section" id="sec-seo">
+    <div class="card">
+      <h3><span class="icon">📈</span> Ranking chulam.vn — Brave Search (22/05/2026)</h3>
+      <p style="color:#71717a;font-size:.78em;margin-bottom:12px">Vị trí chulam.vn trên kết quả tìm kiếm cho các từ khóa chính. GSC token đang reauth.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Từ khóa</th><th>Vị trí</th><th>URL</th><th>Ghi chú</th></tr></thead>
+          <tbody id="seoRankTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">📊</span> Indexed Pages</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>URL</th><th>Title</th><th>Trạng thái</th></tr></thead>
+          <tbody id="seoIndexTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">⚡</span> SEO Action Items</h3>
+      <ul class="items" id="seoActions"></ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">🏆</span> Đối thủ Top 3</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Từ khóa</th><th>#1</th><th>#2</th><th>#3</th></tr></thead>
+          <tbody id="seoCompetitorTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// --- AUTH ---
+const VALID_HASH = '5cd03f9e26fcdb65b9f769fdebaf5c3c025a325b58b904f4b5e963beadbf7464';
+
+async function sha256(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function doLogin() {
+  const email = document.getElementById('emailInput').value.trim();
+  const pass = document.getElementById('passInput').value;
+  const hash = await sha256(email + ':' + pass);
+  if (hash === VALID_HASH) {
+    localStorage.setItem('dash_auth', hash);
+    showApp();
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('dash_auth');
+  location.reload();
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  renderAll();
+}
+
+window.onload = function() {
+  const saved = localStorage.getItem('dash_auth');
+  if (saved === VALID_HASH) showApp();
+  document.getElementById('passInput').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+};
+
+// --- TABS ---
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// --- DATA (inline, updated by Tôm's script) ---
+const DASHBOARD_DATA = {
+  lastUpdate: '2026-05-22 07:30',
+
+  overview: {
+    stats: [
+      { num: 3, label: 'Agents', cls: 'cyan' },
+      { num: 6, label: 'Cron Jobs', cls: 'green' },
+      { num: 4, label: 'Đang chạy', cls: 'cyan' },
+      { num: 2, label: 'Cần xử lý', cls: 'red' },
+      { num: 8, label: 'Đã xong', cls: 'green' },
+      { num: 18, label: 'Skills', cls: 'purple' }
+    ],
+    actions: [
+      { name: 'Rô ít hoạt động 12-17/05', desc: 'Check gateway máy Home', badge: 'err', badgeText: 'Cao' },
+      { name: 'BA Gallery ảnh homepage', desc: 'Widget lấy ảnh từ custom field, chưa fix', badge: 'warn', badgeText: 'Trung bình' }
+    ],
+    done: [
+      { name: 'Sửa memory logic + escalate rule Rô', date: '18/05' },
+      { name: 'Pull Home→Work cron + sync 2 chiều', date: '18/05' },
+      { name: 'Refactor skills Rô (Plan C)', date: '17/05' },
+      { name: 'Fix schema JSON-LD 2 tour', date: '16/05' },
+      { name: 'Gán featured image 17/17 tour', date: '16/05' },
+      { name: 'Setup CloakBrowser + Google login', date: '16/05' },
+      { name: 'Setup Telegram @tomworkcrawbot', date: '16/05' },
+      { name: 'Xóa Sò, Tôm nhận SEO + web', date: '11/05' }
+    ]
+  },
+
+  agents: [
+    { name: '🦐 Tôm', role: 'Quản lý, SEO, web, báo cáo', machine: 'MacBook Pro (Work)', model: 'Opus', status: 'ok', statusText: 'Hoạt động' },
+    { name: '🐶 Rô', role: 'Tư vấn khách Zalo', machine: 'MacBook Pro (Home)', model: 'Opus', status: 'warn', statusText: 'Ít hoạt động' },
+    { name: '💰 BG', role: 'Báo giá tự động', machine: 'MacBook Pro (Work)', model: 'Opus', status: 'info', statusText: 'Standby' }
+  ],
+
+  infra: [
+    { name: 'Máy Work', detail: 'MacBook Pro (PH) · 100.81.232.41', status: 'ok' },
+    { name: 'Máy Home', detail: 'MacBook Pro (Nguyên) · 100.122.187.101', status: 'ok' },
+    { name: 'SSH Work↔Home', detail: 'ssh nguyenvietlam@100.122.187.101', status: 'ok' },
+    { name: 'chulam.vn', detail: 'WordPress + Tevily + BA Book Everything', status: 'ok' },
+    { name: 'CloakBrowser', detail: 'Google login persistent profile', status: 'ok' },
+    { name: 'Anthropic API', detail: 'Gói Max ~2tr7/tháng · Opus all agents', status: 'ok' }
+  ],
+
+  cron: [
+    { name: 'Sync Work→Home', schedule: 'Mỗi 3h', desc: 'rsync workspace qua Tailscale', status: 'ok' },
+    { name: 'Pull Rô Home→Work', schedule: '5h00', desc: 'rsync --update memory Rô (merge)', status: 'ok' },
+    { name: 'Review Rô', schedule: '5h30', desc: 'SSH Home, review chất lượng tư vấn', status: 'ok' },
+    { name: 'Báo cáo sáng', schedule: '6h00', desc: 'Email tổng hợp → tourchulam@gmail.com', status: 'ok' },
+    { name: 'Báo cáo tuần', schedule: 'CN 7h00', desc: 'Email tuần GSC + Ads + CWV', status: 'ok' },
+    { name: 'Calendar Backup', schedule: '2h00', desc: 'Backup Google Calendar offline', status: 'ok' }
+  ],
+
+  projects: {
+    active: [
+      { name: 'Vận hành tour', desc: 'Rô tư vấn + chốt booking tự động', note: 'SKILL.md mới deploy 17/05' },
+      { name: 'Báo cáo tự động', desc: 'Email sáng 6h + tuần CN 7h', note: 'Fix data Rô từ Home 18/05' },
+      { name: 'SEO chulam.vn', desc: 'On-page + blog cluster + GSC', note: '1K clicks milestone 🎉' },
+      { name: 'Sync Work↔Home', desc: 'Tailscale rsync 2 chiều', note: 'Pull H→W mới thêm 18/05' }
+    ],
+    inProgress: [
+      { name: 'Showcase AI', desc: 'Workshop/event registration', note: '10 đăng ký' },
+      { name: 'FB Messenger Bot', desc: 'Chatbot tư vấn tour trên FB', note: 'Skill có, chưa deploy' },
+      { name: 'Marketing FB→Zalo', desc: 'Chiến dịch ads ROI', note: 'Planning' }
+    ]
+  },
+
+  channels: [
+    { name: 'Zalo 0917', purpose: 'Khách lẻ → Rô tư vấn', agent: '🐶 Rô' },
+    { name: 'Zalo 0939', purpose: 'Chú Lãm chính', agent: 'Escalate từ Rô' },
+    { name: 'Telegram @tomworkcrawbot', purpose: 'Tôm ↔ Chú (nội bộ)', agent: '🦐 Tôm' },
+    { name: 'Gmail tourchulam@', purpose: 'Báo cáo, thông báo', agent: '🦐 Tôm (auto)' },
+    { name: 'Webchat CrawBot', purpose: 'Chú ↔ Tôm trực tiếp', agent: '🦐 Tôm' }
+  ],
+
+  seo: {
+    rankings: [
+      { keyword: 'tour bình hưng 2 ngày 1 đêm', pos: '—', url: '', note: '❌ Không top 10. Đối thủ: tourchudong, dulichdaobinhhung, letsflytravel' },
+      { keyword: 'tour bình ba 2 ngày 1 đêm', pos: 2, url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', note: '✅ Page 1 — sau vietnamtouristvn' },
+      { keyword: 'tour vĩnh hy 2 ngày 1 đêm', pos: '—', url: '', note: '❌ Không top 10. Đối thủ: vinhhydiscovery, vietnamtouristvn' },
+      { keyword: 'tour đảo cam ranh', pos: '—', url: '', note: '❌ Không top 10' },
+      { keyword: 'tour chú lãm', pos: 1, url: 'chulam.vn/', note: '✅ #1 brand search' },
+      { keyword: 'tour chú lãm cam ranh', pos: 1, url: 'chulam.vn/', note: '✅ #1 brand search' },
+      { keyword: '"chulam.vn" tour', pos: '—', url: '', note: '8 pages indexed (Brave). Blog + /to_book/ đều lên' },
+      { keyword: 'tour bình hưng vĩnh hy', pos: '—', url: '', note: '⚠️ Cần SEO on-page + blog cluster' },
+      { keyword: 'tour tứ bình cam ranh', pos: '—', url: '/tour-tu-binh-cam-ranh-review-binh-ba-binh-hung-2026/', note: '⚠️ Blog bài review đã index' }
+    ],
+    indexed: [
+      { url: '/to_book/tour-dao-binh-hung-2-ngay-1-dem/', title: 'Tour Đảo Bình Hưng 2N1Đ — Từ 1.650K', status: 'indexed' },
+      { url: '/to_book/tour-binh-hung-vinh-hy-2-ngay-1-dem/', title: 'Tour BH Vĩnh Hy 2N1Đ — 1.890K', status: 'indexed' },
+      { url: '/to_book/tour-binh-hung-vinh-hy-3-ngay-2-dem/', title: 'Tour BH Vĩnh Hy 3N2Đ — 2.990K', status: 'indexed' },
+      { url: '/to_book/tour-dao-binh-ba-2-ngay-1-dem/', title: 'Tour Đảo Bình Ba 2N1Đ — Từ 1.650K', status: 'indexed' },
+      { url: '/to_book/tour-binh-ba-vinh-hy-3-ngay-2-dem/', title: 'Tour BB Vĩnh Hy 3N2Đ — 2.990K', status: 'indexed' },
+      { url: '/to_book/tour-san-ban-ca-dao-binh-hung-trong-ngay/', title: 'Tour SBC Bình Hưng Trong Ngày', status: 'indexed' },
+      { url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', title: 'Tour Đảo Bình Ba (2N1Đ) — booking', status: 'indexed' },
+      { url: '/booking/tour-binh-hung-vinh-hy-2-ngay-1-dem/', title: 'Tour BH Vĩnh Hy 2N1Đ — booking', status: 'indexed' },
+      { url: '/booking/tour-dao-binh-hung-2-ngay-1-dem/', title: 'Tour Đảo BH 2N1Đ — booking', status: 'indexed' },
+      { url: '/tour-tu-binh-cam-ranh-review-binh-ba-binh-hung-2026/', title: 'Tour Tứ Bình Cam Ranh — Review 2026', status: 'indexed' },
+      { url: '/tour-dao-binh-hung-review-chi-tiet-gia-2026/', title: 'Tour Đảo BH — Review + Giá 2026', status: 'indexed' },
+      { url: '/tour-binh-hung-vinh-hy-3-ngay-2-dem/', title: 'Tour BHVH 3N2Đ blog', status: 'indexed' }
+    ],
+    actions: [
+      { name: '🔑 GSC Token Reauth', desc: 'Token expired — cần reauth để có data clicks/impressions chính xác', badge: 'err', badgeText: 'Urgent' },
+      { name: '📝 Blog cluster "tour bình hưng"', desc: 'Từ khóa chính không top 10. Cần 3-5 bài blog + internal link về /to_book/', badge: 'warn', badgeText: 'High' },
+      { name: '📝 Blog cluster "tour vĩnh hy"', desc: 'Không top 10. Cần blog "kinh nghiệm tour vĩnh hy" + link /to_book/', badge: 'warn', badgeText: 'High' },
+      { name: '🔗 Internal linking', desc: 'Blog → /to_book/ pages cần thêm link. Hiện blog chưa link đúng', badge: 'info', badgeText: 'Medium' },
+      { name: '📱 /booking/ vs /to_book/', desc: 'Duplicate content: cùng tour có 2 URL (/booking/ cũ + /to_book/ mới). Cần redirect /booking/ → /to_book/', badge: 'warn', badgeText: 'High' },
+      { name: '⚡ Schema markup', desc: 'Thêm TourTrip schema cho trang /to_book/ — Google rich results', badge: 'info', badgeText: 'Medium' }
+    ],
+    competitors: [
+      { keyword: 'tour bình hưng 2N1Đ', top1: 'tourchudong.com', top2: 'dulichdaobinhhung.com', top3: 'letsflytravel.vn' },
+      { keyword: 'tour bình ba 2N1Đ', top1: 'vietnamtouristvn.com', top2: '✅ chulam.vn', top3: 'saigonstartravel.com' },
+      { keyword: 'tour vĩnh hy 2N1Đ', top1: 'vinhhydiscovery.com', top2: 'vietnamtouristvn.com', top3: 'dulichhaidang.com' },
+      { keyword: 'tour tứ bình', top1: '⚠️ chưa check', top2: '', top3: '' }
+    ]
+  }
+};
+
+// --- RENDER ---
+function renderAll() {
+  document.getElementById('lastUpdate').textContent = DASHBOARD_DATA.lastUpdate;
+
+  // Overview stats
+  const statsHtml = DASHBOARD_DATA.overview.stats.map(s =>
+    `<div class="stat"><div class="stat-num ${s.cls}">${s.num}</div><div class="stat-label">${s.label}</div></div>`
+  ).join('');
+  document.getElementById('overviewStats').innerHTML = statsHtml;
+
+  // Action items
+  const actHtml = DASHBOARD_DATA.overview.actions.map(a =>
+    `<li><span class="item-name">${a.name}</span><span class="item-desc">${a.desc}</span><span class="badge badge-${a.badge}">${a.badgeText}</span></li>`
+  ).join('');
+  document.getElementById('actionItems').innerHTML = actHtml || '<li style="color:#71717a">Không có việc cần xử lý 🎉</li>';
+
+  // Recent done
+  const doneHtml = DASHBOARD_DATA.overview.done.map(d =>
+    `<li><span class="item-name">${d.name}</span><span class="badge badge-ok">${d.date}</span></li>`
+  ).join('');
+  document.getElementById('recentDone').innerHTML = doneHtml;
+
+  // Agents
+  const badgeMap = { ok:'ok', warn:'warn', err:'err', info:'info', off:'off' };
+  document.getElementById('agentTable').innerHTML = DASHBOARD_DATA.agents.map(a =>
+    `<tr><td style="color:#fafafa;font-weight:600">${a.name}</td><td>${a.role}</td><td style="color:#71717a">${a.machine}</td><td>${a.model}</td><td><span class="badge badge-${badgeMap[a.status]}">${a.statusText}</span></td></tr>`
+  ).join('');
+
+  // Infra
+  document.getElementById('infraTable').innerHTML = DASHBOARD_DATA.infra.map(i =>
+    `<tr><td style="color:#fafafa;font-weight:600">${i.name}</td><td style="color:#71717a">${i.detail}</td><td><span class="badge badge-${i.status}">OK</span></td></tr>`
+  ).join('');
+
+  // Cron
+  document.getElementById('cronTable').innerHTML = DASHBOARD_DATA.cron.map(c =>
+    `<tr><td style="color:#fafafa;font-weight:600">${c.name}</td><td>${c.schedule}</td><td style="color:#71717a">${c.desc}</td><td><span class="badge badge-${c.status}">OK</span></td></tr>`
+  ).join('');
+
+  // Projects
+  document.getElementById('activeProjects').innerHTML = DASHBOARD_DATA.projects.active.map((p,i) =>
+    `<tr><td>${i+1}</td><td style="color:#fafafa;font-weight:600">${p.name}</td><td style="color:#71717a">${p.desc}</td><td style="font-size:0.8rem">${p.note}</td></tr>`
+  ).join('');
+  document.getElementById('inProgressProjects').innerHTML = DASHBOARD_DATA.projects.inProgress.map((p,i) =>
+    `<tr><td>${i+1}</td><td style="color:#fafafa;font-weight:600">${p.name}</td><td style="color:#71717a">${p.desc}</td><td style="font-size:0.8rem">${p.note}</td></tr>`
+  ).join('');
+
+  // Channels
+  document.getElementById('channelTable').innerHTML = DASHBOARD_DATA.channels.map(c =>
+    `<tr><td style="color:#fafafa;font-weight:600">${c.name}</td><td>${c.purpose}</td><td>${c.agent}</td></tr>`
+  ).join('');
+
+  // SEO
+  if (DASHBOARD_DATA.seo) {
+    document.getElementById('seoRankTable').innerHTML = DASHBOARD_DATA.seo.rankings.map(r =>
+      `<tr><td style="color:#fafafa;font-weight:600">${r.keyword}</td><td><span class="badge badge-${r.pos <= 3 ? 'ok' : r.pos <= 10 ? 'warn' : r.pos === '—' ? 'err' : 'info'}">${r.pos}</span></td><td style="font-size:.78em;color:#71717a">${r.url||''}</td><td style="font-size:.78em">${r.note||''}</td></tr>`
+    ).join('');
+    document.getElementById('seoIndexTable').innerHTML = DASHBOARD_DATA.seo.indexed.map(p =>
+      `<tr><td style="font-size:.78em;color:#22d3ee">${p.url}</td><td style="font-size:.82em">${p.title}</td><td><span class="badge badge-${p.status==='indexed'?'ok':'warn'}">${p.status}</span></td></tr>`
+    ).join('');
+    document.getElementById('seoActions').innerHTML = DASHBOARD_DATA.seo.actions.map(a =>
+      `<li><span class="item-name">${a.name}</span><span class="item-desc">${a.desc}</span><span class="badge badge-${a.badge}">${a.badgeText}</span></li>`
+    ).join('');
+    document.getElementById('seoCompetitorTable').innerHTML = DASHBOARD_DATA.seo.competitors.map(c =>
+      `<tr><td style="color:#fafafa;font-weight:600;font-size:.82em">${c.keyword}</td><td style="font-size:.78em">${c.top1}</td><td style="font-size:.78em">${c.top2}</td><td style="font-size:.78em">${c.top3}</td></tr>`
+    ).join('');
+  }
+}
+</script>
 </body>
 </html>
