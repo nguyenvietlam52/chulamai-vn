@@ -472,7 +472,8 @@ function logout() {
 }
 
 function showApp() {
-  document.getElementById('loginScreen').style.display = 'none';
+  const login = document.getElementById('loginScreen');
+  if (login) login.style.display = 'none';
   document.getElementById('app').style.display = 'block';
   fetchLiveData().then(() => renderAll());
 }
