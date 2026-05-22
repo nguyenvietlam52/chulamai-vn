@@ -511,13 +511,16 @@ window.onload = function() {
 };
 
 // --- TABS ---
+function switchTab(tabName) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  const tab = document.querySelector(`.tab[data-tab="${tabName}"]`);
+  if (tab) tab.classList.add('active');
+  const sec = document.getElementById('sec-' + tabName);
+  if (sec) sec.classList.add('active');
+}
 document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('sec-' + tab.dataset.tab).classList.add('active');
-  });
+  tab.addEventListener('click', () => switchTab(tab.dataset.tab));
 });
 
 // --- DATA (inline, updated by Tôm's script) ---
@@ -642,10 +645,13 @@ const DASHBOARD_DATA = {
 function renderAll() {
   document.getElementById('lastUpdate').textContent = DASHBOARD_DATA.lastUpdate;
 
-  // Overview stats
-  const statsHtml = DASHBOARD_DATA.overview.stats.map(s =>
-    `<div class="stat"><div class="stat-num ${s.cls}">${s.num}</div><div class="stat-label">${s.label}</div></div>`
-  ).join('');
+  // Overview stats — click to navigate to related tab
+  const statTabMap = { 'Agents': 'agents', 'Cron Jobs': 'cron', 'Đang chạy': 'agents', 'Cần xử lý': 'overview', 'Tasks hôm nay': 'overview', 'Skills': 'projects' };
+  const statsHtml = DASHBOARD_DATA.overview.stats.map(s => {
+    const tab = statTabMap[s.label] || '';
+    const clickAttr = tab ? ` onclick="switchTab('${tab}')" style="cursor:pointer"` : '';
+    return `<div class="stat"${clickAttr}><div class="stat-num ${s.cls}">${s.num}</div><div class="stat-label">${s.label}</div></div>`;
+  }).join('');
   document.getElementById('overviewStats').innerHTML = statsHtml;
 
   // Action items
