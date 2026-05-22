@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-05-22T01:48:54.620Z",
-  "generatedIn": "5.3s",
+  "updatedAt": "2026-05-22T01:55:24.433Z",
+  "generatedIn": "4.6s",
   "period": {
     "from": "2026-04-24",
     "to": "2026-05-22"
@@ -36,6 +36,49 @@
         "num": 24,
         "label": "Skills",
         "cls": "purple"
+      }
+    ],
+    "actions": [],
+    "done": [
+      {
+        "name": "GSC Reauth  (07:35)",
+        "date": "05/22"
+      },
+      {
+        "name": "GSC Data Highlights (22/05)",
+        "date": "05/22"
+      },
+      {
+        "name": "Dashboard Updates (07:35-08:10)",
+        "date": "05/22"
+      },
+      {
+        "name": "Bài học (08:00)",
+        "date": "05/22"
+      },
+      {
+        "name": "BUG FIX: bao-gia.mjs giá sai toàn bộ (08:14-08:25)",
+        "date": "05/22"
+      },
+      {
+        "name": "Ngày blocked (cập nhật 07:31 21/05)",
+        "date": "05/21"
+      },
+      {
+        "name": "BG --quote flag merged (14:00)",
+        "date": "05/21"
+      },
+      {
+        "name": "XGN cleanup hoàn tất (14:10)",
+        "date": "05/21"
+      },
+      {
+        "name": "Dashboard upgrade — bỏ email, lên web (10:15-10:25)",
+        "date": "05/20"
+      },
+      {
+        "name": "Sự cố sync config Work→Home (11:05-12:30)",
+        "date": "05/20"
       }
     ]
   },
