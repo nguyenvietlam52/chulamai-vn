@@ -124,6 +124,7 @@ tr:hover{background:rgba(34,211,238,0.02)}
     <div class="tab" data-tab="projects">📂 Dự án</div>
     <div class="tab" data-tab="channels">📱 Kênh</div>
     <div class="tab" data-tab="ro-workflow">🐶 Rô Workflow</div>
+    <div class="tab" data-tab="seo">🔍 SEO</div>
   </div>
 
   <!-- OVERVIEW -->
@@ -216,6 +217,47 @@ tr:hover{background:rgba(34,211,238,0.02)}
   <!-- RÔ WORKFLOW -->
   <div class="section" id="sec-ro-workflow">
 
+    <!-- FILE TREE -->
+    <div class="card">
+      <h3><span class="icon">📂</span> Cây thư mục scripts</h3>
+      <pre style="background:#0f172a;border:1px solid #334155;border-radius:8px;padding:14px;font-size:.78em;line-height:1.6;color:#94a3b8;overflow-x:auto;margin:8px 0">
+<span style="color:#fafafa;font-weight:700">skills/tour-chulam/</span>
+├── <span style="color:#22d3ee">SKILL.md</span>                      <span style="color:#52525b">(12.8K — workflow chính)</span>
+│
+├── <span style="color:#fafafa">scripts/</span>
+│   ├── <span style="color:#3b82f6">tour-advisor.mjs</span>          <span style="color:#52525b">(28K — lọc tour + check ngày + giá)</span>
+│   ├── <span style="color:#3b82f6">bao-gia.mjs</span>               <span style="color:#52525b">(10K — báo giá, 17 tour codes TOUR_DATA)</span>
+│   ├── <span style="color:#10b981">tour-calendar.mjs create</span>  <span style="color:#52525b">(40K — Calendar + nhóm + xác nhận ALL-IN-1)</span>
+│   ├── <span style="color:#10b981">tour-calendar.mjs find-update</span> <span style="color:#52525b">(sửa Calendar + gửi cập nhật)</span>
+│   ├── <span style="color:#3b82f6">chot-booking.mjs</span>          <span style="color:#52525b">(9K — chốt booking pipeline)</span>
+│   ├── <span style="color:#3b82f6">escalate.mjs</span>              <span style="color:#52525b">(2.6K — hỏi chú)</span>
+│   ├── <span style="color:#3b82f6">resolve-escalation.mjs</span>    <span style="color:#52525b">(2.6K — forward reply chú → khách)</span>
+│   └── <span style="color:#71717a;font-size:.9em">deprecated: chot-booking, bao-chu, filter-tour, xac-nhan-tour → đã xóa</span>
+│
+├── <span style="color:#fafafa">references/</span>
+│   ├── <span style="color:#f59e0b">catalog.md</span>                <span style="color:#52525b">(38K — 17 tour: lịch trình, menu, giá)</span>
+│   ├── <span style="color:#f59e0b">blocked-tours.json</span>        <span style="color:#52525b">(ngày blocked per-tour)</span>
+│   ├── <span style="color:#71717a">diem-don.md</span>               <span style="color:#52525b">(4.7K — điểm đón theo tour)</span>
+│   ├── <span style="color:#71717a">phu-thu-giam-tru.md</span>       <span style="color:#52525b">(3.2K — phụ thu / giảm trừ)</span>
+│   ├── <span style="color:#71717a">thanh-toan.md</span>             <span style="color:#52525b">(1.4K — STK cọc)</span>
+│   ├── <span style="color:#71717a">doi-tac.md</span>                <span style="color:#52525b">(1K — đối tác: anh Bi...)</span>
+│   ├── <span style="color:#71717a">dieu-kien-nhan-khach.md</span>   <span style="color:#52525b">(1.7K — bảng lọc tour)</span>
+│   ├── <span style="color:#71717a">tour-dac-biet.md</span>          <span style="color:#52525b">(1.6K — Hòn Rùa, Cano VH)</span>
+│   ├── <span style="color:#71717a">hop-dong-*</span>                <span style="color:#52525b">(19K — template hợp đồng)</span>
+│   ├── <span style="color:#71717a">catalog-sao-bien.md</span>       <span style="color:#52525b">(13K — catalog Sao Biển)</span>
+│   ├── <span style="color:#71717a">catalog-resort-vinh-hy.md</span> <span style="color:#52525b">(4K — catalog Resort VH)</span>
+│   └── <span style="color:#71717a">nha-xe-giuong-nam.md</span>      <span style="color:#52525b">(9K — nhà xe)</span>
+│
+└── <span style="color:#fafafa">lib/</span> → Google Calendar API</pre>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;font-size:.75em;margin-top:6px">
+        <span><span style="color:#3b82f6">■</span> Script chạy trực tiếp</span>
+        <span><span style="color:#10b981">■</span> ALL-IN-1 (auto gửi)</span>
+        <span><span style="color:#f59e0b">■</span> Data quan trọng</span>
+        <span><span style="color:#71717a">■</span> Reference/tra cứu</span>
+      </div>
+    </div>
+
+    <!-- WORKFLOW A -->
     <div class="card">
       <h3><span class="icon">💬</span> Workflow A: Khách nhắn trực tiếp</h3>
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0">
@@ -229,7 +271,7 @@ tr:hover{background:rgba(34,211,238,0.02)}
         <span style="color:#64748b">→</span>
         <span style="background:#334155;padding:5px 10px;border-radius:6px;font-size:.82em">5. Chờ cọc</span>
         <span style="color:#64748b">→</span>
-        <span style="background:#065f46;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #10b981">6. tour-calendar.mjs create</span>
+        <span style="background:#065f46;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #10b981">6. calendar create</span>
       </div>
       <div class="table-wrap">
         <table>
@@ -244,9 +286,10 @@ tr:hover{background:rgba(34,211,238,0.02)}
           </tbody>
         </table>
       </div>
-      <p style="color:#94a3b8;font-size:.8em;margin-top:8px">Bước 6 tự động: Calendar + nhóm Resort VH + xác nhận chú + xác nhận khách</p>
+      <p style="color:#10b981;font-size:.8em;margin-top:8px">Bước 6 auto: Calendar ✓ Nhóm VH ✓ Xác nhận chú ✓ Xác nhận khách ✓</p>
     </div>
 
+    <!-- WORKFLOW B -->
     <div class="card">
       <h3><span class="icon">📨</span> Workflow B: Chú forward booking</h3>
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0">
@@ -254,20 +297,22 @@ tr:hover{background:rgba(34,211,238,0.02)}
         <span style="color:#64748b">→</span>
         <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">2. Check ngày+giá</span>
         <span style="color:#64748b">→</span>
-        <span style="background:#065f46;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #10b981">3. tour-calendar.mjs create</span>
+        <span style="background:#065f46;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #10b981">3. calendar create</span>
       </div>
-      <p style="color:#94a3b8;font-size:.8em">Không có --customer-thread → chỉ gửi chú, không gửi khách</p>
+      <p style="color:#94a3b8;font-size:.8em">Không --customer-thread → chỉ gửi chú, không gửi khách</p>
     </div>
 
+    <!-- UPDATE BOOKING -->
     <div class="card">
-      <h3><span class="icon">✏️</span> Sửa booking (sau khi chốt)</h3>
+      <h3><span class="icon">✏️</span> Sửa booking (sau khi đã chốt)</h3>
       <div style="background:#0f172a;border:1px solid #334155;border-radius:6px;padding:8px 12px;font-family:monospace;font-size:.8em;color:#93c5fd;margin:8px 0">
         tour-calendar.mjs find-update --name "Tên" --rooms/--adults/... --customer-thread &lt;id&gt;
       </div>
       <p style="color:#6ee7b7;font-size:.82em">✅ Sửa Calendar + gửi cập nhật chú + khách + nhóm</p>
-      <p style="color:#fca5a5;font-size:.82em">⛔ KHÔNG dùng create để sửa — create = thêm mới</p>
+      <p style="color:#fca5a5;font-size:.82em">⛔ KHÔNG dùng <code>create</code> để sửa — create = thêm mới</p>
     </div>
 
+    <!-- ESCALATE -->
     <div class="card">
       <h3><span class="icon">🔔</span> Escalate (hỏi chú)</h3>
       <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:12px 0">
@@ -277,34 +322,36 @@ tr:hover{background:rgba(34,211,238,0.02)}
         <span style="color:#64748b">→</span>
         <span style="background:#1e40af;padding:5px 10px;border-radius:6px;font-size:.82em;border:1px solid #3b82f6">resolve-escalation.mjs</span>
       </div>
-      <p style="color:#94a3b8;font-size:.8em">Khi: ngày blocked, tour ngoài catalog, customize, đoàn riêng, VAT, script lỗi</p>
+      <p style="color:#94a3b8;font-size:.8em">Khi: ngày blocked · tour ngoài catalog · customize · đoàn riêng · VAT · script lỗi</p>
     </div>
 
+    <!-- SCRIPTS TABLE -->
     <div class="card">
       <h3><span class="icon">⚙️</span> Scripts</h3>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>Script</th><th>Chức năng</th></tr></thead>
+          <thead><tr><th>Script</th><th>Chức năng</th><th>Size</th></tr></thead>
           <tbody>
-            <tr><td><code>tour-advisor.mjs</code></td><td>Lọc tour + check ngày + giá theo số khách</td></tr>
-            <tr><td><code>bao-gia.mjs</code></td><td>Tạo + gửi báo giá (17 tour codes)</td></tr>
-            <tr><td><code>tour-calendar.mjs create</code></td><td>Calendar + nhóm + xác nhận chú/khách (ALL-IN-1)</td></tr>
-            <tr><td><code>tour-calendar.mjs find-update</code></td><td>Sửa Calendar + gửi cập nhật (ALL-IN-1)</td></tr>
-            <tr><td><code>escalate.mjs</code></td><td>Hỏi chú + ghi pending</td></tr>
-            <tr><td><code>resolve-escalation.mjs</code></td><td>Forward reply chú cho khách</td></tr>
+            <tr><td><code>tour-advisor.mjs</code></td><td>Lọc tour + check ngày + giá theo số khách + blocked-tours</td><td>28K</td></tr>
+            <tr><td><code>bao-gia.mjs</code></td><td>Tạo + gửi báo giá (17 tour codes TOUR_DATA, auto-fill)</td><td>10K</td></tr>
+            <tr><td><code>tour-calendar.mjs create</code></td><td>Calendar + nhóm + xác nhận chú/khách <span style="color:#10b981">(ALL-IN-1)</span></td><td>40K</td></tr>
+            <tr><td><code>tour-calendar.mjs find-update</code></td><td>Sửa Calendar + gửi cập nhật chú/khách/nhóm <span style="color:#10b981">(ALL-IN-1)</span></td><td>—</td></tr>
+            <tr><td><code>escalate.mjs</code></td><td>Hỏi chú + ghi pending-escalations.json</td><td>2.6K</td></tr>
+            <tr><td><code>resolve-escalation.mjs</code></td><td>Forward reply chú cho khách</td><td>2.6K</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
+    <!-- RULES -->
     <div class="card">
       <h3><span class="icon">🚫</span> Rô KHÔNG ĐƯỢC</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.85em">
         <div>⛔ Tự compose báo giá</div>
         <div>⛔ Tự compose xác nhận</div>
         <div>⛔ Tự nhớ giá / suy đoán giá</div>
-        <div>⛔ Dùng create để sửa booking</div>
-        <div>⛔ Gửi NO_REPLY cho khách</div>
+        <div>⛔ Dùng <code>create</code> để sửa booking</div>
+        <div>⛔ Gửi <code>NO_REPLY</code> cho khách</div>
         <div>⛔ Hỏi chú chính sách TE</div>
         <div>⛔ Bịa lịch trình ngoài catalog</div>
         <div>⛔ Bỏ bước xác nhận sau chốt</div>
@@ -313,6 +360,20 @@ tr:hover{background:rgba(34,211,238,0.02)}
       </div>
     </div>
 
+    <!-- TỰ XỬ LÝ -->
+    <div class="card">
+      <h3><span class="icon">✅</span> Rô TỰ XỬ LÝ</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:.85em">
+        <div>🟢 Phân loại tuổi NL/TE/EB</div>
+        <div>🟢 Tính giá (chạy script)</div>
+        <div>🟢 Check ngày (chạy script)</div>
+        <div>🟢 Khách đổi ngày → chạy lại</div>
+        <div>🟢 Khách thêm/bớt người</div>
+        <div>🟢 Hỏi khách tuổi trẻ em</div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
     <div class="card">
       <h3><span class="icon">💰</span> Chính sách giá</h3>
       <div class="table-wrap">
@@ -328,10 +389,66 @@ tr:hover{background:rgba(34,211,238,0.02)}
       <p style="color:#94a3b8;font-size:.8em;margin-top:8px">2TE = 1NL (minimum + phòng) · Cọc lẻ: 200k/khách · Đoàn HĐ+VAT: 30% · VH P2: +200k/đêm</p>
     </div>
 
-    <p style="text-align:center;color:#52525b;font-size:.72em;margin-top:12px">Cập nhật: 21/05/2026 · Managed by Tôm 🦐</p>
+    <!-- ARCHITECTURE -->
+    <div class="card">
+      <h3><span class="icon">🏗️</span> Kiến trúc workspace</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Workspace</th><th>Vai trò</th><th>Sync</th></tr></thead>
+          <tbody>
+            <tr><td><code>workspace-ro</code></td><td>Rô chạy (MASTER)</td><td>→ main mỗi giờ (auto)</td></tr>
+            <tr><td><code>workspace-main</code></td><td>Tôm monitor (BACKUP)</td><td>→ ro khi cần (thủ công)</td></tr>
+            <tr><td><code>workspace-bg</code></td><td>BG báo giá</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color:#f59e0b;font-size:.8em;margin-top:8px">⚠️ Symlink đã fix (21/05) → real copy. Sửa 1 bên không ảnh hưởng bên kia.</p>
+    </div>
+
+    <p style="text-align:center;color:#52525b;font-size:.72em;margin-top:12px">Cập nhật: 21/05/2026 09:57 · Managed by Tôm 🦐</p>
   </div>
 
 </div>
+
+  <!-- SEO TAB -->
+  <div class="section" id="sec-seo">
+    <div class="card">
+      <h3><span class="icon">📈</span> Ranking chulam.vn — Brave Search (22/05/2026)</h3>
+      <p style="color:#71717a;font-size:.78em;margin-bottom:12px">Vị trí chulam.vn trên kết quả tìm kiếm cho các từ khóa chính. GSC token đang reauth.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Từ khóa</th><th>Vị trí</th><th>URL</th><th>Ghi chú</th></tr></thead>
+          <tbody id="seoRankTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">📊</span> Indexed Pages</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>URL</th><th>Title</th><th>Trạng thái</th></tr></thead>
+          <tbody id="seoIndexTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">⚡</span> SEO Action Items</h3>
+      <ul class="items" id="seoActions"></ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">🏆</span> Đối thủ Top 3</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Từ khóa</th><th>#1</th><th>#2</th><th>#3</th></tr></thead>
+          <tbody id="seoCompetitorTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <div class="toast" id="toast"></div>
@@ -386,7 +503,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 // --- DATA (inline, updated by Tôm's script) ---
 const DASHBOARD_DATA = {
-  lastUpdate: '2026-05-18 09:16',
+  lastUpdate: '2026-05-22 07:30',
 
   overview: {
     stats: [
@@ -457,7 +574,49 @@ const DASHBOARD_DATA = {
     { name: 'Telegram @tomworkcrawbot', purpose: 'Tôm ↔ Chú (nội bộ)', agent: '🦐 Tôm' },
     { name: 'Gmail tourchulam@', purpose: 'Báo cáo, thông báo', agent: '🦐 Tôm (auto)' },
     { name: 'Webchat CrawBot', purpose: 'Chú ↔ Tôm trực tiếp', agent: '🦐 Tôm' }
-  ]
+  ],
+
+  seo: {
+    rankings: [
+      { keyword: 'tour bình hưng 2 ngày 1 đêm', pos: '—', url: '', note: '❌ Không top 10. Đối thủ: tourchudong, dulichdaobinhhung, letsflytravel' },
+      { keyword: 'tour bình ba 2 ngày 1 đêm', pos: 2, url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', note: '✅ Page 1 — sau vietnamtouristvn' },
+      { keyword: 'tour vĩnh hy 2 ngày 1 đêm', pos: '—', url: '', note: '❌ Không top 10. Đối thủ: vinhhydiscovery, vietnamtouristvn' },
+      { keyword: 'tour đảo cam ranh', pos: '—', url: '', note: '❌ Không top 10' },
+      { keyword: 'tour chú lãm', pos: 1, url: 'chulam.vn/', note: '✅ #1 brand search' },
+      { keyword: 'tour chú lãm cam ranh', pos: 1, url: 'chulam.vn/', note: '✅ #1 brand search' },
+      { keyword: '"chulam.vn" tour', pos: '—', url: '', note: '8 pages indexed (Brave). Blog + /to_book/ đều lên' },
+      { keyword: 'tour bình hưng vĩnh hy', pos: '—', url: '', note: '⚠️ Cần SEO on-page + blog cluster' },
+      { keyword: 'tour tứ bình cam ranh', pos: '—', url: '/tour-tu-binh-cam-ranh-review-binh-ba-binh-hung-2026/', note: '⚠️ Blog bài review đã index' }
+    ],
+    indexed: [
+      { url: '/to_book/tour-dao-binh-hung-2-ngay-1-dem/', title: 'Tour Đảo Bình Hưng 2N1Đ — Từ 1.650K', status: 'indexed' },
+      { url: '/to_book/tour-binh-hung-vinh-hy-2-ngay-1-dem/', title: 'Tour BH Vĩnh Hy 2N1Đ — 1.890K', status: 'indexed' },
+      { url: '/to_book/tour-binh-hung-vinh-hy-3-ngay-2-dem/', title: 'Tour BH Vĩnh Hy 3N2Đ — 2.990K', status: 'indexed' },
+      { url: '/to_book/tour-dao-binh-ba-2-ngay-1-dem/', title: 'Tour Đảo Bình Ba 2N1Đ — Từ 1.650K', status: 'indexed' },
+      { url: '/to_book/tour-binh-ba-vinh-hy-3-ngay-2-dem/', title: 'Tour BB Vĩnh Hy 3N2Đ — 2.990K', status: 'indexed' },
+      { url: '/to_book/tour-san-ban-ca-dao-binh-hung-trong-ngay/', title: 'Tour SBC Bình Hưng Trong Ngày', status: 'indexed' },
+      { url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', title: 'Tour Đảo Bình Ba (2N1Đ) — booking', status: 'indexed' },
+      { url: '/booking/tour-binh-hung-vinh-hy-2-ngay-1-dem/', title: 'Tour BH Vĩnh Hy 2N1Đ — booking', status: 'indexed' },
+      { url: '/booking/tour-dao-binh-hung-2-ngay-1-dem/', title: 'Tour Đảo BH 2N1Đ — booking', status: 'indexed' },
+      { url: '/tour-tu-binh-cam-ranh-review-binh-ba-binh-hung-2026/', title: 'Tour Tứ Bình Cam Ranh — Review 2026', status: 'indexed' },
+      { url: '/tour-dao-binh-hung-review-chi-tiet-gia-2026/', title: 'Tour Đảo BH — Review + Giá 2026', status: 'indexed' },
+      { url: '/tour-binh-hung-vinh-hy-3-ngay-2-dem/', title: 'Tour BHVH 3N2Đ blog', status: 'indexed' }
+    ],
+    actions: [
+      { name: '🔑 GSC Token Reauth', desc: 'Token expired — cần reauth để có data clicks/impressions chính xác', badge: 'err', badgeText: 'Urgent' },
+      { name: '📝 Blog cluster "tour bình hưng"', desc: 'Từ khóa chính không top 10. Cần 3-5 bài blog + internal link về /to_book/', badge: 'warn', badgeText: 'High' },
+      { name: '📝 Blog cluster "tour vĩnh hy"', desc: 'Không top 10. Cần blog "kinh nghiệm tour vĩnh hy" + link /to_book/', badge: 'warn', badgeText: 'High' },
+      { name: '🔗 Internal linking', desc: 'Blog → /to_book/ pages cần thêm link. Hiện blog chưa link đúng', badge: 'info', badgeText: 'Medium' },
+      { name: '📱 /booking/ vs /to_book/', desc: 'Duplicate content: cùng tour có 2 URL (/booking/ cũ + /to_book/ mới). Cần redirect /booking/ → /to_book/', badge: 'warn', badgeText: 'High' },
+      { name: '⚡ Schema markup', desc: 'Thêm TourTrip schema cho trang /to_book/ — Google rich results', badge: 'info', badgeText: 'Medium' }
+    ],
+    competitors: [
+      { keyword: 'tour bình hưng 2N1Đ', top1: 'tourchudong.com', top2: 'dulichdaobinhhung.com', top3: 'letsflytravel.vn' },
+      { keyword: 'tour bình ba 2N1Đ', top1: 'vietnamtouristvn.com', top2: '✅ chulam.vn', top3: 'saigonstartravel.com' },
+      { keyword: 'tour vĩnh hy 2N1Đ', top1: 'vinhhydiscovery.com', top2: 'vietnamtouristvn.com', top3: 'dulichhaidang.com' },
+      { keyword: 'tour tứ bình', top1: '⚠️ chưa check', top2: '', top3: '' }
+    ]
+  }
 };
 
 // --- RENDER ---
@@ -510,6 +669,22 @@ function renderAll() {
   document.getElementById('channelTable').innerHTML = DASHBOARD_DATA.channels.map(c =>
     `<tr><td style="color:#fafafa;font-weight:600">${c.name}</td><td>${c.purpose}</td><td>${c.agent}</td></tr>`
   ).join('');
+
+  // SEO
+  if (DASHBOARD_DATA.seo) {
+    document.getElementById('seoRankTable').innerHTML = DASHBOARD_DATA.seo.rankings.map(r =>
+      `<tr><td style="color:#fafafa;font-weight:600">${r.keyword}</td><td><span class="badge badge-${r.pos <= 3 ? 'ok' : r.pos <= 10 ? 'warn' : r.pos === '—' ? 'err' : 'info'}">${r.pos}</span></td><td style="font-size:.78em;color:#71717a">${r.url||''}</td><td style="font-size:.78em">${r.note||''}</td></tr>`
+    ).join('');
+    document.getElementById('seoIndexTable').innerHTML = DASHBOARD_DATA.seo.indexed.map(p =>
+      `<tr><td style="font-size:.78em;color:#22d3ee">${p.url}</td><td style="font-size:.82em">${p.title}</td><td><span class="badge badge-${p.status==='indexed'?'ok':'warn'}">${p.status}</span></td></tr>`
+    ).join('');
+    document.getElementById('seoActions').innerHTML = DASHBOARD_DATA.seo.actions.map(a =>
+      `<li><span class="item-name">${a.name}</span><span class="item-desc">${a.desc}</span><span class="badge badge-${a.badge}">${a.badgeText}</span></li>`
+    ).join('');
+    document.getElementById('seoCompetitorTable').innerHTML = DASHBOARD_DATA.seo.competitors.map(c =>
+      `<tr><td style="color:#fafafa;font-weight:600;font-size:.82em">${c.keyword}</td><td style="font-size:.78em">${c.top1}</td><td style="font-size:.78em">${c.top2}</td><td style="font-size:.78em">${c.top3}</td></tr>`
+    ).join('');
+  }
 }
 </script>
 </body>
