@@ -1,13 +1,369 @@
 {
-  "updatedAt": "2026-05-22T01:38:47.296Z",
+  "updatedAt": "2026-05-22T01:44:43.085Z",
+  "generatedIn": "5.3s",
   "period": {
     "from": "2026-04-24",
     "to": "2026-05-22"
   },
-  "queries": [],
-  "pages": [],
-  "totals": {
-    "clicks": 0,
-    "impressions": 0
+  "overview": {
+    "stats": [
+      {
+        "num": 3,
+        "label": "Agents",
+        "cls": "cyan"
+      },
+      {
+        "num": 2,
+        "label": "Cron Jobs",
+        "cls": "green"
+      },
+      {
+        "num": 2,
+        "label": "Đang chạy",
+        "cls": "cyan"
+      },
+      {
+        "num": 0,
+        "label": "Cần xử lý",
+        "cls": "red"
+      },
+      {
+        "num": 5,
+        "label": "Tasks hôm nay",
+        "cls": "green"
+      },
+      {
+        "num": 24,
+        "label": "Skills",
+        "cls": "purple"
+      }
+    ]
+  },
+  "agents": [
+    {
+      "name": "🦐 Tôm",
+      "role": "Quản lý, SEO, web, báo cáo",
+      "machine": "MacBook Pro (Work)",
+      "model": "Opus",
+      "status": "ok",
+      "statusText": "Hoạt động"
+    },
+    {
+      "name": "🐶 Rô",
+      "role": "Tư vấn khách Zalo",
+      "machine": "MacBook Pro (Home)",
+      "model": "Codex",
+      "status": "ok",
+      "statusText": "Hoạt động (May 22 08:14)"
+    },
+    {
+      "name": "💰 BG",
+      "role": "Báo giá tự động",
+      "machine": "MacBook Pro (Work)",
+      "model": "Codex",
+      "status": "info",
+      "statusText": "Standby"
+    }
+  ],
+  "infra": [
+    {
+      "name": "Máy Work",
+      "detail": "MacBook Pro (PH)",
+      "status": "ok"
+    },
+    {
+      "name": "Máy Home",
+      "detail": "MacBook Pro (Nguyên) · 100.122.187.101",
+      "status": "ok"
+    },
+    {
+      "name": "SSH Work↔Home",
+      "detail": "ssh nguyenvietlam@100.122.187.101",
+      "status": "ok"
+    },
+    {
+      "name": "chulam.vn",
+      "detail": "WordPress + Tevily + BA Book Everything",
+      "status": "ok"
+    },
+    {
+      "name": "CloakBrowser",
+      "detail": "Google login persistent profile",
+      "status": "warn"
+    },
+    {
+      "name": "Anthropic API",
+      "detail": "Gói Max ~2tr7/tháng · Opus",
+      "status": "ok"
+    }
+  ],
+  "cron": [
+    {
+      "name": "Sync Home→Work",
+      "schedule": "Mỗi giờ phút 0",
+      "desc": "rsync workspace qua Tailscale",
+      "status": "ok"
+    },
+    {
+      "name": "Dashboard Update",
+      "schedule": "6h00",
+      "desc": "Pull GSC → push JSON",
+      "status": "ok"
+    }
+  ],
+  "gsc": {
+    "queries": [
+      {
+        "key": "tour đảo bình ba 2 ngày 1 đêm",
+        "clicks": 49,
+        "impressions": 208,
+        "ctr": "23.6%",
+        "position": 2.3
+      },
+      {
+        "key": "tour bình ba 2 ngày 1 đêm",
+        "clicks": 40,
+        "impressions": 147,
+        "ctr": "27.2%",
+        "position": 2.3
+      },
+      {
+        "key": "tour bình hưng vĩnh hy 3 ngày 2 đêm",
+        "clicks": 30,
+        "impressions": 237,
+        "ctr": "12.7%",
+        "position": 2.4
+      },
+      {
+        "key": "tour vĩnh hy 2 ngày 1 đêm",
+        "clicks": 27,
+        "impressions": 285,
+        "ctr": "9.5%",
+        "position": 4.8
+      },
+      {
+        "key": "tour chú lãm",
+        "clicks": 23,
+        "impressions": 34,
+        "ctr": "67.6%",
+        "position": 1.1
+      },
+      {
+        "key": "tour bình hưng vĩnh hy",
+        "clicks": 20,
+        "impressions": 262,
+        "ctr": "7.6%",
+        "position": 3.7
+      },
+      {
+        "key": "tour bình ba 3 ngày 2 đêm",
+        "clicks": 19,
+        "impressions": 132,
+        "ctr": "14.4%",
+        "position": 3.3
+      },
+      {
+        "key": "tour cano vĩnh hy",
+        "clicks": 16,
+        "impressions": 179,
+        "ctr": "8.9%",
+        "position": 4.3
+      },
+      {
+        "key": "tour vĩnh hy trong ngày",
+        "clicks": 16,
+        "impressions": 91,
+        "ctr": "17.6%",
+        "position": 5.2
+      },
+      {
+        "key": "tour bình hưng 3 ngày 2 đêm",
+        "clicks": 14,
+        "impressions": 327,
+        "ctr": "4.3%",
+        "position": 5.4
+      },
+      {
+        "key": "tour bình hưng vĩnh hy 2 ngày 1 đêm",
+        "clicks": 11,
+        "impressions": 100,
+        "ctr": "11.0%",
+        "position": 3.4
+      },
+      {
+        "key": "tour hòn rùa vĩnh hy",
+        "clicks": 11,
+        "impressions": 39,
+        "ctr": "28.2%",
+        "position": 2.2
+      },
+      {
+        "key": "tour vĩnh hy bình hưng",
+        "clicks": 10,
+        "impressions": 139,
+        "ctr": "7.2%",
+        "position": 4.2
+      },
+      {
+        "key": "vĩnh hy có gì chơi",
+        "clicks": 9,
+        "impressions": 238,
+        "ctr": "3.8%",
+        "position": 6.9
+      },
+      {
+        "key": "tour săn cá đảo bình hưng",
+        "clicks": 8,
+        "impressions": 44,
+        "ctr": "18.2%",
+        "position": 3
+      },
+      {
+        "key": "tour đảo bình ba 3 ngày 2 đêm",
+        "clicks": 8,
+        "impressions": 89,
+        "ctr": "9.0%",
+        "position": 2.7
+      },
+      {
+        "key": "tour săn cá bình hưng",
+        "clicks": 7,
+        "impressions": 51,
+        "ctr": "13.7%",
+        "position": 3.4
+      },
+      {
+        "key": "tour vĩnh hy bình hưng 3 ngày 2 đêm",
+        "clicks": 7,
+        "impressions": 46,
+        "ctr": "15.2%",
+        "position": 2.3
+      },
+      {
+        "key": "tour bình hưng 3n2d",
+        "clicks": 6,
+        "impressions": 30,
+        "ctr": "20.0%",
+        "position": 3.5
+      },
+      {
+        "key": "tour cano vĩnh hy 1 ngày",
+        "clicks": 6,
+        "impressions": 50,
+        "ctr": "12.0%",
+        "position": 3.9
+      }
+    ],
+    "pages": [
+      {
+        "key": "tour đảo bình ba 2 ngày 1 đêm",
+        "clicks": 49,
+        "impressions": 208,
+        "ctr": "23.6%",
+        "position": 2.3
+      },
+      {
+        "key": "tour bình ba 2 ngày 1 đêm",
+        "clicks": 40,
+        "impressions": 147,
+        "ctr": "27.2%",
+        "position": 2.3
+      },
+      {
+        "key": "tour bình hưng vĩnh hy 3 ngày 2 đêm",
+        "clicks": 30,
+        "impressions": 237,
+        "ctr": "12.7%",
+        "position": 2.4
+      },
+      {
+        "key": "tour vĩnh hy 2 ngày 1 đêm",
+        "clicks": 27,
+        "impressions": 285,
+        "ctr": "9.5%",
+        "position": 4.8
+      },
+      {
+        "key": "tour chú lãm",
+        "clicks": 23,
+        "impressions": 34,
+        "ctr": "67.6%",
+        "position": 1.1
+      },
+      {
+        "key": "tour bình hưng vĩnh hy",
+        "clicks": 20,
+        "impressions": 262,
+        "ctr": "7.6%",
+        "position": 3.7
+      },
+      {
+        "key": "tour bình ba 3 ngày 2 đêm",
+        "clicks": 19,
+        "impressions": 132,
+        "ctr": "14.4%",
+        "position": 3.3
+      },
+      {
+        "key": "tour cano vĩnh hy",
+        "clicks": 16,
+        "impressions": 179,
+        "ctr": "8.9%",
+        "position": 4.3
+      },
+      {
+        "key": "tour vĩnh hy trong ngày",
+        "clicks": 16,
+        "impressions": 91,
+        "ctr": "17.6%",
+        "position": 5.2
+      },
+      {
+        "key": "tour bình hưng 3 ngày 2 đêm",
+        "clicks": 14,
+        "impressions": 327,
+        "ctr": "4.3%",
+        "position": 5.4
+      },
+      {
+        "key": "tour bình hưng vĩnh hy 2 ngày 1 đêm",
+        "clicks": 11,
+        "impressions": 100,
+        "ctr": "11.0%",
+        "position": 3.4
+      },
+      {
+        "key": "tour hòn rùa vĩnh hy",
+        "clicks": 11,
+        "impressions": 39,
+        "ctr": "28.2%",
+        "position": 2.2
+      },
+      {
+        "key": "tour vĩnh hy bình hưng",
+        "clicks": 10,
+        "impressions": 139,
+        "ctr": "7.2%",
+        "position": 4.2
+      },
+      {
+        "key": "vĩnh hy có gì chơi",
+        "clicks": 9,
+        "impressions": 238,
+        "ctr": "3.8%",
+        "position": 6.9
+      },
+      {
+        "key": "tour săn cá đảo bình hưng",
+        "clicks": 8,
+        "impressions": 44,
+        "ctr": "18.2%",
+        "position": 3
+      }
+    ],
+    "totals": {
+      "clicks": 337,
+      "impressions": 2728
+    }
   }
 }
