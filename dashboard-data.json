@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-05-22T02:01:04.903Z",
-  "generatedIn": "4.6s",
+  "updatedAt": "2026-05-22T02:32:16.041Z",
+  "generatedIn": "5.1s",
   "period": {
     "from": "2026-04-24",
     "to": "2026-05-22"
@@ -18,7 +18,7 @@
         "cls": "green"
       },
       {
-        "num": 2,
+        "num": 3,
         "label": "Đang chạy",
         "cls": "cyan"
       },
@@ -86,7 +86,7 @@
     {
       "name": "🦐 Tôm",
       "role": "Quản lý, SEO, web, báo cáo",
-      "machine": "MacBook Pro (Work)",
+      "machine": "MacBook Pro (Home)",
       "model": "Opus",
       "status": "ok",
       "statusText": "Hoạt động"
@@ -102,10 +102,10 @@
     {
       "name": "💰 BG",
       "role": "Báo giá tự động",
-      "machine": "MacBook Pro (Work)",
+      "machine": "MacBook Pro (Home)",
       "model": "Codex",
-      "status": "info",
-      "statusText": "Standby"
+      "status": "ok",
+      "statusText": "Hoạt động"
     }
   ],
   "infra": [
