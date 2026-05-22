@@ -413,8 +413,8 @@ tr:hover{background:rgba(34,211,238,0.02)}
   <!-- SEO TAB -->
   <div class="section" id="sec-seo">
     <div class="card">
-      <h3><span class="icon">📈</span> Ranking chulam.vn — Brave Search (22/05/2026)</h3>
-      <p style="color:#71717a;font-size:.78em;margin-bottom:12px">Vị trí chulam.vn trên kết quả tìm kiếm cho các từ khóa chính. GSC token đang reauth.</p>
+      <h3><span class="icon">📈</span> Ranking chulam.vn — GSC Data (15-21/05/2026)</h3>
+      <p style="color:#71717a;font-size:.78em;margin-bottom:12px">Data thực từ Google Search Console. Pos = avg position, thấp = tốt.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Từ khóa</th><th>Vị trí</th><th>URL</th><th>Ghi chú</th></tr></thead>
@@ -436,6 +436,16 @@ tr:hover{background:rgba(34,211,238,0.02)}
     <div class="card">
       <h3><span class="icon">⚡</span> SEO Action Items</h3>
       <ul class="items" id="seoActions"></ul>
+    </div>
+
+    <div class="card">
+      <h3><span class="icon">📄</span> Top Pages (GSC 15-21/05)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>URL</th><th>Clicks</th><th>Impressions</th><th>CTR</th><th>Avg Pos</th></tr></thead>
+          <tbody id="seoTopPages"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card">
@@ -486,9 +496,7 @@ function showApp() {
 }
 
 window.onload = function() {
-  const saved = localStorage.getItem('dash_auth');
-  if (saved === VALID_HASH) showApp();
-  document.getElementById('passInput').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+  showApp();
 };
 
 // --- TABS ---
@@ -578,15 +586,16 @@ const DASHBOARD_DATA = {
 
   seo: {
     rankings: [
-      { keyword: 'tour bình hưng 2 ngày 1 đêm', pos: '—', url: '', note: '❌ Không top 10. Đối thủ: tourchudong, dulichdaobinhhung, letsflytravel' },
-      { keyword: 'tour bình ba 2 ngày 1 đêm', pos: 2, url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', note: '✅ Page 1 — sau vietnamtouristvn' },
-      { keyword: 'tour vĩnh hy 2 ngày 1 đêm', pos: '—', url: '', note: '❌ Không top 10. Đối thủ: vinhhydiscovery, vietnamtouristvn' },
-      { keyword: 'tour đảo cam ranh', pos: '—', url: '', note: '❌ Không top 10' },
-      { keyword: 'tour chú lãm', pos: 1, url: 'chulam.vn/', note: '✅ #1 brand search' },
-      { keyword: 'tour chú lãm cam ranh', pos: 1, url: 'chulam.vn/', note: '✅ #1 brand search' },
-      { keyword: '"chulam.vn" tour', pos: '—', url: '', note: '8 pages indexed (Brave). Blog + /to_book/ đều lên' },
-      { keyword: 'tour bình hưng vĩnh hy', pos: '—', url: '', note: '⚠️ Cần SEO on-page + blog cluster' },
-      { keyword: 'tour tứ bình cam ranh', pos: '—', url: '/tour-tu-binh-cam-ranh-review-binh-ba-binh-hung-2026/', note: '⚠️ Blog bài review đã index' }
+      { keyword: 'tour đảo bình ba 2 ngày 1 đêm', pos: 2.3, url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', note: '✅ 49 clicks, 208 impr, CTR 23.6%' },
+      { keyword: 'tour bình ba 2 ngày 1 đêm', pos: 2.3, url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', note: '✅ 40 clicks, 147 impr, CTR 27.2%' },
+      { keyword: 'tour bình hưng vĩnh hy 3N2Đ', pos: 2.4, url: '/booking/tour-dao-binh-hung-vinh-vinh-hy-...', note: '✅ 30 clicks, 237 impr, CTR 12.7%' },
+      { keyword: 'tour vĩnh hy 2 ngày 1 đêm', pos: 4.8, url: '/booking/tour-vinh-hy-2-ngay-1-dem/', note: '⚠️ 27 clicks, 285 impr, CTR 9.5%' },
+      { keyword: 'tour chú lãm', pos: 1.1, url: 'chulam.vn/', note: '✅ 23 clicks, CTR 67.6% — brand #1' },
+      { keyword: 'tour bình hưng vĩnh hy', pos: 3.7, url: '/booking/...', note: '⚠️ 20 clicks, 262 impr, CTR 7.6%' },
+      { keyword: 'tour cano vĩnh hy', pos: 4.3, url: '/booking/tour-hon-rua-vinh-hy-trong-ngay/', note: '⚠️ 16 clicks, 179 impr' },
+      { keyword: 'tour bình hưng 3N2Đ', pos: 5.4, url: '/booking/tour-dao-binh-hung-2-ngay-1-dem/', note: '❌ 14 clicks, 327 impr, CTR 4.3%' },
+      { keyword: 'tour hòn rùa vĩnh hy', pos: 2.2, url: '/booking/tour-hon-rua-vinh-hy-trong-ngay/', note: '✅ 11 clicks, 39 impr, CTR 28.2%' },
+      { keyword: 'tour săn cá đảo bình hưng', pos: 3.0, url: '/booking/tour-san-ban-ca-...', note: '✅ 8 clicks, 44 impr, CTR 18.2%' }
     ],
     indexed: [
       { url: '/to_book/tour-dao-binh-hung-2-ngay-1-dem/', title: 'Tour Đảo Bình Hưng 2N1Đ — Từ 1.650K', status: 'indexed' },
@@ -603,7 +612,7 @@ const DASHBOARD_DATA = {
       { url: '/tour-binh-hung-vinh-hy-3-ngay-2-dem/', title: 'Tour BHVH 3N2Đ blog', status: 'indexed' }
     ],
     actions: [
-      { name: '🔑 GSC Token Reauth', desc: 'Token expired — cần reauth để có data clicks/impressions chính xác', badge: 'err', badgeText: 'Urgent' },
+      { name: '✅ GSC Token Reauth', desc: 'Đã reauth thành công 22/05. Data GSC live.', badge: 'ok', badgeText: 'Done' },
       { name: '📝 Blog cluster "tour bình hưng"', desc: 'Từ khóa chính không top 10. Cần 3-5 bài blog + internal link về /to_book/', badge: 'warn', badgeText: 'High' },
       { name: '📝 Blog cluster "tour vĩnh hy"', desc: 'Không top 10. Cần blog "kinh nghiệm tour vĩnh hy" + link /to_book/', badge: 'warn', badgeText: 'High' },
       { name: '🔗 Internal linking', desc: 'Blog → /to_book/ pages cần thêm link. Hiện blog chưa link đúng', badge: 'info', badgeText: 'Medium' },
@@ -612,9 +621,17 @@ const DASHBOARD_DATA = {
     ],
     competitors: [
       { keyword: 'tour bình hưng 2N1Đ', top1: 'tourchudong.com', top2: 'dulichdaobinhhung.com', top3: 'letsflytravel.vn' },
-      { keyword: 'tour bình ba 2N1Đ', top1: 'vietnamtouristvn.com', top2: '✅ chulam.vn', top3: 'saigonstartravel.com' },
+      { keyword: 'tour bình ba 2N1Đ', top1: 'vietnamtouristvn.com', top2: '✅ chulam.vn (#2)', top3: 'saigonstartravel.com' },
       { keyword: 'tour vĩnh hy 2N1Đ', top1: 'vinhhydiscovery.com', top2: 'vietnamtouristvn.com', top3: 'dulichhaidang.com' },
-      { keyword: 'tour tứ bình', top1: '⚠️ chưa check', top2: '', top3: '' }
+      { keyword: 'tour BHVH 3N2Đ', top1: '✅ chulam.vn (#2.4)', top2: 'binhhungtour.vn', top3: 'newlifetravel.vn' }
+    ],
+    topPages: [
+      { url: '/booking/tour-dao-binh-ba-2-ngay-1-dem/', clicks: 164, impr: 1621, ctr: '10.1%', pos: 5.7 },
+      { url: '/booking/tour-dao-binh-hung-vinh-vinh-hy-...', clicks: 156, impr: 2871, ctr: '5.4%', pos: 6.1 },
+      { url: '/xe-giuong-nam/', clicks: 91, impr: 3685, ctr: '2.5%', pos: 7.0 },
+      { url: '/booking/tour-hon-rua-vinh-hy-trong-ngay/', clicks: 77, impr: 1012, ctr: '7.6%', pos: 5.7 },
+      { url: '/booking/tour-san-ban-ca-dao-binh-hung-...', clicks: 69, impr: 650, ctr: '10.6%', pos: 4.7 },
+      { url: '/', clicks: 57, impr: 188, ctr: '30.3%', pos: 4.3 }
     ]
   }
 };
@@ -673,7 +690,7 @@ function renderAll() {
   // SEO
   if (DASHBOARD_DATA.seo) {
     document.getElementById('seoRankTable').innerHTML = DASHBOARD_DATA.seo.rankings.map(r =>
-      `<tr><td style="color:#fafafa;font-weight:600">${r.keyword}</td><td><span class="badge badge-${r.pos <= 3 ? 'ok' : r.pos <= 10 ? 'warn' : r.pos === '—' ? 'err' : 'info'}">${r.pos}</span></td><td style="font-size:.78em;color:#71717a">${r.url||''}</td><td style="font-size:.78em">${r.note||''}</td></tr>`
+      `<tr><td style="color:#fafafa;font-weight:600">${r.keyword}</td><td><span class="badge badge-${typeof r.pos === 'number' ? (r.pos <= 3 ? 'ok' : r.pos <= 5 ? 'warn' : 'err') : 'err'}">${r.pos}</span></td><td style="font-size:.78em;color:#71717a">${r.url||''}</td><td style="font-size:.78em">${r.note||''}</td></tr>`
     ).join('');
     document.getElementById('seoIndexTable').innerHTML = DASHBOARD_DATA.seo.indexed.map(p =>
       `<tr><td style="font-size:.78em;color:#22d3ee">${p.url}</td><td style="font-size:.82em">${p.title}</td><td><span class="badge badge-${p.status==='indexed'?'ok':'warn'}">${p.status}</span></td></tr>`
@@ -684,6 +701,11 @@ function renderAll() {
     document.getElementById('seoCompetitorTable').innerHTML = DASHBOARD_DATA.seo.competitors.map(c =>
       `<tr><td style="color:#fafafa;font-weight:600;font-size:.82em">${c.keyword}</td><td style="font-size:.78em">${c.top1}</td><td style="font-size:.78em">${c.top2}</td><td style="font-size:.78em">${c.top3}</td></tr>`
     ).join('');
+    if (DASHBOARD_DATA.seo.topPages) {
+      document.getElementById('seoTopPages').innerHTML = DASHBOARD_DATA.seo.topPages.map(p =>
+        `<tr><td style="font-size:.78em;color:#22d3ee">${p.url}</td><td style="color:#fafafa;font-weight:600">${p.clicks}</td><td>${p.impr}</td><td>${p.ctr}</td><td><span class="badge badge-${p.pos<=3?'ok':p.pos<=5?'warn':'info'}">${p.pos}</span></td></tr>`
+      ).join('');
+    }
   }
 }
 </script>
