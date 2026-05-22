@@ -98,7 +98,7 @@ tr:hover{background:rgba(34,211,238,0.02)}
 <!-- LOGIN removed -->
 
 <!-- DASHBOARD -->
-<div id="app" style="display:none">
+<div id="app">
 <div class="container">
   <div class="header">
     <div>
@@ -472,9 +472,6 @@ function logout() {
 }
 
 function showApp() {
-  const login = document.getElementById('loginScreen');
-  if (login) login.style.display = 'none';
-  document.getElementById('app').style.display = 'block';
   fetchLiveData().then(() => renderAll());
 }
 
