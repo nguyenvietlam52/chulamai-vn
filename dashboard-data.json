@@ -1,6 +1,6 @@
 {
-  "updatedAt": "2026-05-22T02:32:16.041Z",
-  "generatedIn": "5.1s",
+  "updatedAt": "2026-05-22T02:33:53.813Z",
+  "generatedIn": "5.9s",
   "period": {
     "from": "2026-04-24",
     "to": "2026-05-22"
@@ -130,13 +130,28 @@
       "status": "ok"
     },
     {
-      "name": "CloakBrowser",
-      "detail": "Google login persistent profile",
-      "status": "warn"
+      "name": "chulamai.vn",
+      "detail": "GitHub Pages — Dashboard + Landing",
+      "status": "ok"
+    },
+    {
+      "name": "Zalo OA",
+      "detail": "0917.999.832 — Rô tư vấn khách",
+      "status": "ok"
+    },
+    {
+      "name": "Telegram Bot",
+      "detail": "@tomworkcrawbot — Tôm ↔ Chú",
+      "status": "ok"
     },
     {
       "name": "Anthropic API",
-      "detail": "Gói Max ~2tr7/tháng · Opus",
+      "detail": "Gói Max ~2tr7/tháng · Opus + Codex",
+      "status": "ok"
+    },
+    {
+      "name": "Google OAuth",
+      "detail": "GSC + Calendar + Gmail",
       "status": "ok"
     }
   ],
