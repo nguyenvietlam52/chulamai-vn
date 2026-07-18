@@ -365,16 +365,18 @@ function ocrComplete(p) { return p && okName(p.name) && okDob(p.dob) && okId(p.i
 async function ocrImage(img) {
   try {
     const scale = Math.min(1.6, 1400 / (img.width || 1));
-    // PASS 1 — full OCR hướng gốc
+    // Chấm điểm theo TRƯỜNG ĐỌC ĐƯỢC (id/dob), không theo số token (token rác đánh lừa ngưỡng)
+    const fieldScore = t => (okId(extractId(t)) ? 3 : 0) + (okDob(extractDob(t).v) ? 2 : 0);
+    // PASS 1 — hướng gốc
     let txt = await ocrText(drawCanvas(img, scale));
-    // Nếu OCR rác (ảnh xoay ngang) → thử xoay 90/270/180, giữ text điểm cao nhất
-    if (ocrScore(txt) < 6) {
-      let bestTxt = txt, bestScore = ocrScore(txt);
-      for (const rot of [90, 270, 180]) {
+    // Nếu hướng gốc CHƯA ra id hợp lệ → thử xoay 90/270/180, giữ hướng đọc ra nhiều trường nhất
+    if (!okId(extractId(txt))) {
+      let bestTxt = txt, bestScore = fieldScore(txt);
+      for (const rot of [270, 90, 180]) {
         const t = await ocrText(drawCanvas(img, scale, null, rot));
-        const s = ocrScore(t);
+        const s = fieldScore(t);
         if (s > bestScore) { bestScore = s; bestTxt = t; }
-        if (s >= 8) break; // đủ tốt, dừng sớm
+        if (s >= 5) break; // đủ id + dob → dừng sớm
       }
       txt = bestTxt;
     }
