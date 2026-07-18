@@ -14,7 +14,73 @@ function parseCCCD(raw) {
   if (p.length < 4 || !/^\d{9,12}$/.test(p[0])) return null;
   const dob = p[3] && /^\d{8}$/.test(p[3])
     ? `${p[3].slice(0,2)}/${p[3].slice(2,4)}/${p[3].slice(4)}` : (p[3] || '');
-  return { id: p[0], name: p[2] || '', dob, nationality: 'Việt Nam', src: 'qr' };
+  return { id: p[0], name: p[2] || '', dob, dobSure: true, nationality: 'Việt Nam', src: 'qr' };
+}
+
+// ---------- Helper: sửa nhầm chữ↔số của OCR trong ngữ cảnh SỐ ----------
+// O/o/Ô→0, Q→0, l/I/|→1, S→5, B→8, Z→2, G→6, T→7 (chỉ dùng cho chuỗi kỳ vọng là số)
+function fixDigits(s) {
+  return String(s || '')
+    .replace(/[OoÔÒÓ]/g, '0').replace(/Q/g, '0')
+    .replace(/[lIi|]/g, '1').replace(/S/g, '5')
+    .replace(/B/g, '8').replace(/Z/g, '2').replace(/G/g, '6');
+}
+// Trích số định danh 12 số từ text OCR. Ưu tiên gần nhãn "định danh/No", digit-fix, validate mã tỉnh.
+function extractId(text) {
+  const T = String(text || '');
+  const cands = [];
+  // (a) chuỗi 12 số nguyên bản
+  for (const m of T.match(/\b\d{12}\b/g) || []) cands.push(m);
+  // (b) chuỗi 12-13 ký tự lẫn chữ→số gần nhãn số/định danh
+  const near = T.match(/(?:định danh|Identification|Số\s*\/?\s*No|số:?|X:?)[^\dOoQlIiSBZG]{0,12}([\dOoQlIiSBZG]{11,14})/i);
+  if (near) cands.push(fixDigits(near[1]));
+  // (c) mọi cụm 11-14 ký tự chữ-số → digit-fix
+  for (const m of T.match(/[\dOoQlIiSBZG]{11,14}/g) || []) cands.push(fixDigits(m));
+  // chọn: 12 số mã tỉnh hợp lệ trước; nếu 13 số → thử bỏ 1 ký tự thừa để ra mã tỉnh hợp lệ
+  let fallback = '';
+  for (let c of cands) {
+    c = c.replace(/\D/g, '');
+    if (c.length === 12) { const p = +c.slice(0, 3); if (p >= 0 && p <= 96) return c; if (!fallback) fallback = c; }
+    // 13 số = OCR thừa/thiếu → KHÔNG đoán (dễ sai 1 số). Để trống cho cổng chặn bắt soát lại.
+  }
+  return fallback;
+}
+// Trích ngày sinh từ text OCR: nới nhãn (Ngày/sinh/birth), digit-fix, cho phép 1-2 chữ số, fallback ngày hợp lý bất kỳ.
+function extractDob(text) {
+  const T = fixDigits(String(text || '').replace(/\u00a0/g, ' '));
+  const norm = (d, mo, y) => {
+    d = +d; mo = +mo; y = +y;
+    if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1900 && y <= new Date().getFullYear())
+      return `${String(d).padStart(2, '0')}/${String(mo).padStart(2, '0')}/${y}`;
+    return '';
+  };
+  // (a) gần nhãn ngày sinh (nới: "Ngày", "si", "birth", "bi") → CHẮC CHẮN
+  const near = T.match(/(?:Ng[àa]y|sinh|si\b|birth|bi[rt]|Date of)[\s\S]{0,30}?(\d{1,2})\s*[\/\-. ]\s*(\d{1,2})\s*[\/\-. ]\s*(\d{4})/i);
+  if (near) { const v = norm(near[1], near[2], near[3]); if (v) return { v, sure: true }; }
+  // (b) 8 số liền ddmmyyyy gần "sinh" → CHẮC CHẮN
+  const run = T.match(/(?:Ng[àa]y|sinh|birth)[\s\S]{0,20}?(\d{2})(\d{2})(\d{4})/i);
+  if (run) { const v = norm(run[1], run[2], run[3]); if (v) return { v, sure: true }; }
+  // (c) fallback THÔNG MINH: loại ngày cấp/hết hạn (theo ngữ cảnh trước ngày), chọn NĂM NHỎ NHẤT
+  //     (ngày sinh luôn sớm hơn ngày cấp/hết hạn) → tránh nhầm dob sang ngày cấp.
+  const CUR = new Date().getFullYear();
+  let best = null;
+  for (const m of T.matchAll(/(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{4})/g)) {
+    const pre = T.slice(Math.max(0, m.index - 24), m.index);
+    if (/giá\s*trị|đến|cấp|hết\s*hạn|expir|valid|issue|ký|2031|2035/i.test(pre)) continue; // ngày cấp/hết hạn → bỏ
+    const y = +m[3]; if (y < 1920 || y > CUR) continue;
+    const v = norm(m[1], m[2], m[3]); if (!v) continue;
+    if (!best || y < best.y) best = { y, v };
+  }
+  return best ? { v: best.v, sure: false } : { v: '', sure: false }; // fallback → KHÔNG chắc, cần soát
+}
+// Đếm token "có nghĩa" để phát hiện OCR rác (ảnh xoay) → cần thử xoay lại
+function ocrScore(text) {
+  const T = String(text || '');
+  let s = 0;
+  if (/C[ĂА]N\s*C[ƯU]|CITIZEN|IDENTITY|ĐỊNH DANH|Full ?name|Họ và tên|NGHĨA VIỆT|sinh|birth/i.test(T)) s += 5;
+  s += (T.match(/\b\d{6,12}\b/g) || []).length * 2;
+  s += (T.match(/[A-ZÀ-Ỹ]{3,}/g) || []).length;
+  return s;
 }
 
 // ---------- MRZ TD1 (mặt sau CCCD gắn chip) ----------
@@ -174,9 +240,11 @@ async function getOcrWorker() {
   })();
   return ocrLoading;
 }
-async function ocrText(canvas) {
+async function ocrText(canvas, whitelist) {
   const w = await getOcrWorker();
+  if (whitelist) { try { await w.setParameters({ tessedit_char_whitelist: whitelist }); } catch {} }
   const { data } = await w.recognize(canvas);
+  if (whitelist) { try { await w.setParameters({ tessedit_char_whitelist: '' }); } catch {} }
   return data.text || '';
 }
 // ---------- Parse theo NHÃN: VNeID screenshot + CCCD mặt trước (nhãn song ngữ) ----------
@@ -185,15 +253,9 @@ function parseFrontLabels(txt) {
   const T = String(txt || '').replace(/\u00a0/g, ' ');
   const lines = T.split('\n').map(s => s.replace(/\s{2,}/g, ' ').trim()).filter(Boolean);
   const flat = lines.join('\n');
-  // id: 12 số hợp lệ (mã tỉnh 001-096), ưu tiên gần nhãn "định danh"/"No"
-  let id = '';
-  const idNear = flat.match(/(?:định danh|Personal Iden\w*|Số\s*\/?\s*No)[^\d]{0,40}(\d{12})/i);
-  if (idNear) id = idNear[1];
-  if (!id) for (const m of flat.match(/\b\d{12}\b/g) || []) { const pv = +m.slice(0,3); if (pv>=1 && pv<=96){ id=m; break; } }
-  // ngày sinh: gần nhãn "sinh"/"birth"
-  let dob = '';
-  const dm = flat.match(/(?:sinh|birth)[\s\S]{0,40}?(\d{2})\s*[\/\-.]\s*(\d{2})\s*[\/\-.]\s*(\d{4})/i);
-  if (dm) { const d=+dm[1],mo=+dm[2],y=+dm[3]; if(d>=1&&d<=31&&mo>=1&&mo<=12&&y>=1900&&y<=new Date().getFullYear()) dob=`${dm[1]}/${dm[2]}/${dm[3]}`; }
+  // id + ngày sinh: dùng helper chung (digit-fix, nới nhãn, validate)
+  const id = extractId(flat);
+  const dr = extractDob(flat); const dob = dr.v, dobSure = dr.sure;
   // tên: quét TẤT CẢ dòng (không phụ thuộc nhãn OCR méo), lọc rác, ưu tiên dòng CÓ DẤU.
   // Ưu tiên dòng ngay sau nhãn "tên/name" nếu bắt được; nếu không, lấy dòng tên hợp lệ dài nhất.
   const NAME_HINT = /(tên|name|nam[eo])/i;
@@ -218,7 +280,7 @@ function parseFrontLabels(txt) {
   }
   const got = [id,dob,name].filter(Boolean).length;
   if (got < 2) return null; // quá ít → để heuristic khác lo
-  return { id, dob, name, nationality: nationality || 'Việt Nam', src: 'ocr' };
+  return { id, dob, dobSure, name, nationality: nationality || 'Việt Nam', src: 'ocr' };
 }
 const STOP_NAME = /CĂN CƯỚC|CÔNG DÂN|SOCIALIST|REPUBLIC|VIET NAM|VIỆT NAM|CITIZEN|IDENTITY|QUỐC TỊCH|NATIONALITY|HỌ|FULL NAME|CỘNG HÒA|CHỦ NGHĨA|NGHĨA|XÃ HỘI|HỘI CHỦ|HÒA XÃ|ĐỘC LẬP|TỰ DO|HẠNH PHÚC|BỘ CÔNG|ĐIỆN TỬ|PERSONAL|NGÀY|SINH|BIRTH|GIỚI TÍNH|DÂN TỘC|TÔN GIÁO|TRUNG TÂM|HÀNH CHÍNH|PHƯỜNG|QUẬN|THÀNH PHỐ|XÃ |TỈNH|ĐƯỜNG|KHU PHỐ|THƯỜNG TRÚ|TẠM TRÚ|QUÊ QUÁN|NƠI |RESIDENCE|ORIGIN/i;
 function isNameVal(s) {
@@ -247,41 +309,44 @@ function cleanName(s) {
 
 function parseOcrText(txt) {
   const T = txt.replace(/\u00a0/g, ' ');
-  // id: 12 số, 3 số đầu là mã tỉnh 001-096 (lọc số rác OCR)
-  let id = '', idFallback = '';
-  for (const m of T.match(/\b\d{12}\b/g) || []) {
-    const prov = +m.slice(0, 3);
-    if (prov >= 1 && prov <= 96) { id = m; break; }
-    if (!idFallback) idFallback = m; // 12 số nhưng mã tỉnh lạ → giữ tạm, để nhân viên soát
-  }
-  if (!id) id = idFallback;
-  // Ngày sinh: nhãn "sinh"/"birth" rồi ngày, CHO PHÉP xuống dòng (layout VNeID).
-  let dob = '';
-  const near = T.match(/(?:sinh|birth)[\s\S]{0,40}?(\d{2})\s*[\/\-.]\s*(\d{2})\s*[\/\-.]\s*(\d{4})/i);
-  if (near) {
-    const d = +near[1], mo = +near[2], yr = +near[3];
-    if (d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && yr >= 1900 && yr <= new Date().getFullYear())
-      dob = `${near[1]}/${near[2]}/${near[3]}`;
-  }
-  // tên: dòng IN HOA có dấu dài nhất, bỏ tiêu đề
+  const id = extractId(T);
+  const dr = extractDob(T); const dob = dr.v, dobSure = dr.sure;
+  // tên: ưu tiên dòng NGAY SAU nhãn "Họ và tên/Full name"; nếu không, dòng hợp lệ gần đầu.
   let name = '';
   const T_lines = T.split('\n');
-  for (let i = 0; i < T_lines.length; i++) {
+  const NAME_LABEL = /(Họ\s*(và|,)?\s*(chữ đệm\s*(và)?\s*)?tên|Full\s*name|Fulname|Ho va ten)/i;
+  for (let i = 0; i < T_lines.length - 1; i++) {
+    if (NAME_LABEL.test(T_lines[i])) {
+      // nhãn có thể cùng dòng với tên hoặc dòng kế
+      const same = cleanName(T_lines[i].replace(NAME_LABEL, ' '));
+      const next = cleanName(T_lines[i + 1]);
+      if (isNameVal(same)) { name = same; break; }
+      if (isNameVal(next)) { name = next; break; }
+      const next2 = cleanName(T_lines[i + 2] || '');
+      if (isNameVal(next2)) { name = next2; break; }
+    }
+  }
+  if (!name) for (let i = 0; i < T_lines.length; i++) {
     const s = cleanName(T_lines[i]);
     if (!isNameVal(s)) continue;
-    // ưu tiên dòng gần đầu (tên trên, địa chỉ dưới)
     if (!name || i < 6) { name = s; if (i < 6) break; }
   }
-  return { id, dob, name, nationality: 'Việt Nam', src: 'ocr' };
+  return { id, dob, dobSure, name: trimNameNoise(name), nationality: 'Việt Nam', src: 'ocr' };
+}
+// Bỏ token rác 1-2 ký tự ở cuối tên OCR ("NGUYÊN THỊ YẾN N MÀ" → "NGUYÊN THỊ YẾN")
+function trimNameNoise(name) {
+  let w = String(name || '').split(/\s+/).filter(Boolean);
+  while (w.length > 2 && w[w.length - 1].length <= 2) w.pop();
+  return w.join(' ');
 }
 // gộp field tốt nhất từ nhiều kết quả parse (ưu tiên có dấu, đủ trường)
 function pickBest(cands) {
-  const r = { id:'', dob:'', name:'', nationality:'', sex:'', src:'ocr', passport:false };
+  const r = { id:'', dob:'', dobSure:false, name:'', nationality:'', sex:'', src:'ocr', passport:false };
   for (const c of cands) {
     if (!c) continue;
     if (c.passport) r.passport = true;
     if (!r.id && c.id) r.id = c.id;
-    if (!r.dob && c.dob) r.dob = c.dob;
+    if (!r.dob && c.dob) { r.dob = c.dob; r.dobSure = !!c.dobSure; }
     if (!r.nationality && c.nationality) r.nationality = c.nationality;
     if (!r.sex && c.sex) r.sex = c.sex;
     // tên: ưu tiên có dấu (CCCD/VNeID) hơn MRZ không dấu
@@ -291,15 +356,36 @@ function pickBest(cands) {
   return (r.id || r.name) ? r : null;
 }
 // đọc 1 ảnh: thử passport MRZ → CCCD MRZ(mặt sau) → nhãn VNeID/mặt trước → heuristic; gộp field tốt nhất
+function ocrComplete(p) { return p && okName(p.name) && okDob(p.dob) && okId(p.id); }
 async function ocrImage(img) {
   try {
-    const scale = Math.min(1.6, 1400 / img.width || 1);
-    const txt = await ocrText(drawCanvas(img, scale));
+    const scale = Math.min(1.6, 1400 / (img.width || 1));
+    // PASS 1 — full OCR hướng gốc
+    let txt = await ocrText(drawCanvas(img, scale));
+    // Nếu OCR rác (ảnh xoay ngang) → thử xoay 90/270/180, giữ text điểm cao nhất
+    if (ocrScore(txt) < 6) {
+      let bestTxt = txt, bestScore = ocrScore(txt);
+      for (const rot of [90, 270, 180]) {
+        const t = await ocrText(drawCanvas(img, scale, null, rot));
+        const s = ocrScore(t);
+        if (s > bestScore) { bestScore = s; bestTxt = t; }
+        if (s >= 8) break; // đủ tốt, dừng sớm
+      }
+      txt = bestTxt;
+    }
     const pp = parsePassportMRZ(txt);
     if (pp && pp.id) return pp; // hộ chiếu: MRZ chuẩn, trả luôn
-    const best = pickBest([parseMRZ(txt), parseFrontLabels(txt), parseOcrText(txt)]);
+    let best = pickBest([parseMRZ(txt), parseFrontLabels(txt), parseOcrText(txt)]);
+    // Chưa đủ 4 trường → PASS 2: crop 40% dưới ảnh + whitelist MRZ để đọc mặt sau CCCD
+    if (!ocrComplete(best)) {
+      const cropH = Math.round(img.height * 0.42);
+      const crop = { x: 0, y: img.height - cropH, w: img.width, h: cropH };
+      const mtxt = await ocrText(drawCanvas(img, Math.min(1.8, 1500 / img.width || 1), crop), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789<');
+      const mrz = parseMRZ(mtxt);
+      if (mrz && mrz.id) best = pickBest([best, mrz]);
+    }
     return best || { id:'', dob:'', name:'', nationality:'Việt Nam', src:'man' };
-  } catch {
+  } catch (e) {
     return { id: '', dob: '', name: '', nationality: 'Việt Nam', src: 'man' };
   }
 }
@@ -313,7 +399,8 @@ function mergePassenger(p, thumb) {
     // ưu tiên nguồn tin cậy hơn cho từng trường; tên có dấu (qr/ocr) > mrz không dấu
     if ((RANK[p.src] || 0) > (RANK[dup.src] || 0)) dup.src = p.src;
     if (p.name && (!dup.name || (p.src !== 'mrz' && dup.nameSrc === 'mrz'))) { dup.name = p.name; dup.nameSrc = p.src; }
-    if (!dup.dob && p.dob) dup.dob = p.dob;
+    if (!dup.dob && p.dob) { dup.dob = p.dob; dup.dobSure = p.dobSure; }
+    if (p.src === 'qr' && p.dob) { dup.dob = p.dob; dup.dobSure = true; } // QR luôn đáng tin
     if (!dup.thumb && thumb) dup.thumb = thumb;
     return;
   }
@@ -348,7 +435,29 @@ async function handleFiles(files) {
   }
   const qr = passengers.filter(p => p.src === 'qr').length;
   const auto = passengers.filter(p => p.src === 'mrz' || p.src === 'ocr').length;
-  statusEl.textContent = `Xong ${list.length} ảnh — ${passengers.length} khách (QR: ${qr}, tự nhận: ${auto}). Soát dòng tô màu (đối chiếu ảnh trái) rồi Xuất file.`;
+  const bad = passengers.filter(p => needsReview(p));
+  statusEl.textContent = `Xong ${list.length} ảnh — ${passengers.length} khách (QR: ${qr}, tự nhận: ${auto}).`;
+  reshootGate(bad);
+}
+// ---------- CỔNG CHẶN ẢNH XẤU: ảnh không đọc đủ 4 trường → yêu cầu chụp lại ----------
+function reshootGate(bad) {
+  let el = document.getElementById('reshoot');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'reshoot';
+    el.style.cssText = 'margin:10px 0;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.5';
+    (rowsEl.closest('table') || document.body).parentNode.insertBefore(el, rowsEl.closest('table') || null);
+  }
+  if (!bad.length) {
+    el.style.background = '#dcfce7'; el.style.border = '1px solid #16a34a'; el.style.color = '#166534';
+    el.innerHTML = '✅ Tất cả ảnh đã đọc đủ 4 thông tin. Có thể Xuất file.';
+    return;
+  }
+  const nums = bad.map(p => passengers.indexOf(p) + 1).join(', ');
+  el.style.background = '#fef2f2'; el.style.border = '1px solid #dc2626'; el.style.color = '#991b1b';
+  el.innerHTML = `⚠️ <b>${bad.length} ảnh chưa đọc đủ thông tin</b> (dòng ${nums} tô đỏ). ` +
+    `Vui lòng <b>CHỤP LẠI</b> các giấy tờ này cho rõ: đủ mã QR, không lóa/mờ, để thẳng (không nghiêng), chụp cả mặt trước. ` +
+    `Hoặc nhập tay ô còn thiếu rồi Xuất file.`;
 }
 
 // ---------- kiểm tra từng ô ----------
@@ -364,6 +473,10 @@ function fieldBad(p) {
 // đủ thông tin cần thiết cho Excel (tên+ngày sinh+số+quốc tịch)
 function isComplete(p) {
   return okName(p.name) && okDob(p.dob) && okIdOf(p) && !!(p.nationality || '').trim();
+}
+// Cần soát tay: thiếu trường HOẶC ngày sinh là đoán (fallback, chưa chắc) → luôn nhắc nhân viên kiểm
+function needsReview(p) {
+  return !isComplete(p) || (okDob(p.dob) && p.dobSure === false);
 }
 
 // ---------- render bảng ----------
