@@ -445,7 +445,7 @@ async function handleFiles(files) {
   }
   const qr = passengers.filter(p => p.src === 'qr').length;
   const auto = passengers.filter(p => p.src === 'mrz' || p.src === 'ocr').length;
-  const bad = passengers.filter(p => needsReview(p));
+  const bad = passengers.filter(p => needsReshoot(p));
   statusEl.textContent = `Xong ${list.length} ảnh — ${passengers.length} khách (QR: ${qr}, tự nhận: ${auto}).`;
   reshootGate(bad);
 }
@@ -484,10 +484,13 @@ function fieldBad(p) {
 function isComplete(p) {
   return okName(p.name) && okDob(p.dob) && okIdOf(p) && !!(p.nationality || '').trim();
 }
-// Cần soát tay: thiếu trường HOẶC ngày sinh là đoán (fallback, chưa chắc) → luôn nhắc nhân viên kiểm
+// Cần soi ảnh + soát tay: thiếu trường, HOẶC đọc bằng OCR/MRZ (không tin tuyệt đối),
+// HOẶC ngày sinh là đoán → LUÔN hiện ảnh để nhân viên đối chiếu. QR (có cấu trúc) mới được bỏ qua.
 function needsReview(p) {
-  return !isComplete(p) || (okDob(p.dob) && p.dobSure === false);
+  return !isComplete(p) || p.src === 'ocr' || p.src === 'mrz' || (okDob(p.dob) && p.dobSure === false);
 }
+// Riêng cổng "CHỤP LẠI" chỉ dành cho dòng THỰC SỰ thiếu trường (đọc được nhưng cần soát thì không bắt chụp lại)
+function needsReshoot(p) { return !isComplete(p); }
 
 // ---------- render bảng ----------
 const SRC = { qr: ['QR', 'qr'], mrz: ['Mặt sau', 'ocr'], ocr: ['OCR', 'ocr'], man: ['Tay', 'man'] };
@@ -641,7 +644,7 @@ rowsEl.addEventListener('input', e => {
 });
 // rời ô (blur) → render lại để cập nhật ẩn/hiện ảnh + cổng chặn
 rowsEl.addEventListener('change', e => {
-  if (e.target.dataset.i != null) { render(); reshootGate(passengers.filter(p => needsReview(p))); }
+  if (e.target.dataset.i != null) { render(); reshootGate(passengers.filter(p => needsReshoot(p))); }
 });
 rowsEl.addEventListener('click', e => {
   const di = e.target.dataset.del;
