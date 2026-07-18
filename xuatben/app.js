@@ -628,8 +628,18 @@ drop.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
 rowsEl.addEventListener('input', e => {
   const i = e.target.dataset.i, k = e.target.dataset.k;
   if (i == null) return;
-  passengers[i][k] = e.target.value;
-  render();
+  const p = passengers[i];
+  p[k] = e.target.value;
+  if (k === 'dob') p.dobSure = true;   // nhân viên sửa tay → coi như chắc
+  if (k === 'id' || k === 'name') p.src = p.src === 'qr' ? p.src : 'man';
+  // cập nhật màu ô NGAY mà KHÔNG rebuild bảng (giữ focus khi gõ)
+  const fb = fieldBad(p);
+  const td = e.target.closest('td');
+  if (td) td.className = fb[k] ? 'bad' : '';
+});
+// rời ô (blur) → render lại để cập nhật ẩn/hiện ảnh + cổng chặn
+rowsEl.addEventListener('change', e => {
+  if (e.target.dataset.i != null) { render(); reshootGate(passengers.filter(p => needsReview(p))); }
 });
 rowsEl.addEventListener('click', e => {
   const di = e.target.dataset.del;
