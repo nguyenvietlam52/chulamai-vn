@@ -45,6 +45,19 @@ function extractId(text) {
   }
   return fallback;
 }
+// Cứu số định danh từ pass CHỈ ĐỌC SỐ (chỉ chạy khi id rỗng; dòng OCR luôn cờ soát + hiện ảnh).
+// 12 số mã tỉnh hợp lệ → nhận; 13 số (OCR thừa 1) → thu gọn 1 cặp số trùng liền kề nếu ra DUY NHẤT 1 kết quả hợp lệ.
+function recoverId(text) {
+  const runs = String(text || '').match(/\d{12,13}/g) || [];
+  for (const r of runs) if (r.length === 12 && +r.slice(0, 3) <= 96) return r;
+  for (const r of runs) {
+    if (r.length !== 13) continue;
+    const cands = new Set();
+    for (let i = 0; i < 12; i++) if (r[i] === r[i + 1]) { const c = r.slice(0, i) + r.slice(i + 1); if (+c.slice(0, 3) <= 96) cands.add(c); }
+    if (cands.size === 1) return [...cands][0];
+  }
+  return '';
+}
 // Trích ngày sinh từ text OCR: nới nhãn (Ngày/sinh/birth), digit-fix, cho phép 1-2 chữ số, fallback ngày hợp lý bất kỳ.
 function extractDob(text) {
   const T = fixDigits(String(text || '').replace(/\u00a0/g, ' '));
@@ -169,6 +182,31 @@ function drawCanvas(img, scale = 1, crop = null, rot = 0) {
 function makeThumb(img, w = 240) {
   const scale = Math.min(1, w / img.width);
   return drawCanvas(img, scale).toDataURL('image/jpeg', 0.7);
+}
+// Tiền xử lý: xám hoá + nhị phân hoá ngưỡng Otsu → Tesseract đọc chữ/số nhỏ trên nền hoa văn tốt hơn nhiều
+function binarize(canvas) {
+  const ctx = canvas.getContext('2d');
+  const im = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = im.data, n = d.length / 4;
+  const gray = new Uint8Array(n), hist = new Array(256).fill(0);
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+    const g = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) | 0;
+    gray[j] = g; hist[g]++;
+  }
+  // Otsu
+  let sum = 0; for (let t = 0; t < 256; t++) sum += t * hist[t];
+  let sumB = 0, wB = 0, max = 0, thr = 128;
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t]; if (!wB) continue; const wF = n - wB; if (!wF) break;
+    sumB += t * hist[t]; const mB = sumB / wB, mF = (sum - sumB) / wF;
+    const between = wB * wF * (mB - mF) * (mB - mF);
+    if (between > max) { max = between; thr = t; }
+  }
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+    const v = gray[j] > thr ? 255 : 0; d[i] = d[i + 1] = d[i + 2] = v;
+  }
+  ctx.putImageData(im, 0, 0);
+  return canvas;
 }
 // Ảnh nét để nhân viên zoom soi (giữ độ phân giải cao)
 function makeFull(img, w = 1800) {
@@ -369,13 +407,14 @@ async function ocrImage(img) {
     const fieldScore = t => (okId(extractId(t)) ? 3 : 0) + (okDob(extractDob(t).v) ? 2 : 0);
     // PASS 1 — hướng gốc
     let txt = await ocrText(drawCanvas(img, scale));
+    let bestRot = 0;
     // Nếu hướng gốc CHƯA ra id hợp lệ → thử xoay 90/270/180, giữ hướng đọc ra nhiều trường nhất
     if (!okId(extractId(txt))) {
       let bestTxt = txt, bestScore = fieldScore(txt);
       for (const rot of [270, 90, 180]) {
         const t = await ocrText(drawCanvas(img, scale, null, rot));
         const s = fieldScore(t);
-        if (s > bestScore) { bestScore = s; bestTxt = t; }
+        if (s > bestScore) { bestScore = s; bestTxt = t; bestRot = rot; }
         if (s >= 5) break; // đủ id + dob → dừng sớm
       }
       txt = bestTxt;
@@ -383,7 +422,20 @@ async function ocrImage(img) {
     const pp = parsePassportMRZ(txt);
     if (pp && pp.id) return pp; // hộ chiếu: MRZ chuẩn, trả luôn
     let best = pickBest([parseMRZ(txt), parseFrontLabels(txt), parseOcrText(txt)]);
-    // Chưa đủ 4 trường → PASS 2: crop 40% dưới ảnh + whitelist MRZ để đọc mặt sau CCCD
+    // PASS 1b — NHỊ PHÂN HOÁ (Otsu): ảnh full màu nền hoa văn khiến Tesseract rớt số/chữ.
+    // Nếu chưa đủ id+dob → OCR lại bản nhị phân hoá (đúng hướng đã xoay) và gộp field.
+    if (!okId(best.id) || !okDob(best.dob)) {
+      const btxt = await ocrText(binarize(drawCanvas(img, Math.min(2, 1700 / (img.width || 1)), null, bestRot)));
+      best = pickBest([best, parseFrontLabels(btxt), parseOcrText(btxt)]);
+    }
+    // PASS 1c — CHỈ ĐỌC SỐ: nếu vẫn thiếu id, quét toàn ảnh nhị phân với whitelist chữ số,
+    // tìm cụm 12 số có mã tỉnh hợp lệ (số định danh in nhỏ hay bị rớt/nhiễu).
+    if (!okId(best.id)) {
+      const dtxt = await ocrText(binarize(drawCanvas(img, Math.min(2.2, 1900 / (img.width || 1)), null, bestRot)), '0123456789 ');
+      const cand = recoverId(dtxt);
+      if (cand) { best = best || {}; best.id = cand; if (!best.src) best.src = 'ocr'; }
+    }
+    // PASS 2 — crop 40% dưới ảnh + whitelist MRZ để đọc mặt sau CCCD
     if (!ocrComplete(best)) {
       const cropH = Math.round(img.height * 0.42);
       const crop = { x: 0, y: img.height - cropH, w: img.width, h: cropH };
