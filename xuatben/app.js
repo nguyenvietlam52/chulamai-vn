@@ -51,6 +51,39 @@ function parseMRZ(text) {
   return { id, dob, name, nationality: 'Việt Nam', src: 'mrz' };
 }
 
+// ---------- Passport MRZ (TD3: 2 dòng × 44) — khách nước ngoài ----------
+const NAT3 = { VNM:'Việt Nam', USA:'Hoa Kỳ', GBR:'Anh', KOR:'Hàn Quốc', CHN:'Trung Quốc', TWN:'Đài Loan', JPN:'Nhật Bản', THA:'Thái Lan', FRA:'Pháp', DEU:'Đức', RUS:'Nga', AUS:'Úc', CAN:'Canada', IND:'Ấn Độ', MYS:'Malaysia', SGP:'Singapore', IDN:'Indonesia', PHL:'Philippines', KHM:'Campuchia', LAO:'Lào', NLD:'Hà Lan', ITA:'Ý', ESP:'Tây Ban Nha', CHE:'Thụy Sĩ', SWE:'Thụy Điển', NZL:'New Zealand', HKG:'Hồng Kông' };
+function parsePassportMRZ(text) {
+  const up = String(text || '').toUpperCase();
+  const lines = up.split('\n').map(s => s.replace(/[^A-Z0-9<]/g, '')).filter(s => s.length >= 30);
+  // tìm dòng bắt đầu P< (hộ chiếu), dòng kế là dòng dữ liệu
+  let i = lines.findIndex(l => /^P[A-Z<]?[A-Z]{3}/.test(l));
+  if (i < 0 || i + 1 >= lines.length) return null;
+  let l1 = lines[i], l2 = lines[i + 1];
+  // chuẩn hoá về 44 ký tự
+  const pad = s => (s + '<'.repeat(44)).slice(0, 44);
+  l1 = pad(l1); l2 = pad(l2);
+  const iss = l1.slice(2, 5).replace(/</g, '');
+  // tên: sau P<XXX → SURNAME<<GIVEN
+  const nameField = l1.slice(5).replace(/<<+/g, '#').replace(/</g, ' ');
+  const [sur, giv] = nameField.split('#');
+  const name = `${(sur||'').trim()} ${(giv||'').trim()}`.replace(/\s+/g, ' ').trim();
+  // dòng 2: passport no (0-9), quốc tịch (10-13), dob (13-19), sex (20), expiry (21-27)
+  const passNo = l2.slice(0, 9).replace(/</g, '').trim();
+  const nat3 = l2.slice(10, 13).replace(/</g, '');
+  const dobRaw = l2.slice(13, 19);
+  const sex = l2.slice(20, 21);
+  let dob = '';
+  if (/^\d{6}$/.test(dobRaw)) {
+    const yy=+dobRaw.slice(0,2), mm=dobRaw.slice(2,4), dd=dobRaw.slice(4,6);
+    const cur=new Date().getFullYear()%100; const year=yy>cur+1?1900+yy:2000+yy;
+    if (+mm>=1&&+mm<=12&&+dd>=1&&+dd<=31) dob=`${dd}/${mm}/${year}`;
+  }
+  if (!passNo || !name) return null;
+  const nationality = NAT3[nat3] || NAT3[iss] || nat3 || iss || '';
+  return { id: passNo, name, dob, nationality, sex: sex==='M'?'Nam':(sex==='F'?'Nữ':''), src: 'ocr', passport: true };
+}
+
 // ---------- canvas helpers ----------
 function drawCanvas(img, scale = 1, crop = null, rot = 0) {
   const c = document.createElement('canvas');
@@ -146,6 +179,72 @@ async function ocrText(canvas) {
   const { data } = await w.recognize(canvas);
   return data.text || '';
 }
+// ---------- Parse theo NHÃN: VNeID screenshot + CCCD mặt trước (nhãn song ngữ) ----------
+// Lấy tên CÓ DẤU + ngày sinh + số định danh chính xác hơn heuristic.
+function parseFrontLabels(txt) {
+  const T = String(txt || '').replace(/\u00a0/g, ' ');
+  const lines = T.split('\n').map(s => s.replace(/\s{2,}/g, ' ').trim()).filter(Boolean);
+  const flat = lines.join('\n');
+  // id: 12 số hợp lệ (mã tỉnh 001-096), ưu tiên gần nhãn "định danh"/"No"
+  let id = '';
+  const idNear = flat.match(/(?:định danh|Personal Iden\w*|Số\s*\/?\s*No)[^\d]{0,40}(\d{12})/i);
+  if (idNear) id = idNear[1];
+  if (!id) for (const m of flat.match(/\b\d{12}\b/g) || []) { const pv = +m.slice(0,3); if (pv>=1 && pv<=96){ id=m; break; } }
+  // ngày sinh: gần nhãn "sinh"/"birth"
+  let dob = '';
+  const dm = flat.match(/(?:sinh|birth)[\s\S]{0,40}?(\d{2})\s*[\/\-.]\s*(\d{2})\s*[\/\-.]\s*(\d{4})/i);
+  if (dm) { const d=+dm[1],mo=+dm[2],y=+dm[3]; if(d>=1&&d<=31&&mo>=1&&mo<=12&&y>=1900&&y<=new Date().getFullYear()) dob=`${dm[1]}/${dm[2]}/${dm[3]}`; }
+  // tên: quét TẤT CẢ dòng (không phụ thuộc nhãn OCR méo), lọc rác, ưu tiên dòng CÓ DẤU.
+  // Ưu tiên dòng ngay sau nhãn "tên/name" nếu bắt được; nếu không, lấy dòng tên hợp lệ dài nhất.
+  const NAME_HINT = /(tên|name|nam[eo])/i;
+  let name = '', best = '', bestScore = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const cand = cleanName(lines[i]);
+    if (!isNameVal(cand)) continue;
+    const hasDia = /[À-ỹ]/.test(cand);
+    const nearLabel = i > 0 && NAME_HINT.test(lines[i-1]);
+    // tên nằm phía TRÊN thẻ (địa chỉ ở dưới) → ưu tiên dòng gần đầu mạnh
+    const score = (nearLabel?10:0) + (hasDia?3:0) + (lines.length - i) * 0.6;
+    if (score > bestScore) { bestScore = score; best = cand; }
+  }
+  name = best;
+  // quốc tịch: chỉ nhận Việt Nam hoặc tên nước hợp lệ (tránh rác OCR "Nabonalty")
+  let nationality = '';
+  const nat = flat.match(/(?:Quốc tịch|Nationality)[\s\S]{0,25}?([A-Za-zÀ-ỹ][A-Za-zÀ-ỹ\s]{2,20})/i);
+  if (nat) {
+    const v = nat[1].trim().replace(/\s{2,}/g,' ');
+    if (/việt\s*nam/i.test(v)) nationality = 'Việt Nam';
+    else if (Object.values(NAT3).some(c => c.toLowerCase() === v.toLowerCase())) nationality = v.replace(/\b\w/g,c=>c.toUpperCase());
+  }
+  const got = [id,dob,name].filter(Boolean).length;
+  if (got < 2) return null; // quá ít → để heuristic khác lo
+  return { id, dob, name, nationality: nationality || 'Việt Nam', src: 'ocr' };
+}
+const STOP_NAME = /CĂN CƯỚC|CÔNG DÂN|SOCIALIST|REPUBLIC|VIET NAM|VIỆT NAM|CITIZEN|IDENTITY|QUỐC TỊCH|NATIONALITY|HỌ|FULL NAME|CỘNG HÒA|CHỦ NGHĨA|NGHĨA|XÃ HỘI|HỘI CHỦ|HÒA XÃ|ĐỘC LẬP|TỰ DO|HẠNH PHÚC|BỘ CÔNG|ĐIỆN TỬ|PERSONAL|NGÀY|SINH|BIRTH|GIỚI TÍNH|DÂN TỘC|TÔN GIÁO|TRUNG TÂM|HÀNH CHÍNH|PHƯỜNG|QUẬN|THÀNH PHỐ|XÃ |TỈNH|ĐƯỜNG|KHU PHỐ|THƯỜNG TRÚ|TẠM TRÚ|QUÊ QUÁN|NƠI |RESIDENCE|ORIGIN/i;
+function isNameVal(s) {
+  s = cleanName(s);
+  if (s.length < 6 || s.length > 36) return false;
+  if (STOP_NAME.test(s)) return false;
+  if (!/^[A-ZÀ-Ỹ][A-ZÀ-Ỹ\s]+$/.test(s)) return false;
+  const w = s.split(/\s+/);
+  if (w.length < 2 || w.length > 5) return false; // tên người VN hiếm khi >5 từ
+  if (!w.some(x => x.length >= 3)) return false;
+  if (new Set(w).size === 1) return false; // "II II II"
+  return true;
+}
+// Bỏ MỌI chữ thường (unicode) + ký tự lạ, giữ token IN HOA ≥2 ký tự.
+// Dùng toUpperCase để nhận diện chữ thường (vd 'ø','ầ') mà dải A-ỹ không bắt được.
+function cleanName(s) {
+  const chars = [...String(s || '')].map(ch => {
+    if (/\s/.test(ch)) return ' ';
+    if (/[A-Za-zÀ-ỹ]/.test(ch)) return (ch !== ch.toUpperCase() && ch === ch.toLowerCase()) ? '' : ch; // bỏ chữ thường
+    return ' ';
+  }).join('');
+  const w = chars.replace(/\s{2,}/g, ' ').trim().split(' ')
+    .filter(x => x.length >= 2 && !/^(.)\1+$/.test(x)); // bỏ token ≥2 ký tự và bỏ "II","XX" (lặp 1 ký tự)
+  return w.join(' ').trim();
+}
+
 function parseOcrText(txt) {
   const T = txt.replace(/\u00a0/g, ' ');
   // id: 12 số, 3 số đầu là mã tỉnh 001-096 (lọc số rác OCR)
@@ -164,29 +263,40 @@ function parseOcrText(txt) {
   }
   // tên: dòng IN HOA có dấu dài nhất, bỏ tiêu đề
   let name = '';
-  const STOP = /CĂN CƯỚC|CÔNG DÂN|SOCIALIST|VIET NAM|VIỆT NAM|CITIZEN|IDENTITY|QUỐC|HỌ VÀ TÊN|HỌ, CHỮ|FULL NAME|CỘNG HÒA|ĐỘC LẬP|HẠNH PHÚC|BỘ CÔNG/i;
-  for (const line of T.split('\n')) {
-    let s = line.trim().replace(/\s{2,}/g, ' ');
-    // bỏ ký tự lẻ đầu dòng do OCR nhiễu (vd "E NGUYỄN VĂN A")
-    s = s.replace(/^([A-ZÀ-Ỹ] )+/, '');
-    if (s.length < 6 || s.length > 40 || !/^[A-ZÀ-Ỹ][A-ZÀ-Ỹ\s]+$/.test(s) || STOP.test(s)) continue;
-    const words = s.split(' ');
-    // tên thật: 2-5 từ, có ít nhất 1 từ ≥3 ký tự, không từ nào lặp kiểu "II II II"
-    if (words.length < 2 || words.length > 5) continue;
-    if (!words.some(w => w.length >= 3)) continue;
-    if (new Set(words).size === 1) continue;
-    if (s.length > name.length) name = s;
+  const T_lines = T.split('\n');
+  for (let i = 0; i < T_lines.length; i++) {
+    const s = cleanName(T_lines[i]);
+    if (!isNameVal(s)) continue;
+    // ưu tiên dòng gần đầu (tên trên, địa chỉ dưới)
+    if (!name || i < 6) { name = s; if (i < 6) break; }
   }
   return { id, dob, name, nationality: 'Việt Nam', src: 'ocr' };
 }
-// đọc 1 ảnh bằng OCR: thử MRZ (mặt sau) trước, rồi parse mặt trước/VNeID
+// gộp field tốt nhất từ nhiều kết quả parse (ưu tiên có dấu, đủ trường)
+function pickBest(cands) {
+  const r = { id:'', dob:'', name:'', nationality:'', sex:'', src:'ocr', passport:false };
+  for (const c of cands) {
+    if (!c) continue;
+    if (c.passport) r.passport = true;
+    if (!r.id && c.id) r.id = c.id;
+    if (!r.dob && c.dob) r.dob = c.dob;
+    if (!r.nationality && c.nationality) r.nationality = c.nationality;
+    if (!r.sex && c.sex) r.sex = c.sex;
+    // tên: ưu tiên có dấu (CCCD/VNeID) hơn MRZ không dấu
+    if (c.name) { const hasDia = /[À-ỹ]/.test(c.name); if (!r.name || (hasDia && !/[À-ỹ]/.test(r.name)) || c.name.length > r.name.length) r.name = c.name; }
+  }
+  if (!r.nationality) r.nationality = 'Việt Nam';
+  return (r.id || r.name) ? r : null;
+}
+// đọc 1 ảnh: thử passport MRZ → CCCD MRZ(mặt sau) → nhãn VNeID/mặt trước → heuristic; gộp field tốt nhất
 async function ocrImage(img) {
   try {
     const scale = Math.min(1.6, 1400 / img.width || 1);
     const txt = await ocrText(drawCanvas(img, scale));
-    const mrz = parseMRZ(txt);
-    if (mrz && mrz.id) return mrz;
-    return parseOcrText(txt);
+    const pp = parsePassportMRZ(txt);
+    if (pp && pp.id) return pp; // hộ chiếu: MRZ chuẩn, trả luôn
+    const best = pickBest([parseMRZ(txt), parseFrontLabels(txt), parseOcrText(txt)]);
+    return best || { id:'', dob:'', name:'', nationality:'Việt Nam', src:'man' };
   } catch {
     return { id: '', dob: '', name: '', nationality: 'Việt Nam', src: 'man' };
   }
@@ -243,8 +353,15 @@ async function handleFiles(files) {
 const okId = v => /^\d{12}$/.test(v || '');
 const okDob = v => /^\d{2}\/\d{2}\/\d{4}$/.test(v || '');
 const okName = v => (v || '').trim().length >= 4;
+// khách nước ngoài (passport): id là số hộ chiếu, không ép 12 số
+const isForeign = p => p && p.nationality && !/việt\s*nam/i.test(p.nationality);
+const okIdOf = p => isForeign(p) ? (p.id || '').trim().length >= 5 : okId(p.id);
 function fieldBad(p) {
-  return { name: !okName(p.name), dob: !okDob(p.dob), id: !okId(p.id) };
+  return { name: !okName(p.name), dob: !okDob(p.dob), id: !okIdOf(p) };
+}
+// đủ thông tin cần thiết cho Excel (tên+ngày sinh+số+quốc tịch)
+function isComplete(p) {
+  return okName(p.name) && okDob(p.dob) && okIdOf(p) && !!(p.nationality || '').trim();
 }
 
 // ---------- render bảng ----------
@@ -258,7 +375,9 @@ function render() {
     // OCR/MRZ luôn cần soát (tên MRZ không dấu) → tô cam kể cả khi khớp regex
     const needCheck = p.src === 'ocr' || p.src === 'mrz';
     const cls = k => (fb[k] ? ' class="bad"' : (needCheck ? ' class="chk"' : ''));
-    const thumb = p.thumb
+    // Hiện ảnh đối chiếu CHỈ khi chưa đủ tin: QR + đủ thông tin → ẩn ảnh; còn lại (OCR/thiếu field) → hiện
+    const showThumb = p.thumb && (p.src !== 'qr' || !isComplete(p));
+    const thumb = showThumb
       ? `<img class="thumb" src="${p.thumb}" data-full="${i}" alt="CCCD">`
       : '<span class="muted">—</span>';
     tr.innerHTML =
@@ -290,8 +409,8 @@ function fillCell(rowXml, coord, val) {
   return rowXml.replace(re, cellXml(coord, st, val));
 }
 async function exportXlsx() {
-  const valid = passengers.filter(p => okName(p.name) && okId(p.id));
-  if (!valid.length) { alert('Chưa có khách hợp lệ (cần Họ tên + Số định danh 12 số).'); return; }
+  const valid = passengers.filter(p => okName(p.name) && okIdOf(p));
+  if (!valid.length) { alert('Chưa có khách hợp lệ (cần Họ tên + Số định danh 12 số, hoặc số hộ chiếu với khách nước ngoài).'); return; }
   if (valid.length > MAX_ROWS) { alert(`Tối đa ${MAX_ROWS} khách/tàu.`); return; }
   const skipped = passengers.length - valid.length;
   statusEl.textContent = 'Đang tạo file Excel…';
