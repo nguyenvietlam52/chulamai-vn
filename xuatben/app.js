@@ -449,6 +449,22 @@ async function ocrImage(img) {
   }
 }
 
+// Đếm số THẺ khác nhau trong text: số 12-số mã tỉnh hợp lệ, DUY NHẤT, bỏ dòng MRZ (chứa '<').
+function countIdCards(text) {
+  const ids = new Set();
+  for (const line of String(text || '').split(/\n/)) {
+    if (line.includes('<')) continue; // dòng MRZ → id lặp/giả, bỏ
+    for (const m of line.match(/\b\d{12}\b/g) || []) if (+m.slice(0, 3) <= 96) ids.add(m);
+  }
+  return ids.size;
+}
+// Cắt 1 vùng ảnh thành canvas riêng để đưa vào ocrImage (dùng cho ảnh 2 thẻ chồng dọc)
+function cropCanvas(img, crop) {
+  const cv = document.createElement('canvas');
+  cv.width = crop.w; cv.height = crop.h;
+  cv.getContext('2d').drawImage(img, crop.x, crop.y, crop.w, crop.h, 0, 0, crop.w, crop.h);
+  return cv;
+}
 // ---------- gộp 1 passenger vào danh sách (dedupe theo id) ----------
 const RANK = { qr: 3, mrz: 2, ocr: 1, man: 0 };
 function mergePassenger(p, thumb, full) {
@@ -487,12 +503,29 @@ async function handleFiles(files) {
     } catch { imgs.push(null); }
     render();
   }
-  // PASS 2 — OCR/MRZ cho ảnh KHÔNG có QR
+  // PASS 2 — OCR/MRZ cho ảnh KHÔNG có QR (kèm tách 2 thẻ chồng dọc để không sót khách)
   const need = imgs.filter(x => x && x.qrs.length === 0);
   for (let j = 0; j < need.length; j++) {
     statusEl.textContent = `Nhận chữ ${j + 1}/${need.length} (ảnh mờ/không QR)…`;
-    const p = await ocrImage(need[j].img);
-    mergePassenger(p, need[j].thumb, need[j].full);
+    const im = need[j].img;
+    let people = null;
+    // Ảnh dọc cao có thể là 2 CCCD chồng dọc. TRIGGER RẺ: chỉ split khi text full-image
+    // có >=2 số định danh 12-số mã tỉnh KHÁC nhau (bỏ dòng MRZ chứa '<' — nguồn id giả).
+    if (im.height / im.width > 1.15) {
+      const scanTxt = await ocrText(drawCanvas(im, Math.min(1.9, 1700 / im.width || 1)));
+      if (countIdCards(scanTxt) >= 2) {
+        const H = im.height, W = im.width, mid = Math.round(H / 2);
+        const top = await ocrImage(cropCanvas(im, { x: 0, y: 0, w: W, h: mid }));
+        const bot = await ocrImage(cropCanvas(im, { x: 0, y: mid, w: W, h: H - mid }));
+        // Acceptance CHẶT chống dòng ma: nửa thành khách chỉ khi đủ id+dob+tên, mã tỉnh hợp lệ.
+        const okHalf = p => okId(p.id) && +p.id.slice(0, 3) <= 96 && okDob(p.dob) && okName(p.name);
+        const good = [top, bot].filter(okHalf);
+        // Đã xác nhận 2 thẻ (scan thấy ≥2 id) → thêm full-image + các nửa hợp lệ; mergePassenger dedupe theo id
+        if (good.length) people = [await ocrImage(im), ...good];
+      }
+    }
+    if (!people) people = [await ocrImage(im)];
+    people.forEach(p => mergePassenger(p, need[j].thumb, need[j].full));
     render();
   }
   const qr = passengers.filter(p => p.src === 'qr').length;
@@ -589,23 +622,26 @@ function fillCell(rowXml, coord, val) {
   return rowXml.replace(re, cellXml(coord, st, val));
 }
 async function exportXlsx() {
-  const valid = passengers.filter(p => okName(p.name) && okIdOf(p));
-  if (!valid.length) { alert('Chưa có khách hợp lệ (cần Họ tên + Số định danh 12 số, hoặc số hộ chiếu với khách nước ngoài).'); return; }
-  if (valid.length > MAX_ROWS) { alert(`Tối đa ${MAX_ROWS} khách/tàu.`); return; }
-  const skipped = passengers.length - valid.length;
+  // 100% DANH SÁCH: ghi MỌI khách đã thả vào — KHÔNG bỏ sót ai. Ô chưa đủ/sai → để TRỐNG cho nhân viên điền tay.
+  const rows = passengers.slice();
+  if (!rows.length) { alert('Chưa có khách nào. Hãy thả ảnh giấy tờ vào.'); return; }
+  if (rows.length > MAX_ROWS) { alert(`Tối đa ${MAX_ROWS} khách/tàu (đang có ${rows.length}).`); return; }
+  const incomplete = rows.filter(p => !isComplete(p)).length;
+  if (incomplete && !confirm(`${incomplete}/${rows.length} dòng CHƯA đủ 4 thông tin — các ô thiếu/chưa chắc sẽ để TRỐNG cho nhân viên điền tay (không xuất dữ liệu sai). Vẫn xuất đủ ${rows.length} khách?`)) return;
   statusEl.textContent = 'Đang tạo file Excel…';
   const buf = await fetch('assets/template.xlsx').then(r => r.arrayBuffer());
   const zip = await JSZip.loadAsync(buf);
   let s = await zip.file(SHEET).async('string');
-  valid.forEach((p, i) => {
+  rows.forEach((p, i) => {
     const rn = FIRST_ROW + i;
     const rm = s.match(new RegExp(`<row r="${rn}"[^>]*>.*?</row>`, 's'));
     if (!rm) return;
     let row = rm[0];
-    row = fillCell(row, COLS.name + rn, p.name.trim());
-    row = fillCell(row, COLS.dob + rn, p.dob);
-    row = fillCell(row, COLS.nationality + rn, p.nationality || 'Việt Nam');
-    row = fillCell(row, COLS.id + rn, p.id);
+    // Chỉ ghi giá trị ĐÃ qua kiểm; không đạt → để trống (thà trống + soát còn hơn xuất sai)
+    row = fillCell(row, COLS.name + rn, okName(p.name) ? p.name.trim() : '');
+    row = fillCell(row, COLS.dob + rn, okDob(p.dob) ? p.dob : '');
+    row = fillCell(row, COLS.nationality + rn, (p.nationality || 'Việt Nam').trim());
+    row = fillCell(row, COLS.id + rn, okIdOf(p) ? p.id : '');
     s = s.slice(0, rm.index) + row + s.slice(rm.index + rm[0].length);
   });
   zip.file(SHEET, s);
@@ -615,7 +651,7 @@ async function exportXlsx() {
   const fname = `lenh-xuat-ben-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
-  statusEl.textContent = `Đã xuất ${fname} (${valid.length} khách${skipped ? `, bỏ qua ${skipped} dòng chưa đủ dữ liệu` : ''}). Kiểm tra rồi gửi Zalo.`;
+  statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${incomplete ? ` (${incomplete} dòng cần điền tay ô trống)` : ''}. Kiểm tra rồi gửi Zalo.`;
 }
 
 // ---------- xem ảnh phóng to: ZOOM NHIỀU TẦNG + kéo di chuyển ----------
