@@ -433,7 +433,7 @@ async function ocrImage(img) {
     if (!okId(best.id)) {
       const dtxt = await ocrText(binarize(drawCanvas(img, Math.min(2.2, 1900 / (img.width || 1)), null, bestRot)), '0123456789 ');
       const cand = recoverId(dtxt);
-      if (cand) { best = best || {}; best.id = cand; if (!best.src) best.src = 'ocr'; }
+      if (cand) { best = best || {}; best.id = cand; best.idSure = false; if (!best.src) best.src = 'ocr'; }
     }
     // PASS 2 — crop 40% dưới ảnh + whitelist MRZ để đọc mặt sau CCCD
     if (!ocrComplete(best)) {
