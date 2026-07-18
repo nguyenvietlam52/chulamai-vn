@@ -27,8 +27,13 @@
   td.chk{background:#fff6e6;box-shadow:inset 3px 0 0 #d99000}
   .thumbcell{width:120px}
   .thumb{width:110px;height:auto;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block}
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:99;cursor:zoom-out}
-  .overlay img{max-width:92vw;max-height:92vh;border-radius:8px}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;flex-direction:column;z-index:99}
+  .zoombar{display:flex;gap:8px;align-items:center;justify-content:center;padding:10px;background:rgba(0,0,0,.6);flex:0 0 auto}
+  .zoombar button{font-size:16px;padding:8px 14px;border:0;border-radius:8px;background:#1f2a44;color:#fff;cursor:pointer;font-weight:700}
+  .zoombar button:hover{background:#2b3a5e}
+  .zoombar .zlvl{color:#fff;min-width:56px;text-align:center;font-weight:700}
+  .zoomwrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none}
+  .zoomimg{max-width:96vw;max-height:100%;border-radius:8px;cursor:grab;user-select:none;transform-origin:center center;will-change:transform}
   .src{font-size:11px;padding:1px 6px;border-radius:10px;color:#fff;white-space:nowrap}
   .qr{background:#0e8a4a}.ocr{background:#c98a00}.man{background:#8895b0}
   .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
@@ -69,6 +74,6 @@
 
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/jsQR.js"></script>
-<script src="app.js?v=16"></script>
+<script src="app.js?v=17"></script>
 </body>
 </html>

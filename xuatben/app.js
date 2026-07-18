@@ -170,6 +170,11 @@ function makeThumb(img, w = 240) {
   const scale = Math.min(1, w / img.width);
   return drawCanvas(img, scale).toDataURL('image/jpeg', 0.7);
 }
+// Ảnh nét để nhân viên zoom soi (giữ độ phân giải cao)
+function makeFull(img, w = 1800) {
+  const scale = Math.min(1, w / img.width);
+  return drawCanvas(img, scale).toDataURL('image/jpeg', 0.9);
+}
 
 // ---------- QR: BarcodeDetector (mạnh) → jsQR, có xoay + nhiều mã ----------
 let barcodeDetector = null;
@@ -392,8 +397,9 @@ async function ocrImage(img) {
 
 // ---------- gộp 1 passenger vào danh sách (dedupe theo id) ----------
 const RANK = { qr: 3, mrz: 2, ocr: 1, man: 0 };
-function mergePassenger(p, thumb) {
+function mergePassenger(p, thumb, full) {
   p.thumb = thumb || '';
+  p.full = full || thumb || '';
   const dup = okId(p.id) ? passengers.find(x => x.id === p.id) : null;
   if (dup) {
     // ưu tiên nguồn tin cậy hơn cho từng trường; tên có dấu (qr/ocr) > mrz không dấu
@@ -402,6 +408,7 @@ function mergePassenger(p, thumb) {
     if (!dup.dob && p.dob) { dup.dob = p.dob; dup.dobSure = p.dobSure; }
     if (p.src === 'qr' && p.dob) { dup.dob = p.dob; dup.dobSure = true; } // QR luôn đáng tin
     if (!dup.thumb && thumb) dup.thumb = thumb;
+    if (!dup.full && full) dup.full = full;
     return;
   }
   p.nameSrc = p.src;
@@ -419,9 +426,10 @@ async function handleFiles(files) {
     try {
       const img = await fileToImage(list[i]);
       const thumb = makeThumb(img);
+      const full = makeFull(img);
       const qrs = await tryQR(img);
-      imgs.push({ img, thumb, qrs });
-      qrs.forEach(p => mergePassenger(p, thumb));
+      imgs.push({ img, thumb, full, qrs });
+      qrs.forEach(p => mergePassenger(p, thumb, full));
     } catch { imgs.push(null); }
     render();
   }
@@ -430,7 +438,7 @@ async function handleFiles(files) {
   for (let j = 0; j < need.length; j++) {
     statusEl.textContent = `Nhận chữ ${j + 1}/${need.length} (ảnh mờ/không QR)…`;
     const p = await ocrImage(need[j].img);
-    mergePassenger(p, need[j].thumb);
+    mergePassenger(p, need[j].thumb, need[j].full);
     render();
   }
   const qr = passengers.filter(p => p.src === 'qr').length;
@@ -490,10 +498,10 @@ function render() {
     // OCR/MRZ luôn cần soát (tên MRZ không dấu) → tô cam kể cả khi khớp regex
     const needCheck = p.src === 'ocr' || p.src === 'mrz';
     const cls = k => (fb[k] ? ' class="bad"' : (needCheck ? ' class="chk"' : ''));
-    // Hiện ảnh đối chiếu CHỈ khi chưa đủ tin: QR + đủ thông tin → ẩn ảnh; còn lại (OCR/thiếu field) → hiện
-    const showThumb = p.thumb && (p.src !== 'qr' || !isComplete(p));
+    // Hiện ảnh CHỈ ở dòng thiếu/sai thông tin (cần nhân viên soi); dòng đủ & chắc → ẩn
+    const showThumb = p.thumb && needsReview(p);
     const thumb = showThumb
-      ? `<img class="thumb" src="${p.thumb}" data-full="${i}" alt="CCCD">`
+      ? `<img class="thumb" src="${p.thumb}" data-full="${i}" alt="CCCD" title="Bấm để phóng to soi">`
       : '<span class="muted">—</span>';
     tr.innerHTML =
       `<td>${String(i + 1).padStart(2, '0')}</td>` +
@@ -553,13 +561,61 @@ async function exportXlsx() {
   statusEl.textContent = `Đã xuất ${fname} (${valid.length} khách${skipped ? `, bỏ qua ${skipped} dòng chưa đủ dữ liệu` : ''}). Kiểm tra rồi gửi Zalo.`;
 }
 
-// ---------- xem ảnh phóng to ----------
+// ---------- xem ảnh phóng to: ZOOM NHIỀU TẦNG + kéo di chuyển ----------
 function showFull(i) {
-  const p = passengers[i]; if (!p || !p.thumb) return;
+  const p = passengers[i]; if (!p || !(p.full || p.thumb)) return;
   const ov = document.createElement('div'); ov.className = 'overlay';
-  ov.innerHTML = `<img src="${p.thumb}">`;
-  ov.onclick = () => ov.remove();
+  ov.innerHTML =
+    `<div class="zoombar">` +
+      `<button data-z="out">−</button>` +
+      `<span class="zlvl">100%</span>` +
+      `<button data-z="in">+</button>` +
+      `<button data-z="reset">Vừa màn</button>` +
+      `<button data-z="close">✕ Đóng</button>` +
+    `</div>` +
+    `<div class="zoomwrap"><img class="zoomimg" src="${p.full || p.thumb}" draggable="false"></div>`;
   document.body.appendChild(ov);
+  const img = ov.querySelector('.zoomimg');
+  const wrap = ov.querySelector('.zoomwrap');
+  const lvlEl = ov.querySelector('.zlvl');
+  let scale = 1, tx = 0, ty = 0;
+  const MIN = 1, MAX = 8;
+  const apply = () => {
+    img.style.transform = `translate(${tx}px,${ty}px) scale(${scale})`;
+    lvlEl.textContent = Math.round(scale * 100) + '%';
+  };
+  const zoom = (factor, cx, cy) => {
+    const ns = Math.min(MAX, Math.max(MIN, scale * factor));
+    if (cx != null) { // zoom quanh điểm con trỏ
+      const r = wrap.getBoundingClientRect();
+      const px = cx - r.left - r.width / 2 - tx;
+      const py = cy - r.top - r.height / 2 - ty;
+      tx -= px * (ns / scale - 1);
+      ty -= py * (ns / scale - 1);
+    }
+    scale = ns;
+    if (scale === MIN) { tx = 0; ty = 0; }
+    apply();
+  };
+  ov.querySelector('[data-z=in]').onclick = e => { e.stopPropagation(); zoom(1.5); };
+  ov.querySelector('[data-z=out]').onclick = e => { e.stopPropagation(); zoom(1 / 1.5); };
+  ov.querySelector('[data-z=reset]').onclick = e => { e.stopPropagation(); scale = 1; tx = 0; ty = 0; apply(); };
+  ov.querySelector('[data-z=close]').onclick = e => { e.stopPropagation(); ov.remove(); };
+  // cuộn chuột để zoom quanh con trỏ
+  wrap.onwheel = e => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.25 : 0.8, e.clientX, e.clientY); };
+  // nhấp đúp để zoom nhanh 1x↔3x
+  img.ondblclick = e => { e.stopPropagation(); zoom(scale > 1.5 ? MIN / scale : 3); };
+  // kéo di chuyển khi đã phóng to
+  let drag = null;
+  img.onpointerdown = e => { if (scale <= 1) return; drag = { x: e.clientX - tx, y: e.clientY - ty }; img.setPointerCapture(e.pointerId); img.style.cursor = 'grabbing'; };
+  img.onpointermove = e => { if (!drag) return; tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(); };
+  img.onpointerup = e => { drag = null; img.style.cursor = 'grab'; };
+  // bấm nền ngoài ảnh để đóng
+  wrap.onclick = e => { if (e.target === wrap && scale <= 1) ov.remove(); };
+  // ESC đóng
+  const onKey = e => { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', onKey); } };
+  document.addEventListener('keydown', onKey);
+  apply();
 }
 
 // ---------- events ----------
