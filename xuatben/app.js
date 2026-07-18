@@ -248,11 +248,13 @@ function cleanName(s) {
 function parseOcrText(txt) {
   const T = txt.replace(/\u00a0/g, ' ');
   // id: 12 số, 3 số đầu là mã tỉnh 001-096 (lọc số rác OCR)
-  let id = '';
+  let id = '', idFallback = '';
   for (const m of T.match(/\b\d{12}\b/g) || []) {
     const prov = +m.slice(0, 3);
     if (prov >= 1 && prov <= 96) { id = m; break; }
+    if (!idFallback) idFallback = m; // 12 số nhưng mã tỉnh lạ → giữ tạm, để nhân viên soát
   }
+  if (!id) id = idFallback;
   // Ngày sinh: nhãn "sinh"/"birth" rồi ngày, CHO PHÉP xuống dòng (layout VNeID).
   let dob = '';
   const near = T.match(/(?:sinh|birth)[\s\S]{0,40}?(\d{2})\s*[\/\-.]\s*(\d{2})\s*[\/\-.]\s*(\d{4})/i);
