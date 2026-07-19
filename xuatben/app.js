@@ -772,7 +772,10 @@ function render() {
     const cls = k => (redField(p, k) ? ' class="bad"' : '');
     // Hiện ảnh CHỈ ở dòng CÒN ĐỎ (thiếu tin) để nhân viên tự điền tay; dòng đủ → ẩn ảnh
     const img0 = p.thumb || p.full || p.keep || '';
-    const showThumb = hasRed(p) && img0;
+    // Ảnh DÍNH: dòng đã từng đỏ (thiếu tin) → giữ ảnh tới khi Xuất file, KHÔNG biến mất ngay khi
+    // chú vừa gõ đủ số (lỡ gõ sai còn ảnh mà soi lại). Export xong mới xoá sạch ảnh.
+    if (hasRed(p) && img0) p._wasRed = true;
+    const showThumb = img0 && p._wasRed;
     const thumb = showThumb
       ? `<img class="thumb" src="${img0}" data-full="${i}" alt="CCCD" title="Bấm để phóng to soi">`
       : '<span class="muted">—</span>';
@@ -900,7 +903,11 @@ async function exportXlsx() {
   const fname = `lenh-xuat-ben_${slug}_${trip.yyyy}${trip.mm}${trip.dd}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
-  clearPersist(); // xuất xong → xoá bản lưu tạm (không để dữ liệu khách tồn trên máy)
+  // Xuất xong MỚI dọn ảnh khỏi bảng (trước đó ảnh dòng đỏ luôn hiện để chú soi khi nhập tay).
+  passengers.forEach(p => { p.thumb = ''; p.full = ''; p.keep = ''; p._wasRed = false; });
+  render();                 // ẩn ảnh khỏi bảng
+  clearTimeout(_saveTimer); // huỷ persist debounce do render() vừa hẹn (khỏi ghi lại)
+  clearPersist();           // xoá sạch bản lưu tạm (không để dữ liệu khách tồn trên máy)
   statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${red ? ` (${red} dòng có ô trống, chỉnh tay trên file)` : ''}. Kiểm tra rồi gửi Zalo.`;
 }
 
