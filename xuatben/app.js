@@ -667,8 +667,11 @@ function reshootGate(bad) {
     el = document.createElement('div');
     el.id = 'reshoot';
     el.style.cssText = 'margin:10px 0;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.5';
-    (rowsEl.closest('table') || document.body).parentNode.insertBefore(el, rowsEl.closest('table') || null);
   }
+  // Đặt banner NGAY TRÊN thanh nút Xuất file (dời xuống theo yêu cầu).
+  const bar = document.getElementById('bar');
+  if (bar && bar.parentNode && el.nextSibling !== bar) bar.parentNode.insertBefore(el, bar);
+  else if (!el.parentNode) (rowsEl.closest('table') || document.body).parentNode.insertBefore(el, rowsEl.closest('table') || null);
   const backHtml = backSides.length
     ? `<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:#fffbeb;border:1px solid #d97706;color:#92400e">` +
       `📇 <b>${backSides.length} ảnh là MẶT SAU thẻ</b> (chỉ có mã máy đọc, không có tên tiếng Việt) — đã bỏ qua, KHÔNG tạo dòng khách. ` +
@@ -682,8 +685,8 @@ function reshootGate(bad) {
       el.style.background = '#fffbeb'; el.style.border = '1px solid #d97706'; el.style.color = '#92400e';
       el.innerHTML = backHtml;
     } else {
-      el.style.background = '#dcfce7'; el.style.border = '1px solid #16a34a'; el.style.color = '#166534';
-      el.innerHTML = '✅ Tất cả ảnh đã đọc đủ 4 thông tin. Có thể Xuất file.' + backHtml;
+      el.style.background = '#f4f6f5'; el.style.border = '1px solid #d7ddd9'; el.style.color = '#1a2420';
+      el.innerHTML = 'Tất cả ảnh đã đọc đủ 4 thông tin. Có thể Xuất file.' + backHtml;
     }
     return;
   }
@@ -711,13 +714,12 @@ const okIdOf = p => (p && (p.passport || isForeign(p))) ? (p.id || '').trim().le
 function fieldBad(p) {
   return { name: !okName(p.name), dob: !okDob(p.dob), id: !okIdOf(p) };
 }
-// VÙNG ĐỎ: ô THIẾU hoặc CHƯA CHẮC → bắt buộc nhân viên điền/soát trước khi xuất.
-// Ngày sinh/số ĐOÁN (dobSure/idSure=false) tính là đỏ (data hợp format nhưng có thể SAI).
+// VÙNG ĐỎ: CHỈ ô THIẾU/không hợp lệ mới tô đỏ (ô đọc được nhưng nghi ngờ → KHÔNG tô).
 function redField(p, k) {
   if (k === 'name') return !okName(p.name);
-  if (k === 'dob') return !okDob(p.dob) || p.dobSure !== true; // chỉ dob CHẮC (QR/sửa tay) mới xanh; MRZ/OCR-mờ (undefined/false) → đỏ
+  if (k === 'dob') return !okDob(p.dob);
   if (k === 'nationality') return !(p.nationality || '').trim();
-  if (k === 'id') return !okIdOf(p) || p.idSure === false;
+  if (k === 'id') return !okIdOf(p);
   return false;
 }
 function hasRed(p) { return redField(p,'name') || redField(p,'dob') || redField(p,'nationality') || redField(p,'id'); }
@@ -749,9 +751,8 @@ function render() {
   passengers.forEach((p, i) => {
     const tr = document.createElement('tr');
     const s = SRC[p.src] || SRC.man;
-    // ĐỎ = thiếu/chưa chắc (bắt buộc điền); XANH LÁ NHẠT = lưu ý/soát (OCR/MRZ, đã có data)
-    const needCheck = p.src === 'ocr' || p.src === 'mrz';
-    const cls = k => (redField(p, k) ? ' class="bad"' : (needCheck ? ' class="chk"' : ''));
+    // CHỈ tô ĐỎ ô thiếu/không hợp lệ; ô đủ (kể cả OCR) → KHÔNG tô màu.
+    const cls = k => (redField(p, k) ? ' class="bad"' : '');
     // Hiện ảnh CHỈ ở dòng thiếu/sai thông tin (cần nhân viên soi); dòng đủ & chắc → ẩn
     const showThumb = p.thumb && needsReview(p);
     const thumb = showThumb
