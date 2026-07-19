@@ -24,7 +24,6 @@
   td input{width:100%;border:0;font-size:14px;padding:3px;background:transparent}
   td input:focus{outline:2px solid var(--bl);border-radius:4px;background:#fff}
   td.bad{background:#fde2e0;box-shadow:inset 3px 0 0 var(--warn)}
-  td.chk{background:#e7f6ea;box-shadow:inset 3px 0 0 #2e9e57}
   #export:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.3)}
   .thumbcell{width:120px}
   .thumb{width:110px;height:auto;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block}
@@ -76,11 +75,11 @@
     <button class="ghost" id="clear">Xoá hết</button>
     <button class="ghost" id="cfgocr" title="Cấu hình máy chủ OCR" hidden>⚙️ Máy chủ OCR</button>
   </div>
-  <p class="muted" id="hint" hidden>🟥 Đỏ = thiếu/chưa chắc, nên điền cho đủ (vẫn xuất được — ô đỏ để trống, chỉnh tay trên file). 🟩 Xanh lá = máy đọc bằng OCR, đối chiếu ảnh cho chắc. Bấm ảnh để phóng to.</p>
+  <p class="muted" id="hint" hidden>🟥 Đỏ = ô còn thiếu, nên điền cho đủ (vẫn xuất được — ô đỏ để trống, chỉnh tay trên file). Dòng có ảnh thu nhỏ là máy đọc tự động — bấm ảnh để phóng to đối chiếu.</p>
 </main>
 
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/jsQR.js"></script>
-<script src="app.js?v=43"></script>
+<script src="app.js?v=44"></script>
 </body>
 </html>

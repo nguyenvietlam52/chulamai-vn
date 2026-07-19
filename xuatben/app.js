@@ -730,7 +730,7 @@ function updateExportGate() {
   // Phiếu đăng ký — CHO PHÉP xuất dù còn dòng đỏ (nhân viên chỉnh tay trên Excel). Chỉ hiện số nhắc.
   btn.disabled = false;
   btn.textContent = n > 0 ? `${btn.dataset.label} — ${n} dòng đỏ` : btn.dataset.label;
-  btn.title = n > 0 ? `Còn ${n} dòng có ô đỏ (thiếu/chưa chắc). Vẫn xuất được — ô đỏ để trống, nhân viên chỉnh tay trên file.` : '';
+  btn.title = n > 0 ? `Còn ${n} dòng có ô đỏ (còn thiếu). Vẫn xuất được — ô đỏ để trống, nhân viên chỉnh tay trên file.` : '';
 }
 // đủ thông tin cần thiết cho Excel (tên+ngày sinh+số+quốc tịch)
 function isComplete(p) {
@@ -794,7 +794,7 @@ async function exportXlsx() {
   if (rows.length > MAX_ROWS) { alert(`Tối đa ${MAX_ROWS} khách/tàu (đang có ${rows.length}).`); return; }
   // Phiếu đăng ký (không cần đúng 100% — cảng kiểm lại): CHO PHÉP xuất dù còn dòng đỏ, chỉ cảnh báo.
   const red = rows.filter(hasRed).length;
-  if (red && !confirm(`Còn ${red}/${rows.length} dòng có ô đỏ (thiếu/chưa chắc). Các ô đỏ sẽ để TRỐNG — nhân viên chỉnh tay trên file Excel. Vẫn xuất đủ ${rows.length} khách?`)) return;
+  if (red && !confirm(`Còn ${red}/${rows.length} dòng có ô đỏ (còn thiếu). Các ô đỏ sẽ để TRỐNG — nhân viên chỉnh tay trên file Excel. Vẫn xuất đủ ${rows.length} khách?`)) return;
   statusEl.textContent = 'Đang tạo file Excel…';
   const buf = await fetch('assets/template.xlsx').then(r => r.arrayBuffer());
   const zip = await JSZip.loadAsync(buf);
