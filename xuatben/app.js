@@ -77,13 +77,17 @@ async function serverOcr(file) {
   try {
     if (!d || d.error) return null;
     if (d.skip) return { skip: true };  // mặt sau CCCD → bỏ qua, không thêm dòng
-    const id = (d.id || '').replace(/\D/g, '');
+    const isPP = !!d.passport;  // hộ chiếu: số là chữ+số, KHÔNG ép 12 số
+    // CCCD → chỉ giữ chữ số; hộ chiếu → giữ nguyên chữ+số IN HOA
+    const id = isPP ? (d.id || '').toUpperCase().replace(/[^A-Z0-9]/g, '')
+                    : (d.id || '').replace(/\D/g, '');
     const name = (d.name || '').trim();
     const dob = (d.dob || '').trim();
     if (!id && !name) return null;
     return {
       id, name, dob,
-      nationality: (d.nationality || 'Việt Nam').trim() || 'Việt Nam',
+      nationality: (d.nationality || (isPP ? '' : 'Việt Nam')).trim() || (isPP ? '' : 'Việt Nam'),
+      passport: isPP,
       src: 'ocr', idSure: false, dobSure: false // OCR → vẫn tô đỏ nhắc soát; xuất vẫn được
     };
   } catch { return null; }
@@ -629,7 +633,7 @@ async function handleFiles(files) {
         backSides.push({ thumb: need[j].thumb, full: need[j].full });
         render(); continue;
       }
-      if (sp && (okId(sp.id) || okName(sp.name))) people = [sp];
+      if (sp && (okIdOf(sp) || okName(sp.name))) people = [sp];
     }
     // Ảnh dọc cao có thể là 2 CCCD chồng dọc. TRIGGER RẺ: chỉ split khi text full-image
     // có >=2 số định danh 12-số mã tỉnh KHÁC nhau (bỏ dòng MRZ chứa '<' — nguồn id giả).
@@ -702,7 +706,8 @@ const okDob = v => {
 const okName = v => (v || '').trim().length >= 4;
 // khách nước ngoài (passport): id là số hộ chiếu, không ép 12 số
 const isForeign = p => p && p.nationality && !/việt\s*nam/i.test(p.nationality);
-const okIdOf = p => isForeign(p) ? (p.id || '').trim().length >= 5 : okId(p.id);
+// hộ chiếu (passport) HOẶC khách nước ngoài: id là số hộ chiếu (chữ+số) → không ép 12 số
+const okIdOf = p => (p && (p.passport || isForeign(p))) ? (p.id || '').trim().length >= 5 : okId(p.id);
 function fieldBad(p) {
   return { name: !okName(p.name), dob: !okDob(p.dob), id: !okIdOf(p) };
 }
