@@ -58,6 +58,30 @@ function recoverId(text) {
   }
   return '';
 }
+// OCR chỉ đọc số với PSM chỉ định (11=sparse, 12=sparse+osd, 6=block). Reset về mặc định sau khi xong.
+async function ocrDigits(canvas, psm) {
+  const w = await getOcrWorker();
+  try { await w.setParameters({ tessedit_pageseg_mode: String(psm), tessedit_char_whitelist: '0123456789 ' }); } catch {}
+  const { data } = await w.recognize(canvas);
+  try { await w.setParameters({ tessedit_pageseg_mode: '6', tessedit_char_whitelist: '' }); } catch {}
+  return data.text || '';
+}
+// Vote số định danh qua nhiều pass OCR: cửa sổ trượt tìm mọi cụm 12-số mã tỉnh hợp lệ trong từng pass,
+// đếm phiếu; cụm trùng khớp CHÍNH XÁC ở ≥2 pass mới nhận → loại nhiễu, chống dương tính giả.
+function voteId(texts) {
+  const tally = {};
+  for (const s of texts || []) {
+    const set = new Set();
+    for (const run of (String(s).match(/\d{12,}/g) || []))
+      for (let i = 0; i + 12 <= run.length; i++) {
+        const c = run.slice(i, i + 12);
+        if (+c.slice(0, 3) <= 96) set.add(c);
+      }
+    set.forEach(c => { tally[c] = (tally[c] || 0) + 1; });
+  }
+  const win = Object.entries(tally).filter(([, n]) => n >= 2).sort((a, b) => b[1] - a[1]);
+  return win.length ? win[0][0] : '';
+}
 // Trích ngày sinh từ text OCR: nới nhãn (Ngày/sinh/birth), digit-fix, cho phép 1-2 chữ số, fallback ngày hợp lý bất kỳ.
 function extractDob(text) {
   const T = fixDigits(String(text || '').replace(/\u00a0/g, ' '));
@@ -431,8 +455,13 @@ async function ocrImage(img) {
     // PASS 1c — CHỈ ĐỌC SỐ: nếu vẫn thiếu id, quét toàn ảnh nhị phân với whitelist chữ số,
     // tìm cụm 12 số có mã tỉnh hợp lệ (số định danh in nhỏ hay bị rớt/nhiễu).
     if (!okId(best.id)) {
-      const dtxt = await ocrText(binarize(drawCanvas(img, Math.min(2.2, 1900 / (img.width || 1)), null, bestRot)), '0123456789 ');
-      const cand = recoverId(dtxt);
+      // Số định danh in nhỏ + nền hoa văn → Tesseract đọc ĐÚNG số nhưng LẪN trong chuỗi nhiễu dài.
+      // Chạy 3 PSM (11/12/6) trên cùng ảnh nhị phân, cửa sổ trượt tìm cụm 12-số mã tỉnh hợp lệ,
+      // VOTE: cụm nào trùng khớp ≥2 pass mới nhận (dương tính giả gần như không xảy ra).
+      const base = binarize(drawCanvas(img, Math.min(2.6, 2100 / (img.width || 1)), null, bestRot));
+      const texts = [];
+      for (const psm of [11, 12, 6]) texts.push(await ocrDigits(base, psm));
+      const cand = voteId(texts) || recoverId(texts.join(' '));
       if (cand) { best = best || {}; best.id = cand; best.idSure = false; if (!best.src) best.src = 'ocr'; }
     }
     // PASS 2 — crop 40% dưới ảnh + whitelist MRZ để đọc mặt sau CCCD
