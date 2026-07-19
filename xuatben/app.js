@@ -569,7 +569,7 @@ function fieldBad(p) {
 // Ngày sinh/số ĐOÁN (dobSure/idSure=false) tính là đỏ (data hợp format nhưng có thể SAI).
 function redField(p, k) {
   if (k === 'name') return !okName(p.name);
-  if (k === 'dob') return !okDob(p.dob) || p.dobSure === false;
+  if (k === 'dob') return !okDob(p.dob) || p.dobSure !== true; // chỉ dob CHẮC (QR/sửa tay) mới xanh; MRZ/OCR-mờ (undefined/false) → đỏ
   if (k === 'nationality') return !(p.nationality || '').trim();
   if (k === 'id') return !okIdOf(p) || p.idSure === false;
   return false;
