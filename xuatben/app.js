@@ -6,24 +6,45 @@ const COLS = { name: 'C', dob: 'D', nationality: 'E', id: 'F' };
 const $ = s => document.querySelector(s);
 const rowsEl = $('#rows'), statusEl = $('#status');
 let passengers = []; // {name,dob,nationality,id,src,thumb}
+let backSides = []; // ảnh mặt sau CCCD bị bỏ qua (KHÔNG bịa) — vẫn hiện cảnh báo
 
 // ---------- OCR SERVER (đọc số + tên CÓ DẤU, mạnh hơn Tesseract) ----------
 // Endpoint cấu hình được; mặc định localhost khi chạy máy nội bộ.
 // Máy chủ OCR mặc định (Cloudflare Tunnel HTTPS trỏ về máy Work chạy RapidOCR+VietOCR).
 // Đổi được tại chỗ qua nút "Máy chủ OCR" (lưu localStorage) — dùng khi tunnel URL thay đổi.
-const DEFAULT_OCR_ENDPOINT = 'https://veteran-explosion-composed-cookies.trycloudflare.com';
+// Trỏ máy chủ OCR khi chạy trên tên miền thật. Để TRỐNG = chưa cấu hình (tránh fetch vào
+// URL chết gây chờ timeout mỗi ảnh).
+const DEFAULT_OCR_ENDPOINT = '';
+// Endpoint/token được nạp động từ ./ocr-config.json (script tunnel tự cập nhật khi URL đổi)
+// → app tự lành khi địa chỉ tunnel thay đổi, không cần deploy lại app.js.
+let CFG_ENDPOINT = '', CFG_TOKEN = '';
+async function initOcrConfig() {
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return;
+  try {
+    const r = await fetch('./ocr-config.json?t=' + Date.now(), { cache: 'no-store' });
+    if (r.ok) { const c = await r.json(); CFG_ENDPOINT = (c.endpoint || '').trim(); CFG_TOKEN = (c.token || '').trim(); }
+  } catch {}
+}
 function ocrEndpoint() {
   const v = localStorage.getItem('ocrEndpoint');
   if (v !== null) return v.trim();
   if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return 'http://localhost:8791';
-  return DEFAULT_OCR_ENDPOINT;
+  return CFG_ENDPOINT || DEFAULT_OCR_ENDPOINT;
+}
+function ocrToken() {
+  const t = localStorage.getItem('ocrToken');
+  if (t !== null && t.trim()) return t.trim();
+  return CFG_TOKEN;
 }
 function setOcrEndpoint() {
   const cur = ocrEndpoint();
   const v = prompt('Địa chỉ máy chủ OCR (để trống = chỉ dùng nhận chữ trong máy):', cur);
   if (v === null) return;
   localStorage.setItem('ocrEndpoint', v.trim());
-  alert('Đã lưu máy chủ OCR: ' + (v.trim() || '(trống)'));
+  const curTok = (localStorage.getItem('ocrToken') || '');
+  const t = prompt('Mã bảo vệ máy chủ (token) — để trống nếu máy chủ không yêu cầu:', curTok);
+  if (t !== null) localStorage.setItem('ocrToken', t.trim());
+  alert('Đã lưu máy chủ OCR: ' + (v.trim() || '(trống)') + (t && t.trim() ? '\nĐã lưu mã bảo vệ.' : ''));
 }
 // Gọi server, trả về passenger {id,dob,name,nationality,src:'ocr',...} hoặc null.
 async function serverOcr(file) {
@@ -34,11 +55,15 @@ async function serverOcr(file) {
     fd.append('file', file, file.name || 'img.jpg');
     const ctrl = new AbortController();
     const to = setTimeout(() => ctrl.abort(), 40000);
-    const res = await fetch(ep.replace(/\/$/, '') + '/ocr', { method: 'POST', body: fd, signal: ctrl.signal });
+    const headers = {};
+    const tok = ocrToken();
+    if (tok) headers['X-OCR-Token'] = tok;
+    const res = await fetch(ep.replace(/\/$/, '') + '/ocr', { method: 'POST', body: fd, headers, signal: ctrl.signal });
     clearTimeout(to);
     if (!res.ok) return null;
     const d = await res.json();
     if (!d || d.error) return null;
+    if (d.skip) return { skip: true };  // mặt sau CCCD → bỏ qua, không thêm dòng
     const id = (d.id || '').replace(/\D/g, '');
     const name = (d.name || '').trim();
     const dob = (d.dob || '').trim();
@@ -562,6 +587,7 @@ function mergePassenger(p, thumb, full) {
 async function handleFiles(files) {
   const list = [...files].filter(f => f.type.startsWith('image/'));
   if (!list.length) return;
+  backSides = [];
   const imgs = [];
   // PASS 1 — QR toàn bộ (nhanh), hiện ngay
   for (let i = 0; i < list.length; i++) {
@@ -586,6 +612,10 @@ async function handleFiles(files) {
     if (ocrEndpoint()) {
       statusEl.textContent = `Đọc chữ ${j + 1}/${need.length} (máy chủ OCR)…`;
       const sp = await serverOcr(need[j].file);
+      if (sp && sp.skip) {   // mặt sau CCCD → KHÔNG bịa dữ liệu, nhưng vẫn HIỆN để nhân viên biết
+        backSides.push({ thumb: need[j].thumb, full: need[j].full });
+        render(); continue;
+      }
       if (sp && (okId(sp.id) || okName(sp.name))) people = [sp];
     }
     // Ảnh dọc cao có thể là 2 CCCD chồng dọc. TRIGGER RẺ: chỉ split khi text full-image
@@ -622,16 +652,29 @@ function reshootGate(bad) {
     el.style.cssText = 'margin:10px 0;padding:12px 14px;border-radius:10px;font-size:14px;line-height:1.5';
     (rowsEl.closest('table') || document.body).parentNode.insertBefore(el, rowsEl.closest('table') || null);
   }
+  const backHtml = backSides.length
+    ? `<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:#fffbeb;border:1px solid #d97706;color:#92400e">` +
+      `📇 <b>${backSides.length} ảnh là MẶT SAU thẻ</b> (chỉ có mã máy đọc, không có tên tiếng Việt) — đã bỏ qua, KHÔNG tạo dòng khách. ` +
+      `Nếu khách này chưa có trong danh sách, hãy <b>chụp thêm MẶT TRƯỚC</b> (mặt có ảnh + họ tên).` +
+      `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">` +
+      backSides.map(b => `<img src="${b.thumb}" style="height:54px;border-radius:6px;border:1px solid #d97706">`).join('') +
+      `</div></div>`
+    : '';
   if (!bad.length) {
-    el.style.background = '#dcfce7'; el.style.border = '1px solid #16a34a'; el.style.color = '#166534';
-    el.innerHTML = '✅ Tất cả ảnh đã đọc đủ 4 thông tin. Có thể Xuất file.';
+    if (!passengers.length && backSides.length) {  // toàn mặt sau, chưa có khách nào
+      el.style.background = '#fffbeb'; el.style.border = '1px solid #d97706'; el.style.color = '#92400e';
+      el.innerHTML = backHtml;
+    } else {
+      el.style.background = '#dcfce7'; el.style.border = '1px solid #16a34a'; el.style.color = '#166534';
+      el.innerHTML = '✅ Tất cả ảnh đã đọc đủ 4 thông tin. Có thể Xuất file.' + backHtml;
+    }
     return;
   }
   const nums = bad.map(p => passengers.indexOf(p) + 1).join(', ');
   el.style.background = '#fef2f2'; el.style.border = '1px solid #dc2626'; el.style.color = '#991b1b';
   el.innerHTML = `⚠️ <b>${bad.length} ảnh chưa đọc đủ thông tin</b> (dòng ${nums} tô đỏ). ` +
     `Vui lòng <b>CHỤP LẠI</b> các giấy tờ này cho rõ: đủ mã QR, không lóa/mờ, để thẳng (không nghiêng), chụp cả mặt trước. ` +
-    `Hoặc nhập tay ô còn thiếu rồi Xuất file.`;
+    `Hoặc nhập tay ô còn thiếu rồi Xuất file.` + backHtml;
 }
 
 // ---------- kiểm tra từng ô ----------
@@ -870,6 +913,7 @@ $('#export').onclick = exportXlsx;
 $('#addrow').onclick = () => { passengers.push({ name:'', dob:'', nationality:'Việt Nam', id:'', src:'man', thumb:'' }); render(); };
 $('#clear').onclick = () => { if (confirm('Xoá hết danh sách?')) { passengers = []; render(); } };
 { const b = $('#cfgocr'); if (b) b.onclick = setOcrEndpoint; }
+initOcrConfig(); // nạp endpoint/token động từ ocr-config.json
 
 // ---------- Multi-đoàn: thông tin chuyến (tên tàu/đoàn + thời gian rời bến) ----------
 function xmlEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
