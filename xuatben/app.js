@@ -753,10 +753,11 @@ function render() {
     const s = SRC[p.src] || SRC.man;
     // CHỈ tô ĐỎ ô thiếu/không hợp lệ; ô đủ (kể cả OCR) → KHÔNG tô màu.
     const cls = k => (redField(p, k) ? ' class="bad"' : '');
-    // Hiện ảnh CHỈ ở dòng thiếu/sai thông tin (cần nhân viên soi); dòng đủ & chắc → ẩn
-    const showThumb = p.thumb && needsReview(p);
+    // Hiện ảnh CHỈ ở dòng CÒN ĐỎ (thiếu tin) để nhân viên tự điền tay; dòng đủ → ẩn ảnh
+    const img0 = p.thumb || p.full || p.keep || '';
+    const showThumb = hasRed(p) && img0;
     const thumb = showThumb
-      ? `<img class="thumb" src="${p.thumb}" data-full="${i}" alt="CCCD" title="Bấm để phóng to soi">`
+      ? `<img class="thumb" src="${img0}" data-full="${i}" alt="CCCD" title="Bấm để phóng to soi">`
       : '<span class="muted">—</span>';
     tr.innerHTML =
       `<td>${String(i + 1).padStart(2, '0')}</td>` +
@@ -772,8 +773,68 @@ function render() {
   $('#tbl').hidden = $('#bar').hidden = $('#hint').hidden = passengers.length === 0;
   $('#cnt').textContent = passengers.length;
   updateExportGate();
+  schedulePersist(); // tự lưu tạm danh sách (chỉ ảnh dòng đỏ) để reload không mất
 }
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+// ---------- LƯU TẠM danh sách qua reload (localStorage) ----------
+// Chỉ giữ 4 trường chữ + cờ; ẢNH chỉ lưu cho dòng CÒN ĐỎ (thiếu tin) để nhân viên tự điền tay.
+const PKEY = 'phl_passengers';
+let _saveTimer = null, _quotaWarn = false;
+function schedulePersist() { clearTimeout(_saveTimer); _saveTimer = setTimeout(persistPassengers, 400); }
+// thu nhỏ dataURL về ~1100px cho gọn (đủ đọc để soát), trả Promise
+function shrinkDataUrl(url, w = 1100, q = 0.72) {
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => {
+      const s = Math.min(1, w / im.width);
+      const c = document.createElement('canvas');
+      c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+      c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      try { res(c.toDataURL('image/jpeg', q)); } catch { res(url); }
+    };
+    im.onerror = () => res(url);
+    im.src = url;
+  });
+}
+async function persistPassengers() {
+  try {
+    if (!passengers.length) { try { localStorage.removeItem(PKEY); } catch {} return; }
+    const out = [];
+    for (const p of passengers) {
+      const o = { name: p.name, dob: p.dob, nationality: p.nationality, id: p.id,
+        src: p.src, passport: !!p.passport, idSure: p.idSure, dobSure: p.dobSure };
+      if (hasRed(p)) {
+        if (!p.keep && (p.full || p.thumb)) p.keep = await shrinkDataUrl(p.full || p.thumb);
+        if (p.keep) o.keep = p.keep;
+      }
+      out.push(o);
+    }
+    try {
+      localStorage.setItem(PKEY, JSON.stringify(out));
+      _quotaWarn = false;
+    } catch (e) {
+      // Tràn dung lượng → lưu KHÔNG kèm ảnh (giữ 4 trường chữ), báo nhân viên
+      const txt = out.map(({ keep, ...r }) => r);
+      try { localStorage.setItem(PKEY, JSON.stringify(txt)); } catch {}
+      if (!_quotaWarn) { _quotaWarn = true; try { reshootGate(passengers.filter(needsReshoot)); } catch {} }
+    }
+  } catch {}
+}
+function restorePassengers() {
+  try {
+    const raw = localStorage.getItem(PKEY); if (!raw) return;
+    const arr = JSON.parse(raw); if (!Array.isArray(arr) || !arr.length) return;
+    passengers = arr.map(o => ({
+      name: o.name || '', dob: o.dob || '', nationality: o.nationality || '', id: o.id || '',
+      src: o.src || 'man', passport: !!o.passport, idSure: o.idSure, dobSure: o.dobSure,
+      thumb: o.keep || '', full: o.keep || '', keep: o.keep || ''
+    }));
+    render();
+    if (window.reshootGate) try { reshootGate(passengers.filter(needsReshoot)); } catch {}
+  } catch {}
+}
+function clearPersist() { try { localStorage.removeItem(PKEY); } catch {} }
 
 // ---------- điền xlsx (XML surgery, lossless) ----------
 function xmlEsc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -822,6 +883,7 @@ async function exportXlsx() {
   const fname = `lenh-xuat-ben_${slug}_${trip.yyyy}${trip.mm}${trip.dd}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
+  clearPersist(); // xuất xong → xoá bản lưu tạm (không để dữ liệu khách tồn trên máy)
   statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${red ? ` (${red} dòng có ô trống, chỉnh tay trên file)` : ''}. Kiểm tra rồi gửi Zalo.`;
 }
 
@@ -908,7 +970,7 @@ rowsEl.addEventListener('input', e => {
   if (k === 'name') p.src = p.src === 'qr' ? p.src : 'man';
   // cập nhật màu ô NGAY mà KHÔNG rebuild bảng (giữ focus khi gõ)
   const td = e.target.closest('td');
-  if (td) td.className = redField(p, k) ? 'bad' : ((p.src === 'ocr' || p.src === 'mrz') ? 'chk' : '');
+  if (td) td.className = redField(p, k) ? 'bad' : '';
   updateExportGate(); // điền đủ vùng đỏ → mở khóa nút Xuất ngay
 });
 // rời ô (blur) → render lại để cập nhật ẩn/hiện ảnh + cổng chặn
@@ -923,9 +985,10 @@ rowsEl.addEventListener('click', e => {
 });
 $('#export').onclick = exportXlsx;
 $('#addrow').onclick = () => { passengers.push({ name:'', dob:'', nationality:'Việt Nam', id:'', src:'man', thumb:'' }); render(); };
-$('#clear').onclick = () => { if (confirm('Xoá hết danh sách?')) { passengers = []; render(); } };
+$('#clear').onclick = () => { if (confirm('Xoá hết danh sách?')) { passengers = []; clearPersist(); render(); } };
 { const b = $('#cfgocr'); if (b) b.onclick = setOcrEndpoint; }
 initOcrConfig(); // nạp endpoint/token động từ ocr-config.json
+restorePassengers(); // khôi phục danh sách đã lưu tạm (reload không mất; ảnh giữ ở dòng đỏ)
 
 // ---------- Multi-đoàn: thông tin chuyến (tên tàu/đoàn + thời gian rời bến) ----------
 function xmlEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
