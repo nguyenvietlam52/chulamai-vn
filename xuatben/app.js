@@ -601,6 +601,16 @@ function mergePassenger(p, thumb, full) {
 }
 
 // ---------- xử lý danh sách file: TWO-PASS ----------
+// Chạy fn trên từng phần tử với tối đa n việc ĐỒNG THỜI (giữ thứ tự kết quả).
+async function mapPool(items, n, fn) {
+  const out = new Array(items.length);
+  let idx = 0;
+  async function worker() {
+    while (idx < items.length) { const i = idx++; out[i] = await fn(items[i], i); }
+  }
+  await Promise.all(Array.from({ length: Math.min(n, items.length) }, worker));
+  return out;
+}
 async function handleFiles(files) {
   const list = [...files].filter(f => f.type.startsWith('image/'));
   if (!list.length) return;
@@ -621,14 +631,21 @@ async function handleFiles(files) {
   }
   // PASS 2 — OCR/MRZ cho ảnh KHÔNG có QR (kèm tách 2 thẻ chồng dọc để không sót khách)
   const need = imgs.filter(x => x && x.qrs.length === 0);
+  // TỐI ƯU TỐC ĐỘ: gọi máy chủ OCR SONG SONG (pool 4) cho mọi ảnh cần — server xử lý
+  // đồng thời (threadpool). Kết quả prefetch dùng lại ở vòng xử lý tuần tự bên dưới
+  // (giữ nguyên logic merge/tách 2 thẻ để không đổi hành vi).
+  let preSp = [];
+  if (ocrEndpoint() && need.length) {
+    statusEl.textContent = `Đọc chữ ${need.length} ảnh (máy chủ OCR, song song)…`;
+    preSp = await mapPool(need, 4, n => serverOcr(n.file).catch(() => null));
+  }
   for (let j = 0; j < need.length; j++) {
-    statusEl.textContent = `Nhận chữ ${j + 1}/${need.length} (ảnh mờ/không QR)…`;
+    statusEl.textContent = `Nhận chữ ${j + 1}/${need.length}…`;
     const im = need[j].img;
     let people = null;
     // BƯỚC CHÍNH — máy chủ OCR (RapidOCR + VietOCR): đọc số + tên CÓ DẤU mạnh nhất.
     if (ocrEndpoint()) {
-      statusEl.textContent = `Đọc chữ ${j + 1}/${need.length} (máy chủ OCR)…`;
-      const sp = await serverOcr(need[j].file);
+      const sp = preSp[j];
       if (sp && sp.skip) {   // mặt sau CCCD → KHÔNG bịa dữ liệu, nhưng vẫn HIỆN để nhân viên biết
         backSides.push({ thumb: need[j].thumb, full: need[j].full });
         render(); continue;
