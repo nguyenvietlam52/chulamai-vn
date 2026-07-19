@@ -797,9 +797,8 @@ async function exportXlsx() {
   try {
     let ss = await zip.file('xl/sharedStrings.xml').async('string');
     if (trip.tenTau) ss = setSharedText(ss, 4, 'Tên tàu thuyền: ' + trip.tenTau);
-    if (trip.soDK) ss = setSharedText(ss, 5, 'Số đăng ký: ' + trip.soDK);
     ss = setSharedText(ss, 2, `Vĩnh Hải, ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
-    ss = setSharedText(ss, 11, `Thời gian rời bến: hồi ${trip.HH} giờ ${trip.MM} ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
+    ss = setSharedText(ss, 11, `Thời gian rời bến: hồi ..... giờ ..... ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
     zip.file('xl/sharedStrings.xml', ss);
   } catch (e) { /* template không có sharedStrings → bỏ qua, vẫn xuất được */ }
   let s = await zip.file(SHEET).async('string');
@@ -820,7 +819,7 @@ async function exportXlsx() {
   const out = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const slug = (trip.tenTau || 'doan').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/đ/gi, 'd').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'doan';
-  const fname = `lenh-xuat-ben_${slug}_${trip.yyyy}${trip.mm}${trip.dd}-${trip.HH}${trip.MM}.xlsx`;
+  const fname = `lenh-xuat-ben_${slug}_${trip.yyyy}${trip.mm}${trip.dd}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
   statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${red ? ` (${red} dòng có ô trống, chỉnh tay trên file)` : ''}. Kiểm tra rồi gửi Zalo.`;
@@ -939,30 +938,22 @@ function readTrip() {
   const pad = n => String(n).padStart(2, '0');
   const now = new Date();
   const dv = ($('#ngayRoi') && $('#ngayRoi').value) || '';
-  const tv = ($('#gioRoi') && $('#gioRoi').value) || '';
   let yyyy, mm, dd;
   if (/^\d{4}-\d{2}-\d{2}$/.test(dv)) { [yyyy, mm, dd] = dv.split('-'); }
   else { yyyy = String(now.getFullYear()); mm = pad(now.getMonth() + 1); dd = pad(now.getDate()); }
-  let HH, MM;
-  if (/^\d{2}:\d{2}$/.test(tv)) { [HH, MM] = tv.split(':'); }
-  else { HH = pad(now.getHours()); MM = pad(now.getMinutes()); }
   return {
     tenTau: (($('#tenTau') && $('#tenTau').value) || '').trim(),
-    soDK: (($('#soDK') && $('#soDK').value) || '').trim(),
-    yyyy, mm, dd, HH, MM
+    yyyy, mm, dd  // giờ rời bến bỏ khỏi app — điền tay trên file nếu cần
   };
 }
 function initTrip() {
   const pad = n => String(n).padStart(2, '0');
   const now = new Date();
-  const t = $('#tenTau'), dk = $('#soDK'), ng = $('#ngayRoi'), gi = $('#gioRoi');
+  const t = $('#tenTau'), ng = $('#ngayRoi');
   if (t) t.value = localStorage.getItem('tenTau') || '';
-  if (dk) dk.value = localStorage.getItem('soDK') || '';
   if (ng) ng.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
-  if (gi) gi.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
-  // nhớ tên tàu/đoàn + số ĐK cho lần sau (mỗi đơn vị giữ riêng)
+  // nhớ tên đoàn cho lần sau (mỗi đơn vị giữ riêng)
   if (t) t.onchange = () => localStorage.setItem('tenTau', t.value.trim());
-  if (dk) dk.onchange = () => localStorage.setItem('soDK', dk.value.trim());
 }
 initTrip();
 
