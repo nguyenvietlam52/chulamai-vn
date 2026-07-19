@@ -23,8 +23,9 @@
   th{background:#eef3f0;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
   td input{width:100%;border:0;font-size:14px;padding:3px;background:transparent}
   td input:focus{outline:2px solid var(--bl);border-radius:4px;background:#fff}
-  td.bad{background:#fdecea;box-shadow:inset 3px 0 0 var(--warn)}
-  td.chk{background:#fff6e6;box-shadow:inset 3px 0 0 #d99000}
+  td.bad{background:#fde2e0;box-shadow:inset 3px 0 0 var(--warn)}
+  td.chk{background:#e7f6ea;box-shadow:inset 3px 0 0 #2e9e57}
+  #export:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.3)}
   .thumbcell{width:120px}
   .thumb{width:110px;height:auto;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block}
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;flex-direction:column;z-index:99}
@@ -69,11 +70,11 @@
     <button class="ghost" id="addrow">+ Thêm dòng trống</button>
     <button class="ghost" id="clear">Xoá hết</button>
   </div>
-  <p class="muted" id="hint" hidden>🟥 Đỏ = thiếu/sai, phải sửa. 🟧 Cam = máy OCR đoán, nên đối chiếu ảnh. Bấm ảnh để phóng to. Sửa xong bấm Xuất file Excel.</p>
+  <p class="muted" id="hint" hidden>🟥 Đỏ = thiếu/chưa chắc, BẮT BUỘC điền mới xuất được. 🟩 Xanh lá = máy đọc bằng OCR, nên đối chiếu ảnh cho chắc. Bấm ảnh để phóng to. Điền hết vùng đỏ rồi bấm Xuất file Excel.</p>
 </main>
 
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/jsQR.js"></script>
-<script src="app.js?v=26"></script>
+<script src="app.js?v=27"></script>
 </body>
 </html>

@@ -565,6 +565,24 @@ const okIdOf = p => isForeign(p) ? (p.id || '').trim().length >= 5 : okId(p.id);
 function fieldBad(p) {
   return { name: !okName(p.name), dob: !okDob(p.dob), id: !okIdOf(p) };
 }
+// VÙNG ĐỎ: ô THIẾU hoặc CHƯA CHẮC → bắt buộc nhân viên điền/soát trước khi xuất.
+// Ngày sinh/số ĐOÁN (dobSure/idSure=false) tính là đỏ (data hợp format nhưng có thể SAI).
+function redField(p, k) {
+  if (k === 'name') return !okName(p.name);
+  if (k === 'dob') return !okDob(p.dob) || p.dobSure === false;
+  if (k === 'nationality') return !(p.nationality || '').trim();
+  if (k === 'id') return !okIdOf(p) || p.idSure === false;
+  return false;
+}
+function hasRed(p) { return redField(p,'name') || redField(p,'dob') || redField(p,'nationality') || redField(p,'id'); }
+function updateExportGate() {
+  const btn = $('#export'); if (!btn) return;
+  const n = passengers.filter(hasRed).length;
+  if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+  btn.disabled = n > 0;
+  btn.textContent = n > 0 ? `${btn.dataset.label} — còn ${n} dòng đỏ` : btn.dataset.label;
+  btn.title = n > 0 ? `Còn ${n} dòng có ô ĐỎ (thiếu/chưa chắc). Điền đủ vùng đỏ mới xuất được.` : '';
+}
 // đủ thông tin cần thiết cho Excel (tên+ngày sinh+số+quốc tịch)
 function isComplete(p) {
   return okName(p.name) && okDob(p.dob) && okIdOf(p) && !!(p.nationality || '').trim();
@@ -583,11 +601,10 @@ function render() {
   rowsEl.innerHTML = '';
   passengers.forEach((p, i) => {
     const tr = document.createElement('tr');
-    const fb = fieldBad(p);
     const s = SRC[p.src] || SRC.man;
-    // OCR/MRZ luôn cần soát (tên MRZ không dấu) → tô cam kể cả khi khớp regex
+    // ĐỎ = thiếu/chưa chắc (bắt buộc điền); XANH LÁ NHẠT = lưu ý/soát (OCR/MRZ, đã có data)
     const needCheck = p.src === 'ocr' || p.src === 'mrz';
-    const cls = k => (fb[k] ? ' class="bad"' : (needCheck ? ' class="chk"' : ''));
+    const cls = k => (redField(p, k) ? ' class="bad"' : (needCheck ? ' class="chk"' : ''));
     // Hiện ảnh CHỈ ở dòng thiếu/sai thông tin (cần nhân viên soi); dòng đủ & chắc → ẩn
     const showThumb = p.thumb && needsReview(p);
     const thumb = showThumb
@@ -598,7 +615,7 @@ function render() {
       `<td class="thumbcell">${thumb}</td>` +
       `<td${cls('name')}><input data-i="${i}" data-k="name" value="${esc(p.name)}"></td>` +
       `<td${cls('dob')}><input data-i="${i}" data-k="dob" value="${esc(p.dob)}" placeholder="dd/mm/yyyy"></td>` +
-      `<td><input data-i="${i}" data-k="nationality" value="${esc(p.nationality)}"></td>` +
+      `<td${cls('nationality')}><input data-i="${i}" data-k="nationality" value="${esc(p.nationality)}"></td>` +
       `<td${cls('id')}><input data-i="${i}" data-k="id" value="${esc(p.id)}" placeholder="12 số"></td>` +
       `<td><span class="src ${s[1]}">${s[0]}</span></td>` +
       `<td><button class="del" data-del="${i}">Xoá</button></td>`;
@@ -606,6 +623,7 @@ function render() {
   });
   $('#tbl').hidden = $('#bar').hidden = $('#hint').hidden = passengers.length === 0;
   $('#cnt').textContent = passengers.length;
+  updateExportGate();
 }
 function esc(s) { return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
 
@@ -626,8 +644,13 @@ async function exportXlsx() {
   const rows = passengers.slice();
   if (!rows.length) { alert('Chưa có khách nào. Hãy thả ảnh giấy tờ vào.'); return; }
   if (rows.length > MAX_ROWS) { alert(`Tối đa ${MAX_ROWS} khách/tàu (đang có ${rows.length}).`); return; }
-  const incomplete = rows.filter(p => !isComplete(p)).length;
-  if (incomplete && !confirm(`${incomplete}/${rows.length} dòng CHƯA đủ 4 thông tin — các ô thiếu/chưa chắc sẽ để TRỐNG cho nhân viên điền tay (không xuất dữ liệu sai). Vẫn xuất đủ ${rows.length} khách?`)) return;
+  // CHẶN CỨNG: còn ô ĐỎ (thiếu/chưa chắc) → không cho xuất, ép nhân viên điền đủ vùng đỏ.
+  const red = rows.filter(hasRed);
+  if (red.length) {
+    alert(`Còn ${red.length} dòng có ô ĐỎ (thiếu hoặc chưa chắc thông tin). Hãy điền đủ các ô đỏ rồi mới xuất — KHÔNG xuất khi còn thiếu/sai.`);
+    updateExportGate();
+    return;
+  }
   statusEl.textContent = 'Đang tạo file Excel…';
   const buf = await fetch('assets/template.xlsx').then(r => r.arrayBuffer());
   const zip = await JSZip.loadAsync(buf);
@@ -651,7 +674,7 @@ async function exportXlsx() {
   const fname = `lenh-xuat-ben-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
-  statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${incomplete ? ` (${incomplete} dòng cần điền tay ô trống)` : ''}. Kiểm tra rồi gửi Zalo.`;
+  statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách, đã điền hết vùng đỏ. Kiểm tra rồi gửi Zalo.`;
 }
 
 // ---------- xem ảnh phóng to: ZOOM NHIỀU TẦNG + kéo di chuyển ----------
@@ -724,11 +747,12 @@ rowsEl.addEventListener('input', e => {
   const p = passengers[i];
   p[k] = e.target.value;
   if (k === 'dob') p.dobSure = true;   // nhân viên sửa tay → coi như chắc
-  if (k === 'id' || k === 'name') p.src = p.src === 'qr' ? p.src : 'man';
+  if (k === 'id') { p.src = p.src === 'qr' ? p.src : 'man'; p.idSure = true; } // sửa tay → coi như chắc
+  if (k === 'name') p.src = p.src === 'qr' ? p.src : 'man';
   // cập nhật màu ô NGAY mà KHÔNG rebuild bảng (giữ focus khi gõ)
-  const fb = fieldBad(p);
   const td = e.target.closest('td');
-  if (td) td.className = fb[k] ? 'bad' : '';
+  if (td) td.className = redField(p, k) ? 'bad' : ((p.src === 'ocr' || p.src === 'mrz') ? 'chk' : '');
+  updateExportGate(); // điền đủ vùng đỏ → mở khóa nút Xuất ngay
 });
 // rời ô (blur) → render lại để cập nhật ẩn/hiện ảnh + cổng chặn
 rowsEl.addEventListener('change', e => {
