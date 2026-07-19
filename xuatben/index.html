@@ -49,7 +49,7 @@
 <body>
 <header>
   <h1>🚤 Lệnh Xuất Bến — Phát Hoàng Long</h1>
-  <p>Kéo/chọn ảnh CCCD khách → tự đọc QR → kiểm tra → xuất file Excel. Ảnh KHÔNG rời máy này.</p>
+  <p>Kéo/chọn ảnh CCCD khách → tự đọc QR + chữ (có dấu) → kiểm tra → xuất file Excel.</p>
 </header>
 <main>
   <div id="drop" class="drop">
@@ -58,6 +58,13 @@
     <input id="file" type="file" accept="image/*" multiple hidden>
   </div>
   <div id="status"></div>
+
+  <div id="tripbar" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px">
+    <label style="font-size:12px;color:#4a5a52">Tên tàu / đoàn<br><input id="tenTau" type="text" placeholder="VD: Phát Hoàng Long" style="font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;min-width:220px"></label>
+    <label style="font-size:12px;color:#4a5a52">Số đăng ký (tuỳ)<br><input id="soDK" type="text" placeholder="Số đăng ký tàu" style="font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;min-width:150px"></label>
+    <label style="font-size:12px;color:#4a5a52">Ngày rời bến<br><input id="ngayRoi" type="date" style="font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px"></label>
+    <label style="font-size:12px;color:#4a5a52">Giờ rời bến<br><input id="gioRoi" type="time" style="font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px"></label>
+  </div>
 
   <table id="tbl" hidden>
     <thead><tr><th>STT</th><th>Ảnh CCCD</th><th>Họ và tên</th><th>Ngày sinh</th><th>Quốc tịch</th><th>Số định danh</th><th>Nguồn</th><th></th></tr></thead>
@@ -69,12 +76,13 @@
     <button class="primary" id="export">⬇️ Xuất file Excel</button>
     <button class="ghost" id="addrow">+ Thêm dòng trống</button>
     <button class="ghost" id="clear">Xoá hết</button>
+    <button class="ghost" id="cfgocr" title="Cấu hình máy chủ OCR">⚙️ Máy chủ OCR</button>
   </div>
   <p class="muted" id="hint" hidden>🟥 Đỏ = thiếu/chưa chắc, nên điền cho đủ (vẫn xuất được — ô đỏ để trống, chỉnh tay trên file). 🟩 Xanh lá = máy đọc bằng OCR, đối chiếu ảnh cho chắc. Bấm ảnh để phóng to.</p>
 </main>
 
 <script src="vendor/jszip.min.js"></script>
 <script src="vendor/jsQR.js"></script>
-<script src="app.js?v=32"></script>
+<script src="app.js?v=35"></script>
 </body>
 </html>

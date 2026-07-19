@@ -7,6 +7,50 @@ const $ = s => document.querySelector(s);
 const rowsEl = $('#rows'), statusEl = $('#status');
 let passengers = []; // {name,dob,nationality,id,src,thumb}
 
+// ---------- OCR SERVER (đọc số + tên CÓ DẤU, mạnh hơn Tesseract) ----------
+// Endpoint cấu hình được; mặc định localhost khi chạy máy nội bộ.
+// Máy chủ OCR mặc định (Cloudflare Tunnel HTTPS trỏ về máy Work chạy RapidOCR+VietOCR).
+// Đổi được tại chỗ qua nút "Máy chủ OCR" (lưu localStorage) — dùng khi tunnel URL thay đổi.
+const DEFAULT_OCR_ENDPOINT = 'https://veteran-explosion-composed-cookies.trycloudflare.com';
+function ocrEndpoint() {
+  const v = localStorage.getItem('ocrEndpoint');
+  if (v !== null) return v.trim();
+  if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') return 'http://localhost:8791';
+  return DEFAULT_OCR_ENDPOINT;
+}
+function setOcrEndpoint() {
+  const cur = ocrEndpoint();
+  const v = prompt('Địa chỉ máy chủ OCR (để trống = chỉ dùng nhận chữ trong máy):', cur);
+  if (v === null) return;
+  localStorage.setItem('ocrEndpoint', v.trim());
+  alert('Đã lưu máy chủ OCR: ' + (v.trim() || '(trống)'));
+}
+// Gọi server, trả về passenger {id,dob,name,nationality,src:'ocr',...} hoặc null.
+async function serverOcr(file) {
+  const ep = ocrEndpoint();
+  if (!ep || !file) return null;
+  try {
+    const fd = new FormData();
+    fd.append('file', file, file.name || 'img.jpg');
+    const ctrl = new AbortController();
+    const to = setTimeout(() => ctrl.abort(), 40000);
+    const res = await fetch(ep.replace(/\/$/, '') + '/ocr', { method: 'POST', body: fd, signal: ctrl.signal });
+    clearTimeout(to);
+    if (!res.ok) return null;
+    const d = await res.json();
+    if (!d || d.error) return null;
+    const id = (d.id || '').replace(/\D/g, '');
+    const name = (d.name || '').trim();
+    const dob = (d.dob || '').trim();
+    if (!id && !name) return null;
+    return {
+      id, name, dob,
+      nationality: (d.nationality || 'Việt Nam').trim() || 'Việt Nam',
+      src: 'ocr', idSure: false, dobSure: false // OCR → vẫn tô đỏ nhắc soát; xuất vẫn được
+    };
+  } catch { return null; }
+}
+
 // ---------- CCCD QR parse ----------
 // id|CMND cũ|họ tên|ddMMyyyy|giới tính|địa chỉ|ngày cấp
 function parseCCCD(raw) {
@@ -527,7 +571,7 @@ async function handleFiles(files) {
       const thumb = makeThumb(img);
       const full = makeFull(img);
       const qrs = await tryQR(img);
-      imgs.push({ img, thumb, full, qrs });
+      imgs.push({ img, thumb, full, qrs, file: list[i] });
       qrs.forEach(p => mergePassenger(p, thumb, full));
     } catch { imgs.push(null); }
     render();
@@ -538,9 +582,15 @@ async function handleFiles(files) {
     statusEl.textContent = `Nhận chữ ${j + 1}/${need.length} (ảnh mờ/không QR)…`;
     const im = need[j].img;
     let people = null;
+    // BƯỚC CHÍNH — máy chủ OCR (RapidOCR + VietOCR): đọc số + tên CÓ DẤU mạnh nhất.
+    if (ocrEndpoint()) {
+      statusEl.textContent = `Đọc chữ ${j + 1}/${need.length} (máy chủ OCR)…`;
+      const sp = await serverOcr(need[j].file);
+      if (sp && (okId(sp.id) || okName(sp.name))) people = [sp];
+    }
     // Ảnh dọc cao có thể là 2 CCCD chồng dọc. TRIGGER RẺ: chỉ split khi text full-image
     // có >=2 số định danh 12-số mã tỉnh KHÁC nhau (bỏ dòng MRZ chứa '<' — nguồn id giả).
-    if (im.height / im.width > 1.15) {
+    if (!people && im.height / im.width > 1.15) {
       const scanTxt = await ocrText(drawCanvas(im, Math.min(1.9, 1700 / im.width || 1)));
       if (countIdCards(scanTxt) >= 2) {
         const H = im.height, W = im.width, mid = Math.round(H / 2);
@@ -686,6 +736,16 @@ async function exportXlsx() {
   statusEl.textContent = 'Đang tạo file Excel…';
   const buf = await fetch('assets/template.xlsx').then(r => r.arrayBuffer());
   const zip = await JSZip.loadAsync(buf);
+  // ---- Thông tin chuyến (multi-đoàn): ghi tên tàu/đoàn + thời gian vào phiếu ----
+  const trip = readTrip();
+  try {
+    let ss = await zip.file('xl/sharedStrings.xml').async('string');
+    if (trip.tenTau) ss = setSharedText(ss, 4, 'Tên tàu thuyền: ' + trip.tenTau);
+    if (trip.soDK) ss = setSharedText(ss, 5, 'Số đăng ký: ' + trip.soDK);
+    ss = setSharedText(ss, 2, `Vĩnh Hải, ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
+    ss = setSharedText(ss, 11, `Thời gian rời bến: hồi ${trip.HH} giờ ${trip.MM} ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
+    zip.file('xl/sharedStrings.xml', ss);
+  } catch (e) { /* template không có sharedStrings → bỏ qua, vẫn xuất được */ }
   let s = await zip.file(SHEET).async('string');
   rows.forEach((p, i) => {
     const rn = FIRST_ROW + i;
@@ -702,8 +762,9 @@ async function exportXlsx() {
   zip.file(SHEET, s);
   Object.keys(zip.files).forEach(k => { if (zip.files[k].dir) delete zip.files[k]; });
   const out = await zip.generateAsync({ type: 'blob', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const d = new Date(), pad = n => String(n).padStart(2, '0');
-  const fname = `lenh-xuat-ben-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.xlsx`;
+  const slug = (trip.tenTau || 'doan').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/gi, 'd').replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '').toLowerCase() || 'doan';
+  const fname = `lenh-xuat-ben_${slug}_${trip.yyyy}${trip.mm}${trip.dd}-${trip.HH}${trip.MM}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
   statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${red ? ` (${red} dòng có ô trống, chỉnh tay trên file)` : ''}. Kiểm tra rồi gửi Zalo.`;
@@ -808,5 +869,44 @@ rowsEl.addEventListener('click', e => {
 $('#export').onclick = exportXlsx;
 $('#addrow').onclick = () => { passengers.push({ name:'', dob:'', nationality:'Việt Nam', id:'', src:'man', thumb:'' }); render(); };
 $('#clear').onclick = () => { if (confirm('Xoá hết danh sách?')) { passengers = []; render(); } };
+{ const b = $('#cfgocr'); if (b) b.onclick = setOcrEndpoint; }
+
+// ---------- Multi-đoàn: thông tin chuyến (tên tàu/đoàn + thời gian rời bến) ----------
+function xmlEsc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+// Thay nội dung của chuỗi shared-string thứ idx (đếm theo thẻ <t>).
+function setSharedText(xml, idx, text) {
+  let n = -1;
+  return xml.replace(/(<t[^>]*>)([\s\S]*?)(<\/t>)/g, (m, a, b, c) => { n++; return n === idx ? a + xmlEsc(text) + c : m; });
+}
+function readTrip() {
+  const pad = n => String(n).padStart(2, '0');
+  const now = new Date();
+  const dv = ($('#ngayRoi') && $('#ngayRoi').value) || '';
+  const tv = ($('#gioRoi') && $('#gioRoi').value) || '';
+  let yyyy, mm, dd;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(dv)) { [yyyy, mm, dd] = dv.split('-'); }
+  else { yyyy = String(now.getFullYear()); mm = pad(now.getMonth() + 1); dd = pad(now.getDate()); }
+  let HH, MM;
+  if (/^\d{2}:\d{2}$/.test(tv)) { [HH, MM] = tv.split(':'); }
+  else { HH = pad(now.getHours()); MM = pad(now.getMinutes()); }
+  return {
+    tenTau: (($('#tenTau') && $('#tenTau').value) || '').trim(),
+    soDK: (($('#soDK') && $('#soDK').value) || '').trim(),
+    yyyy, mm, dd, HH, MM
+  };
+}
+function initTrip() {
+  const pad = n => String(n).padStart(2, '0');
+  const now = new Date();
+  const t = $('#tenTau'), dk = $('#soDK'), ng = $('#ngayRoi'), gi = $('#gioRoi');
+  if (t) t.value = localStorage.getItem('tenTau') || '';
+  if (dk) dk.value = localStorage.getItem('soDK') || '';
+  if (ng) ng.value = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  if (gi) gi.value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+  // nhớ tên tàu/đoàn + số ĐK cho lần sau (mỗi đơn vị giữ riêng)
+  if (t) t.onchange = () => localStorage.setItem('tenTau', t.value.trim());
+  if (dk) dk.onchange = () => localStorage.setItem('soDK', dk.value.trim());
+}
+initTrip();
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
