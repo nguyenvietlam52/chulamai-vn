@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lệnh Xuất Bến — PHL</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0b5">
+<style>
+  :root{--b:#0b6b3a;--bl:#0e8a4a;--bg:#f4f6f5;--line:#d7ddd9;--warn:#c0392b}
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:#1a2420}
+  header{background:var(--b);color:#fff;padding:14px 18px}
+  header h1{margin:0;font-size:18px}
+  header p{margin:4px 0 0;font-size:12px;opacity:.85}
+  main{max-width:1000px;margin:0 auto;padding:16px}
+  .drop{border:2px dashed var(--bl);border-radius:12px;background:#fff;padding:28px;text-align:center;cursor:pointer;transition:.15s}
+  .drop.hover{background:#eafaf0;border-color:var(--b)}
+  .drop b{color:var(--b)}
+  .muted{color:#6b7b73;font-size:13px}
+  table{width:100%;border-collapse:collapse;margin-top:16px;background:#fff;font-size:14px}
+  th,td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+  th{background:#eef3f0;font-size:12px;text-transform:uppercase;letter-spacing:.03em}
+  td input{width:100%;border:0;font-size:14px;padding:3px;background:transparent}
+  td input:focus{outline:2px solid var(--bl);border-radius:4px;background:#fff}
+  td.bad{background:#fde2e0;box-shadow:inset 3px 0 0 var(--warn)}
+  #export:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.3)}
+  .thumbcell{width:120px}
+  .thumb{width:110px;height:auto;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:flex;flex-direction:column;z-index:99}
+  .zoombar{display:flex;gap:8px;align-items:center;justify-content:center;padding:10px;background:rgba(0,0,0,.6);flex:0 0 auto}
+  .zoombar button{font-size:16px;padding:8px 14px;border:0;border-radius:8px;background:#1f2a44;color:#fff;cursor:pointer;font-weight:700}
+  .zoombar button:hover{background:#2b3a5e}
+  .zoombar .zlvl{color:#fff;min-width:56px;text-align:center;font-weight:700}
+  .zoomwrap{flex:1;overflow:hidden;display:flex;align-items:center;justify-content:center;touch-action:none}
+  .zoomimg{max-width:96vw;max-height:100%;border-radius:8px;cursor:grab;user-select:none;transform-origin:center center;will-change:transform}
+  .src{font-size:11px;padding:1px 6px;border-radius:10px;color:#fff;white-space:nowrap}
+  .qr{background:#0e8a4a}.ocr{background:#c98a00}.man{background:#8895b0}
+  .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+  button{font-size:14px;padding:10px 16px;border:0;border-radius:8px;cursor:pointer;font-weight:600}
+  .primary{background:var(--b);color:#fff}.primary:disabled{opacity:.5;cursor:default}
+  .ghost{background:#fff;border:1px solid var(--line)}
+  .del{background:#fff;border:1px solid #e2b6b0;color:var(--warn);padding:4px 8px;font-size:12px}
+  #status{font-size:13px;color:#4a5a52;min-height:18px;margin-top:8px}
+  .count{font-weight:700}
+</style>
+</head>
+<body>
+<header>
+  <h1>🚤 Lệnh Xuất Bến</h1>
+  <p>Kéo/chọn ảnh CCCD khách → tự đọc QR + chữ (có dấu) → kiểm tra → xuất file Excel.</p>
+</header>
+<main>
+  <div id="drop" class="drop">
+    <p><b>Bấm chọn</b> hoặc kéo thả ảnh CCCD vào đây</p>
+    <p class="muted">Chọn nhiều ảnh cùng lúc. Ưu tiên mặt trước (có mã QR).</p>
+    <input id="file" type="file" accept="image/*" multiple hidden>
+  </div>
+  <div id="status"></div>
+
+  <div id="tripbar" style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 14px">
+    <label style="font-size:12px;color:#4a5a52">Tên đoàn<br><input id="tenTau" type="text" placeholder="Nhập tên đoàn (để lưu file)" style="font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px;min-width:260px"></label>
+    <label style="font-size:12px;color:#4a5a52">Ngày<br><input id="ngayRoi" type="date" style="font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:6px"></label>
+  </div>
+
+  <table id="tbl" hidden>
+    <thead><tr><th>STT</th><th>Ảnh CCCD</th><th>Họ và tên</th><th>Ngày sinh</th><th>Quốc tịch</th><th>Số định danh</th><th>Nguồn</th><th></th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <div class="bar" id="bar" hidden>
+    <span class="muted">Tổng: <span class="count" id="cnt">0</span> khách</span>
+    <button class="primary" id="export">⬇️ Xuất file Excel</button>
+    <button class="ghost" id="addrow">+ Thêm dòng trống</button>
+    <button class="ghost" id="clear">Xoá hết</button>
+    <button class="ghost" id="cfgocr" title="Cấu hình máy chủ OCR" hidden>⚙️ Máy chủ OCR</button>
+  </div>
+  <p class="muted" id="hint" hidden>🟥 Đỏ = ô còn thiếu, nên điền cho đủ (vẫn xuất được — ô đỏ để trống, chỉnh tay trên file). Dòng có ảnh thu nhỏ là máy đọc tự động — bấm ảnh để phóng to đối chiếu.</p>
+</main>
+
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/jsQR.js"></script>
+<script src="app.js?v=49"></script>
+</body>
+</html>
