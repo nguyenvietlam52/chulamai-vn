@@ -585,9 +585,10 @@ function updateExportGate() {
   const btn = $('#export'); if (!btn) return;
   const n = passengers.filter(hasRed).length;
   if (!btn.dataset.label) btn.dataset.label = btn.textContent;
-  btn.disabled = n > 0;
-  btn.textContent = n > 0 ? `${btn.dataset.label} — còn ${n} dòng đỏ` : btn.dataset.label;
-  btn.title = n > 0 ? `Còn ${n} dòng có ô ĐỎ (thiếu/chưa chắc). Điền đủ vùng đỏ mới xuất được.` : '';
+  // Phiếu đăng ký — CHO PHÉP xuất dù còn dòng đỏ (nhân viên chỉnh tay trên Excel). Chỉ hiện số nhắc.
+  btn.disabled = false;
+  btn.textContent = n > 0 ? `${btn.dataset.label} — ${n} dòng đỏ` : btn.dataset.label;
+  btn.title = n > 0 ? `Còn ${n} dòng có ô đỏ (thiếu/chưa chắc). Vẫn xuất được — ô đỏ để trống, nhân viên chỉnh tay trên file.` : '';
 }
 // đủ thông tin cần thiết cho Excel (tên+ngày sinh+số+quốc tịch)
 function isComplete(p) {
@@ -650,13 +651,9 @@ async function exportXlsx() {
   const rows = passengers.slice();
   if (!rows.length) { alert('Chưa có khách nào. Hãy thả ảnh giấy tờ vào.'); return; }
   if (rows.length > MAX_ROWS) { alert(`Tối đa ${MAX_ROWS} khách/tàu (đang có ${rows.length}).`); return; }
-  // CHẶN CỨNG: còn ô ĐỎ (thiếu/chưa chắc) → không cho xuất, ép nhân viên điền đủ vùng đỏ.
-  const red = rows.filter(hasRed);
-  if (red.length) {
-    alert(`Còn ${red.length} dòng có ô ĐỎ (thiếu hoặc chưa chắc thông tin). Hãy điền đủ các ô đỏ rồi mới xuất — KHÔNG xuất khi còn thiếu/sai.`);
-    updateExportGate();
-    return;
-  }
+  // Phiếu đăng ký (không cần đúng 100% — cảng kiểm lại): CHO PHÉP xuất dù còn dòng đỏ, chỉ cảnh báo.
+  const red = rows.filter(hasRed).length;
+  if (red && !confirm(`Còn ${red}/${rows.length} dòng có ô đỏ (thiếu/chưa chắc). Các ô đỏ sẽ để TRỐNG — nhân viên chỉnh tay trên file Excel. Vẫn xuất đủ ${rows.length} khách?`)) return;
   statusEl.textContent = 'Đang tạo file Excel…';
   const buf = await fetch('assets/template.xlsx').then(r => r.arrayBuffer());
   const zip = await JSZip.loadAsync(buf);
@@ -680,7 +677,7 @@ async function exportXlsx() {
   const fname = `lenh-xuat-ben-${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}.xlsx`;
   const a = document.createElement('a');
   a.href = URL.createObjectURL(out); a.download = fname; a.click();
-  statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách, đã điền hết vùng đỏ. Kiểm tra rồi gửi Zalo.`;
+  statusEl.textContent = `Đã xuất ${fname} — ĐỦ ${rows.length} khách${red ? ` (${red} dòng có ô trống, chỉnh tay trên file)` : ''}. Kiểm tra rồi gửi Zalo.`;
 }
 
 // ---------- xem ảnh phóng to: ZOOM NHIỀU TẦNG + kéo di chuyển ----------
