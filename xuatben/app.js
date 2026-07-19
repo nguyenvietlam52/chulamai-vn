@@ -824,9 +824,10 @@ async function persistPassengers() {
     for (const p of passengers) {
       const o = { name: p.name, dob: p.dob, nationality: p.nationality, id: p.id,
         src: p.src, passport: !!p.passport, idSure: p.idSure, dobSure: p.dobSure };
-      if (hasRed(p)) {
+      // Giữ ảnh khi dòng CÒN đỏ HOẶC đã từng đỏ (ảnh dính) → reload giữa chừng không mất ảnh soi.
+      if (hasRed(p) || p._wasRed) {
         if (!p.keep && (p.full || p.thumb)) p.keep = await shrinkDataUrl(p.full || p.thumb);
-        if (p.keep) o.keep = p.keep;
+        if (p.keep) { o.keep = p.keep; o._wasRed = true; }
       }
       out.push(o);
     }
@@ -848,7 +849,7 @@ function restorePassengers() {
     passengers = arr.map(o => ({
       name: o.name || '', dob: o.dob || '', nationality: o.nationality || '', id: o.id || '',
       src: o.src || 'man', passport: !!o.passport, idSure: o.idSure, dobSure: o.dobSure,
-      thumb: o.keep || '', full: o.keep || '', keep: o.keep || ''
+      thumb: o.keep || '', full: o.keep || '', keep: o.keep || '', _wasRed: !!o._wasRed
     }));
     render();
     if (window.reshootGate) try { reshootGate(passengers.filter(needsReshoot)); } catch {}
