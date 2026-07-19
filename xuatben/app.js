@@ -797,15 +797,9 @@ async function exportXlsx() {
   statusEl.textContent = 'Đang tạo file Excel…';
   const buf = await fetch('assets/template.xlsx').then(r => r.arrayBuffer());
   const zip = await JSZip.loadAsync(buf);
-  // ---- Thông tin chuyến (multi-đoàn): ghi tên tàu/đoàn + thời gian vào phiếu ----
+  // Tên đoàn + ngày CHỈ dùng đặt tên file, KHÔNG ghi vào phiếu.
+  // Phiếu để nguyên placeholder (cảng điền tay); app chỉ điền 4 cột khách bên dưới.
   const trip = readTrip();
-  try {
-    let ss = await zip.file('xl/sharedStrings.xml').async('string');
-    if (trip.tenTau) ss = setSharedText(ss, 4, 'Tên tàu thuyền: ' + trip.tenTau);
-    ss = setSharedText(ss, 2, `Vĩnh Hải, ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
-    ss = setSharedText(ss, 11, `Thời gian rời bến: hồi ..... giờ ..... ngày ${trip.dd} tháng ${trip.mm} năm ${trip.yyyy}`);
-    zip.file('xl/sharedStrings.xml', ss);
-  } catch (e) { /* template không có sharedStrings → bỏ qua, vẫn xuất được */ }
   let s = await zip.file(SHEET).async('string');
   rows.forEach((p, i) => {
     const rn = FIRST_ROW + i;

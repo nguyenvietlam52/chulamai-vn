@@ -1,4 +1,4 @@
-const CACHE = 'xuatben-v8';
+const CACHE = 'xuatben-v9';
 const ASSETS = [
   './', './index.html', './app.js',
   './vendor/jszip.min.js', './vendor/jsQR.js',
