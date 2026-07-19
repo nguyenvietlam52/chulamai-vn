@@ -745,8 +745,17 @@ rowsEl.addEventListener('input', e => {
   const i = e.target.dataset.i, k = e.target.dataset.k;
   if (i == null) return;
   const p = passengers[i];
+  if (k === 'dob') {
+    // tự chèn "/" khi gõ: dd/mm/yyyy (chỉ khi đang thêm ký tự, không cản khi xoá)
+    const back = e.inputType && e.inputType.startsWith('delete');
+    const dg = e.target.value.replace(/\D/g, '').slice(0, 8);
+    let out = dg;
+    if (dg.length >= 5) out = dg.slice(0, 2) + '/' + dg.slice(2, 4) + '/' + dg.slice(4);
+    else if (dg.length >= 3) out = dg.slice(0, 2) + '/' + dg.slice(2);
+    if (!back || out.length <= e.target.value.length) { e.target.value = out; }
+    p.dobSure = true;   // nhân viên sửa tay → coi như chắc
+  }
   p[k] = e.target.value;
-  if (k === 'dob') p.dobSure = true;   // nhân viên sửa tay → coi như chắc
   if (k === 'id') { p.src = p.src === 'qr' ? p.src : 'man'; p.idSure = true; } // sửa tay → coi như chắc
   if (k === 'name') p.src = p.src === 'qr' ? p.src : 'man';
   // cập nhật màu ô NGAY mà KHÔNG rebuild bảng (giữ focus khi gõ)
