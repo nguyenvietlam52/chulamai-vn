@@ -557,7 +557,13 @@ function reshootGate(bad) {
 
 // ---------- kiểm tra từng ô ----------
 const okId = v => /^\d{12}$/.test(v || '');
-const okDob = v => /^\d{2}\/\d{2}\/\d{4}$/.test(v || '');
+const okDob = v => {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(v || '');
+  if (!m) return false;
+  const d = +m[1], mo = +m[2], y = +m[3];
+  // hợp lý: ngày 1–31, tháng 1–12, năm 1900–hiện tại (KHÔNG chặn năm gần đây — trẻ em có thật)
+  return d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1900 && y <= new Date().getFullYear();
+};
 const okName = v => (v || '').trim().length >= 4;
 // khách nước ngoài (passport): id là số hộ chiếu, không ép 12 số
 const isForeign = p => p && p.nationality && !/việt\s*nam/i.test(p.nationality);
