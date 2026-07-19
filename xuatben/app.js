@@ -46,22 +46,35 @@ function setOcrEndpoint() {
   if (t !== null) localStorage.setItem('ocrToken', t.trim());
   alert('Đã lưu máy chủ OCR: ' + (v.trim() || '(trống)') + (t && t.trim() ? '\nĐã lưu mã bảo vệ.' : ''));
 }
-// Gọi server, trả về passenger {id,dob,name,nationality,src:'ocr',...} hoặc null.
-async function serverOcr(file) {
+// POST 1 ảnh tới server, trả JSON hoặc ném lỗi (để lớp trên retry).
+async function _postOcr(file) {
   const ep = ocrEndpoint();
-  if (!ep || !file) return null;
+  if (!ep) throw new Error('no-endpoint');
+  const fd = new FormData();
+  fd.append('file', file, file.name || 'img.jpg');
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 40000);
+  const headers = {};
+  const tok = ocrToken();
+  if (tok) headers['X-OCR-Token'] = tok;
   try {
-    const fd = new FormData();
-    fd.append('file', file, file.name || 'img.jpg');
-    const ctrl = new AbortController();
-    const to = setTimeout(() => ctrl.abort(), 40000);
-    const headers = {};
-    const tok = ocrToken();
-    if (tok) headers['X-OCR-Token'] = tok;
     const res = await fetch(ep.replace(/\/$/, '') + '/ocr', { method: 'POST', body: fd, headers, signal: ctrl.signal });
     clearTimeout(to);
-    if (!res.ok) return null;
-    const d = await res.json();
+    if (!res.ok) throw new Error('http-' + res.status);
+    return await res.json();
+  } finally { clearTimeout(to); }
+}
+// Gọi server, trả về passenger {id,dob,name,nationality,src:'ocr',...} hoặc null.
+// Nếu lỗi mạng/URL đổi → nạp lại ocr-config.json rồi thử lại 1 lần (vá khe hở reboot đổi URL).
+async function serverOcr(file) {
+  if (!ocrEndpoint() || !file) return null;
+  let d = null;
+  try { d = await _postOcr(file); }
+  catch {
+    try { await initOcrConfig(); d = await _postOcr(file); }  // refresh endpoint/token rồi retry
+    catch { return null; }
+  }
+  try {
     if (!d || d.error) return null;
     if (d.skip) return { skip: true };  // mặt sau CCCD → bỏ qua, không thêm dòng
     const id = (d.id || '').replace(/\D/g, '');
