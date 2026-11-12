@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex,nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CRM cá nhân cho chị Lệ — Bản thiết kế để chốt</title>
+<title>CRM cá nhân cho chị Lê — Bản thiết kế để chốt</title>
 <style>
 :root{--bg:#faf6f1;--card:#fff;--ink:#2b211b;--muted:#7a6c62;--line:#e6dbd0;--brand:#7a4a2b;--soft:#f1e4d8;--good:#2f7d4f;--goodbg:#e3f2e8;--warn:#b26a00;--warnbg:#fdf0d9;--bad:#b3402e;--badbg:#fbe6e2;--blue:#2c5f8a;--bluebg:#e3eef7}
 *{box-sizing:border-box}
@@ -113,7 +113,7 @@ button.ghost{background:#fff;color:var(--brand);border:2px solid var(--brand);fo
 <div class="wrap">
 
 <header>
-  <small>Bản thiết kế · chờ chị Lệ chốt</small>
+  <small>Bản thiết kế · chờ chị Lê chốt</small>
   <h1>Sổ khách hàng tự nhắc việc</h1>
   <p>☀️ Mỗi sáng biết gọi ai, gọi để làm gì</p>
 </header>
@@ -202,7 +202,7 @@ button.ghost{background:#fff;color:var(--brand);border:2px solid var(--brand);fo
   <div class="tile"><span class="ico">🧾</span>Đơn Getfly<small>định kỳ</small></div>
 </div>
 <div class="arrow">▼</div>
-<div class="hub">Sổ khách của chị Lệ<small>1 số điện thoại = 1 khách</small></div>
+<div class="hub">Sổ khách của chị Lê<small>1 số điện thoại = 1 khách</small></div>
 <div class="arrow">▼</div>
 <div class="grp">Đi ra</div>
 <div class="tiles">
@@ -275,7 +275,7 @@ $("#send").onclick=function(){
     $(".qq.miss").scrollIntoView({behavior:"smooth",block:"center"});return;}
   var test=/[?&]test=1/.test(location.search);
   var v={q1:ans.q1,q1note:ans.q1=="Cần sửa"?$("#q1note").value.trim():"",q2:ans.q2,q3:ans.q3,q4:ans.q4,q5:ans.q5,q6:ans.q6,
-    data:all(".tap.on").map(function(x){return x.dataset.d}).join("; ")||"(chưa chọn)",note:$("#note").value.trim(),name:test?"TEST - Tôm kiểm tra":"Chị Lệ (trang thiết kế)"};
+    data:all(".tap.on").map(function(x){return x.dataset.d}).join("; ")||"(chưa chọn)",note:$("#note").value.trim(),name:test?"TEST - Tôm kiểm tra":"Chị Lê (trang thiết kế)"};
   var body=new URLSearchParams();Object.keys(E).forEach(function(k){body.append(E[k],v[k]||"")});
   var sum=Object.keys(LABEL).map(function(k){return "• "+LABEL[k]+": "+v[k]+(k=="q1"&&v.q1note?" ("+v.q1note+")":"")}).join("\n")+"\n• Dữ liệu gửi được: "+v.data+(v.note?"\n• Góp ý: "+v.note:"");
   var btn=$("#send");btn.disabled=true;btn.textContent="Đang gửi…";
