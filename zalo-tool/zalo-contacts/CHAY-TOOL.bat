@@ -22,6 +22,13 @@ if errorlevel 1 (
   start "" cmd /c "for /l %%i in (1,1,20) do (if exist qr.png (start qr.png & exit) else timeout /t 2 >nul)"
   call openzca --profile default auth login
 )
+call openzca --profile default auth status >nul 2>nul
+if errorlevel 1 (
+  echo Chua dang nhap Zalo duoc. Chay lai file nay va quet QR.
+  pause
+  exit /b
+)
+for /f "tokens=5" %%p in ('netstat -ano ^| findstr :23388 ^| findstr LISTENING') do taskkill /f /pid %%p >nul 2>nul
 set ZALO_PROFILE=default
 start "" http://127.0.0.1:23388
 node server.mjs
