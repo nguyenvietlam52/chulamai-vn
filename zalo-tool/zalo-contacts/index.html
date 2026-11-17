@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Danh bạ Zalo — Chú Lãm</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #fff; --text: #1a2733; --muted: #6b7a88;
+    --blue: #0068ff; --red: #e5484d; --green: #30a46c; --border: #e1e6eb;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: var(--text); }
+  header {
+    position: sticky; top: 0; z-index: 10; background: var(--card);
+    border-bottom: 1px solid var(--border); padding: 12px 16px;
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  header h1 { font-size: 17px; margin-right: auto; white-space: nowrap; }
+  header h1 small { color: var(--muted); font-weight: 400; font-size: 12px; display: block; }
+  input[type=search] {
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; width: 200px; max-width: 45vw;
+  }
+  select, button {
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; background: var(--card); cursor: pointer;
+  }
+  button.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+  button.danger { background: var(--red); color: #fff; border-color: var(--red); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  .bar {
+    padding: 8px 16px; font-size: 13px; color: var(--muted);
+    display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
+  }
+  .bar b { color: var(--text); }
+  main { padding: 0 12px 90px; max-width: 860px; margin: 0 auto; }
+  .row {
+    display: flex; align-items: center; gap: 12px; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+    margin-bottom: 6px;
+  }
+  .row.sel { border-color: var(--blue); background: #eef4ff; }
+  .row input[type=checkbox] { width: 19px; height: 19px; flex: none; }
+  .row img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex: none; background: #dde3e9; }
+  .row .info { min-width: 0; flex: 1; }
+  .row .name { font-weight: 600; font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row .sub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .row .sub .warn { color: #c47f00; }
+  .footer {
+    position: fixed; bottom: 0; left: 0; right: 0; background: var(--card);
+    border-top: 1px solid var(--border); padding: 12px 16px;
+    display: flex; gap: 10px; align-items: center; justify-content: center;
+  }
+  .footer .cnt { font-size: 14px; }
+  /* modal */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 50;
+    display: flex; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal {
+    background: var(--card); border-radius: 14px; padding: 20px;
+    max-width: 480px; width: 100%; max-height: 85vh; display: flex; flex-direction: column;
+  }
+  .modal h2 { font-size: 17px; margin-bottom: 8px; }
+  .modal .list { overflow: auto; margin: 10px 0; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; line-height: 1.9; }
+  .modal .note { font-size: 13px; color: var(--red); margin-bottom: 10px; }
+  .modal input[type=text] {
+    padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-size: 16px; width: 100%; margin-bottom: 12px; text-align: center; letter-spacing: 2px;
+  }
+  .modal .btns { display: flex; gap: 10px; justify-content: flex-end; }
+  .progress { font-size: 14px; line-height: 1.8; }
+  .progress .pbar { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; margin: 10px 0; }
+  .progress .pbar > div { height: 100%; background: var(--green); transition: width .4s; }
+  .loading { text-align: center; padding: 50px 0; color: var(--muted); }
+  .err { color: var(--red); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Danh bạ Zalo <small id="acct">đang tải…</small></h1>
+  <input type="search" id="q" placeholder="Tìm tên…">
+  <select id="sort">
+    <option value="idle">Lâu không hoạt động nhất</option>
+    <option value="name">Tên A→Z</option>
+    <option value="recent">Hoạt động gần đây</option>
+  </select>
+  <button id="reload" title="Tải lại danh sách">↻</button>
+</header>
+<div class="bar">
+  <span>Tổng: <b id="total">–</b></span>
+  <span>Đang chọn: <b id="selCount">0</b></span>
+  <button id="selIdle">Chọn nhanh: không hoạt động &gt; 1 năm</button>
+  <button id="selAll">Chọn TẤT CẢ</button>
+  <button id="selNone">Bỏ chọn hết</button>
+</div>
+<main id="list"><div class="loading">Đang tải danh sách bạn bè…</div></main>
+<div class="footer">
+  <span class="cnt"><b id="selCount2">0</b> người được chọn</span>
+  <button class="danger" id="btnDelete" disabled>Xóa khỏi danh bạ…</button>
+</div>
+
+<div class="overlay" id="modal" style="display:none">
+  <div class="modal" id="modalBody"></div>
+</div>
+
+<script>
+let FRIENDS = [];
+const selected = new Set();
+const $ = (id) => document.getElementById(id);
+
+function fmtAgo(ms) {
+  if (!ms) return 'không rõ';
+  const d = Date.now() - ms;
+  const day = Math.floor(d / 86400000);
+  if (day < 1) return 'hôm nay';
+  if (day < 30) return day + ' ngày trước';
+  if (day < 365) return Math.floor(day / 30) + ' tháng trước';
+  return (day / 365).toFixed(1).replace('.0','') + ' năm trước';
+}
+function idleDays(f) {
+  return f.lastActionTime ? (Date.now() - f.lastActionTime) / 86400000 : 99999;
+}
+
+function render() {
+  const q = $('q').value.trim().toLowerCase();
+  const sort = $('sort').value;
+  let arr = FRIENDS.slice();
+  if (q) arr = arr.filter(f => (f.displayName || '').toLowerCase().includes(q) || (f.zaloName || '').toLowerCase().includes(q));
+  if (sort === 'idle') arr.sort((a, b) => idleDays(b) - idleDays(a));
+  else if (sort === 'recent') arr.sort((a, b) => idleDays(a) - idleDays(b));
+  else arr.sort((a, b) => (a.displayName || '').localeCompare(b.displayName || '', 'vi'));
+
+  const html = arr.map(f => {
+    const sel = selected.has(f.userId);
+    const idle = idleDays(f);
+    const warn = idle > 365 ? ' <span class="warn">• lâu không hoạt động</span>' : '';
+    return `<label class="row${sel ? ' sel' : ''}" data-id="${f.userId}">
+      <input type="checkbox" ${sel ? 'checked' : ''}>
+      <img src="${f.avatar || ''}" loading="lazy" onerror="this.style.visibility='hidden'">
+      <div class="info">
+        <div class="name">${esc(f.displayName || f.zaloName || f.userId)}</div>
+        <div class="sub">Hoạt động: ${fmtAgo(f.lastActionTime)}${warn}</div>
+      </div>
+    </label>`;
+  }).join('');
+  $('list').innerHTML = html || '<div class="loading">Không có ai khớp tìm kiếm</div>';
+  $('total').textContent = FRIENDS.length;
+  updateSel();
+}
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function updateSel() {
+  $('selCount').textContent = selected.size;
+  $('selCount2').textContent = selected.size;
+  $('btnDelete').disabled = selected.size === 0;
+}
+
+$('list').addEventListener('change', (e) => {
+  const row = e.target.closest('.row');
+  if (!row) return;
+  const id = row.dataset.id;
+  if (e.target.checked) { selected.add(id); row.classList.add('sel'); }
+  else { selected.delete(id); row.classList.remove('sel'); }
+  updateSel();
+});
+
+$('q').addEventListener('input', render);
+$('sort').addEventListener('change', render);
+$('reload').addEventListener('click', () => load(true));
+$('selNone').addEventListener('click', () => { selected.clear(); render(); });
+$('selIdle').addEventListener('click', () => {
+  FRIENDS.forEach(f => { if (idleDays(f) > 365) selected.add(f.userId); });
+  render();
+});
+$('selAll').addEventListener('click', () => {
+  if (!confirm('Chọn TẤT CẢ ' + FRIENDS.length + ' người trong danh bạ?')) return;
+  FRIENDS.forEach(f => selected.add(f.userId));
+  render();
+});
+
+$('btnDelete').addEventListener('click', () => {
+  const items = FRIENDS.filter(f => selected.has(f.userId));
+  const names = items.map(f => esc(f.displayName || f.zaloName || f.userId));
+  const big = items.length >= 100;
+  const word = big ? 'XOA ' + items.length : 'XOA';
+  const eta = items.length > 1 ? Math.ceil(items.length * 2.5 / 60) : 0;
+  $('modalBody').innerHTML = `
+    <h2>Xóa ${items.length} người khỏi danh bạ?</h2>
+    <div class="note">⚠️ KHÔNG hoàn tác được. Muốn kết bạn lại phải gửi lời mời mới.${eta ? '<br>Xóa cách nhau 2.5s → mất khoảng ' + eta + ' phút, cứ để chạy.' : ''}</div>
+    <div class="list">${names.slice(0, 300).join('<br>')}${names.length > 300 ? '<br>… và ' + (names.length - 300) + ' người nữa' : ''}</div>
+    <div>Gõ <b>${word}</b> để xác nhận:</div>
+    <input type="text" id="confirmInput" autocomplete="off" placeholder="${word}">
+    <div class="btns">
+      <button onclick="closeModal()">Hủy</button>
+      <button class="danger" id="confirmBtn" disabled>Xóa ${items.length} người</button>
+    </div>`;
+  $('modal').style.display = 'flex';
+  const inp = $('confirmInput'), btn = $('confirmBtn');
+  inp.focus();
+  inp.addEventListener('input', () => { btn.disabled = inp.value.trim().toUpperCase() !== word; });
+  btn.addEventListener('click', () => startDelete(items));
+});
+
+function closeModal() { $('modal').style.display = 'none'; }
+
+async function startDelete(items) {
+  const payload = items.map(f => ({ userId: f.userId, displayName: f.displayName || f.zaloName || '' }));
+  const r = await fetch('/api/remove', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items: payload, confirm: 'XOA' }),
+  });
+  const j = await r.json();
+  if (!r.ok) { alert(j.error || 'Lỗi'); return; }
+  pollJob();
+}
+
+async function pollJob() {
+  const r = await fetch('/api/job');
+  const j = await r.json();
+  const pct = j.total ? Math.round(j.done / j.total * 100) : 0;
+  $('modalBody').innerHTML = `
+    <h2>${j.running ? 'Đang xóa…' : 'Xong!'}</h2>
+    <div class="progress">
+      <div class="pbar"><div style="width:${pct}%"></div></div>
+      ${j.done}/${j.total} — OK: ${j.ok.length}, lỗi: ${j.failed.length}
+      ${j.current ? '<br>Đang xóa: <b>' + esc(j.current.displayName) + '</b>' : ''}
+      ${j.failed.length ? '<br><span class="err">Lỗi: ' + j.failed.map(f => esc(f.displayName)).join(', ') + '</span>' : ''}
+    </div>
+    ${j.running
+      ? '<div class="btns" style="margin-top:14px"><button onclick="stopDelete()">⏸ Dừng lại</button></div>'
+      : '<div class="btns" style="margin-top:14px"><button class="primary" onclick="doneDelete()">Đóng</button></div>'}`;
+  if (j.running) setTimeout(pollJob, 1200);
+}
+
+async function stopDelete() {
+  await fetch('/api/stop', { method: 'POST' });
+}
+
+function doneDelete() {
+  closeModal();
+  selected.clear();
+  load(true);
+}
+
+async function load(force) {
+  $('list').innerHTML = '<div class="loading">Đang tải danh sách bạn bè…</div>';
+  try {
+    const r = await fetch('/api/friends' + (force ? '?force=1' : ''));
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || 'lỗi');
+    FRIENDS = j.friends;
+    render();
+  } catch (e) {
+    $('list').innerHTML = '<div class="loading err">Lỗi tải danh sách: ' + esc(e.message) + '</div>';
+  }
+}
+
+async function loadStatus() {
+  try {
+    const r = await fetch('/api/status');
+    const j = await r.json();
+    const m = /displayName:\s*'([^']*)'/.exec(j.auth || '');
+    $('acct').textContent = m ? m[1] + ' (profile ' + j.profile + ')' : 'profile ' + j.profile;
+  } catch {}
+}
+
+loadStatus();
+load();
+</script>
+</body>
+</html>
