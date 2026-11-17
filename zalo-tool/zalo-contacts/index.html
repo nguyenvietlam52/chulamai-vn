@@ -91,7 +91,15 @@
 <div class="bar">
   <span>Tổng: <b id="total">–</b></span>
   <span>Đang chọn: <b id="selCount">0</b></span>
-  <button id="selIdle">Chọn nhanh: không hoạt động &gt; 1 năm</button>
+  <select id="idleF">
+    <option value="0">Lọc: mọi người</option>
+    <option value="30">Không liên lạc &gt; 1 tháng</option>
+    <option value="90">Không liên lạc &gt; 3 tháng</option>
+    <option value="180">Không liên lạc &gt; 6 tháng</option>
+    <option value="365">Không liên lạc &gt; 1 năm</option>
+    <option value="730">Không liên lạc &gt; 2 năm</option>
+  </select>
+  <button id="selIdle">Chọn tất cả người đang hiện</button>
   <button id="selAll">Chọn TẤT CẢ</button>
   <button id="selNone">Bỏ chọn hết</button>
 </div>
@@ -127,6 +135,8 @@ function render() {
   const q = $('q').value.trim().toLowerCase();
   const sort = $('sort').value;
   let arr = FRIENDS.slice();
+  const minIdle = +$('idleF').value;
+  if (minIdle) arr = arr.filter(f => idleDays(f) > minIdle);
   if (q) arr = arr.filter(f => (f.displayName || '').toLowerCase().includes(q) || (f.zaloName || '').toLowerCase().includes(q));
   if (sort === 'idle') arr.sort((a, b) => idleDays(b) - idleDays(a));
   else if (sort === 'recent') arr.sort((a, b) => idleDays(a) - idleDays(b));
@@ -171,8 +181,11 @@ $('q').addEventListener('input', render);
 $('sort').addEventListener('change', render);
 $('reload').addEventListener('click', () => load(true));
 $('selNone').addEventListener('click', () => { selected.clear(); render(); });
+$('idleF').addEventListener('change', () => { const n = +$('idleF').value; $('selIdle').textContent = n ? 'Chọn ' + FRIENDS.filter(f => idleDays(f) > n).length + ' người đang hiện' : 'Chọn tất cả người đang hiện'; render(); });
 $('selIdle').addEventListener('click', () => {
-  FRIENDS.forEach(f => { if (idleDays(f) > 365) selected.add(f.userId); });
+  const n = +$('idleF').value;
+  if (!n) { alert('Hãy chọn mốc không liên lạc trước.'); return; }
+  FRIENDS.forEach(f => { if (idleDays(f) > n) selected.add(f.userId); });
   render();
 });
 $('selAll').addEventListener('click', () => {
