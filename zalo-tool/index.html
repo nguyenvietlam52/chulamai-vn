@@ -1,0 +1,12 @@
+<!doctype html><html lang="vi"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dọn danh bạ Zalo</title>
+<style>body{font-family:system-ui,sans-serif;max-width:520px;margin:8vh auto;padding:0 20px;text-align:center;color:#222}
+h1{font-size:28px}p{color:#555}button,a.b{display:block;width:100%;box-sizing:border-box;margin:14px 0;padding:18px;font-size:18px;font-weight:600;border:0;border-radius:14px;background:#0068ff;color:#fff;cursor:pointer;text-decoration:none}
+a.b{background:#222}small{display:block;color:#777;line-height:1.5}ol{text-align:left;color:#444;line-height:1.7}</style>
+<h1>Dọn danh bạ Zalo</h1><p>Chọn máy của bạn:</p>
+<button id="m">🍎 MAC — bấm để chép lệnh cài</button>
+<ol id="s" hidden><li>Mở <b>Terminal</b> (Cmd+Space, gõ Terminal)</li><li>Bấm <b>Cmd+V</b> rồi <b>Enter</b></li><li>Quét mã QR Zalo — xong</li></ol>
+<a class="b" href="zalo-contacts-tool.zip">🪟 WINDOWS — tải về, giải nén, bấm đúp CHAY-TOOL.bat</a>
+<small>Dữ liệu chỉ nằm trên máy bạn, không gửi đi đâu.<br>Windows nếu hiện cảnh báo xanh: bấm "More info" → "Run anyway".</small>
+<script>const c='cd ~/Desktop && curl -sLO https://chulamai.vn/zalo-tool/zalo-contacts-tool.zip && unzip -qo zalo-contacts-tool.zip && bash zalo-contacts/CHAY-TOOL-MAC.command';
+m.onclick=async()=>{try{await navigator.clipboard.writeText(c)}catch(e){prompt('Chép dòng này:',c)}m.textContent='✅ Đã chép! Làm theo 3 bước dưới';s.hidden=false}</script></html>
