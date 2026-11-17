@@ -18,6 +18,7 @@ if errorlevel 1 (
 )
 if not exist "%USERPROFILE%\.openzca\profiles\default" (
   echo Dang nhap Zalo: quet ma QR bang dien thoai.
+  start "" cmd /c "for /l %%i in (1,1,20) do (if exist qr.png (start qr.png & exit) else timeout /t 2 >nul)"
   call openzca --profile default auth login
 )
 set ZALO_PROFILE=default
