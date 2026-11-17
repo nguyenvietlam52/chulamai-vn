@@ -20,6 +20,7 @@ const pexecFile = promisify(execFile);
 function runZca(args, timeoutMs = 60000) {
   return pexecFile('openzca', ['--profile', PROFILE, ...args], {
     timeout: timeoutMs,
+    shell: process.platform === 'win32',
     maxBuffer: 64 * 1024 * 1024,
   });
 }

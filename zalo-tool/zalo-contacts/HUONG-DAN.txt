@@ -1,6 +1,6 @@
-TOOL DỌN DANH BẠ ZALO (chạy trên máy bạn, dữ liệu không gửi đi đâu)
-Cần: Node.js 18+ và openzca (npm i -g openzca).
-1) Đăng nhập Zalo:  openzca --profile default auth login   (quét QR)
-2) Chạy:  bash start.sh default   (Windows: start.bat default)
-3) Mở http://127.0.0.1:23388 -> lọc/chọn bạn bè -> xóa (có delay 2.5s/người tránh bị khóa).
-Mỗi lần xóa được ghi vào audit-removed.jsonl. Xóa là không hoàn tác - kiểm tra kỹ trước khi bấm.
+TOOL DỌN DANH BẠ ZALO - WINDOWS
+1) Giải nén zip.
+2) Bấm đúp CHAY-TOOL.bat (lần đầu tự cài Node.js, nếu vừa cài xong thì đóng cửa sổ rồi bấm lại).
+3) Quét mã QR đăng nhập Zalo khi được hỏi.
+4) Trình duyệt tự mở trang tool: lọc, chọn bạn bè, xóa. Giữ cửa sổ đen mở khi dùng.
+Xóa có delay 2.5s/người để tránh bị khóa. Xóa không hoàn tác. Dữ liệu chỉ nằm trên máy bạn.
