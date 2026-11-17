@@ -1,6 +1,17 @@
-TOOL DỌN DANH BẠ ZALO - WINDOWS
+TOOL DỌN DANH BẠ ZALO - có 2 bản: WINDOWS và MAC
+Dữ liệu chỉ nằm trên máy bạn, không gửi đi đâu.
+
+--- WINDOWS ---
 1) Giải nén zip.
-2) Bấm đúp CHAY-TOOL.bat (lần đầu tự cài Node.js, nếu vừa cài xong thì đóng cửa sổ rồi bấm lại).
+2) Bấm đúp CHAY-TOOL.bat (lần đầu tự cài Node.js; nếu vừa cài xong thì đóng cửa sổ rồi bấm lại).
 3) Quét mã QR đăng nhập Zalo khi được hỏi.
-4) Trình duyệt tự mở trang tool: lọc, chọn bạn bè, xóa. Giữ cửa sổ đen mở khi dùng.
-Xóa có delay 2.5s/người để tránh bị khóa. Xóa không hoàn tác. Dữ liệu chỉ nằm trên máy bạn.
+4) Trình duyệt tự mở trang tool. Giữ cửa sổ đen mở khi dùng.
+
+--- MAC ---
+1) Giải nén zip.
+2) Lần đầu: chuột phải CHAY-TOOL-MAC.command > Open (hoặc chạy trong Terminal: bash CHAY-TOOL-MAC.command).
+   Cần Node.js: tự cài nếu máy có Homebrew, không thì tải bản LTS tại nodejs.org.
+3) Quét mã QR đăng nhập Zalo khi được hỏi.
+4) Trình duyệt tự mở trang tool. Giữ cửa sổ Terminal mở khi dùng.
+
+Lưu ý: xóa có delay 2.5s/người để tránh bị khóa nick. Xóa không hoàn tác.
