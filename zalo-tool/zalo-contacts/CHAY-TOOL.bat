@@ -16,7 +16,8 @@ if errorlevel 1 (
   echo Dang cai openzca...
   call npm i -g openzca
 )
-if not exist "%USERPROFILE%\.openzca\profiles\default" (
+call openzca --profile default auth status >nul 2>nul
+if errorlevel 1 (
   echo Dang nhap Zalo: quet ma QR bang dien thoai.
   start "" cmd /c "for /l %%i in (1,1,20) do (if exist qr.png (start qr.png & exit) else timeout /t 2 >nul)"
   call openzca --profile default auth login
