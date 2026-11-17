@@ -128,7 +128,8 @@ function fmtAgo(ms) {
   return (day / 365).toFixed(1).replace('.0','') + ' năm trước';
 }
 function idleDays(f) {
-  return f.lastActionTime ? (Date.now() - f.lastActionTime) / 86400000 : 99999;
+  const t = f.chatSrc ? f.lastChatTime : f.lastActionTime;
+  return t ? (Date.now() - t) / 86400000 : 99999;
 }
 
 function render() {
@@ -151,7 +152,7 @@ function render() {
       <img src="${f.avatar || ''}" loading="lazy" onerror="this.style.visibility='hidden'">
       <div class="info">
         <div class="name">${esc(f.displayName || f.zaloName || f.userId)}</div>
-        <div class="sub">Hoạt động: ${fmtAgo(f.lastActionTime)}${warn}</div>
+        <div class="sub">${f.chatSrc ? 'Nhắn tin cuối' : 'Hoạt động Zalo'}: ${fmtAgo(f.chatSrc ? f.lastChatTime : f.lastActionTime)}${warn}</div>
       </div>
     </label>`;
   }).join('');

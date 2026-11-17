@@ -9,6 +9,7 @@ import { promisify } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import os from 'node:os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT || 23388);
@@ -25,6 +26,32 @@ function runZca(args, timeoutMs = 60000) {
   });
 }
 
+// ---- Mac: lấy mốc nhắn tin cuối từ Zalo PC (ngày sửa file hội thoại từng người) ----
+function addChatTimes(arr) {
+  if (process.platform !== 'darwin') return;
+  try {
+    const base = path.join(os.homedir(), 'Library/Application Support/ZaloData/Database/_production');
+    let best = null, bestHit = 0;
+    for (const d of fs.readdirSync(base)) {
+      if (!/^\d+$/.test(d)) continue;
+      const dir = path.join(base, d, 'Core/Message');
+      if (!fs.existsSync(dir)) continue;
+      const hit = arr.filter(f => fs.existsSync(path.join(dir, f.userId + '.db'))).length;
+      if (hit > bestHit) { best = dir; bestHit = hit; }
+    }
+    if (!best || bestHit < 1) return;
+    for (const f of arr) {
+      let t = 0;
+      for (const suf of ['', '-wal']) {
+        try { t = Math.max(t, fs.statSync(path.join(best, f.userId + '.db' + suf)).mtimeMs); } catch {}
+      }
+      f.lastChatTime = t || null;
+    }
+    arr.chatSrc = true;
+    for (const f of arr) f.chatSrc = true;
+  } catch {}
+}
+
 // ---- friends cache (đỡ gọi CLI liên tục) ----
 let friendsCache = { at: 0, data: null };
 
@@ -35,6 +62,7 @@ async function getFriends(force = false) {
   const { stdout } = await runZca(['friend', 'list', '--json'], 120000);
   const parsed = JSON.parse(stdout);
   const arr = Array.isArray(parsed) ? parsed : parsed.friends || parsed.data || [];
+  addChatTimes(arr);
   friendsCache = { at: Date.now(), data: arr };
   return arr;
 }
